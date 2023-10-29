@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.hikeair" "\0"
-            VALUE "FileDescription", "hike_air" "\0"
+            VALUE "CompanyName", "com.hikeconnect" "\0"
+            VALUE "FileDescription", "hike_connect" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "hike_air" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.hikeair. All rights reserved." "\0"
-            VALUE "OriginalFilename", "hike_air.exe" "\0"
-            VALUE "ProductName", "hike_air" "\0"
+            VALUE "InternalName", "hike_connect" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 com.hikeconnect. All rights reserved." "\0"
+            VALUE "OriginalFilename", "hike_connect.exe" "\0"
+            VALUE "ProductName", "hike_connect" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

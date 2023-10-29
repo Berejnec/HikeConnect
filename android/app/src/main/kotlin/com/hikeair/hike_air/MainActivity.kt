@@ -1,4 +1,4 @@
-package com.hikeair.hike_air
+package com.hikeconnect.hike_connect
 
 import io.flutter.embedding.android.FlutterActivity
 

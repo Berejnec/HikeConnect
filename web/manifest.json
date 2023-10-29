@@ -1,6 +1,6 @@
 {
-    "name": "hike_air",
-    "short_name": "hike_air",
+    "name": "hike_connect",
+    "short_name": "hike_connect",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

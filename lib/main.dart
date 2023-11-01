@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:hike_connect/theme/hike_connect_theme.dart';
+
 import 'hikes_screen.dart';
-import 'social_screen.dart';
 import 'map_screen.dart';
+import 'social_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,10 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        useMaterial3: true,
-      ),
+      theme: HikeConnectTheme.getPrimaryTheme(),
       home: const MyHomePage(),
     );
   }
@@ -33,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int currentIndex = 1;
+  int currentIndex = 0;
 
   final List<Widget> screens = [
     const HikesScreen(),
@@ -59,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return ConvexAppBar(
       style: TabStyle.fixedCircle,
       backgroundColor: const Color(0xFF127C0E),
-      initialActiveIndex: 1,
+      initialActiveIndex: 0,
       color: Colors.white60,
       items: const [
         TabItem(icon: Icons.hiking, title: 'Trasee'),

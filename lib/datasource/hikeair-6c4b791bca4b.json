@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "hikeair",
+  "private_key_id": "6c4b791bca4b8689266768092ca8748c64805166",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCaiDKnk5W7z+Dg\nhUahDG0x6JHBO3eg40bN8TLY2EXPwHGJ1fWgIBqeiA2VY4l7KnTkf3BF6swG9oNz\nDA9Dj68K8XGWdQ5xY9ZDnhUr08W58WdU69sA35hs0Xha6Rr8eJfpwcOl8+Iv3fAf\nPAXOKJmg7K19x04iujbJDl+34aIUfyM1XixbnkSSenJBDStTL+UU5gl8rHO9bTOR\n6F1jYBRPNSl20yVQQyhk8FBKgPzGE6jSrwKZgkpIOLcYc8vZkUvoJ6pLQanT1qHP\nuDV8g5SUvIdqz1YVQGypEQYG1JkQxnm+nIRHbzFQhvkTV5fRqrZuaUb78lGveM7v\nVhoObMHjAgMBAAECggEAAwTzPGv5Snyiz7A6842bGpUJOAXR7g5SxVZXoH4FSyxe\n64sHLBREgOF2pnsV5harxwUoa+1NBDvP0LElITRO/r898WsjF5sURijyD/Oo0tvB\nIZskIc28nC+xktEoKlOu4C3dhUIRIs9K0ElrcZ5AdjD5qNH6mFocFOyXeS/K62yS\nvNtc+Ruex3aPv9eX9I0kkkpMqf+ucfYef34zv0/5rA7rnJ5vmiyYVlWrePUcmjTZ\nHmsWAf3T0k41WZJFXKVX49B8B79QrIDWmL45BNqar1WN9AVha/Df9yGsZisR4WOV\n5rD6pGNvIjD6p1LjR6u7rya7zUmuGlqUbaEaxCjbFQKBgQDLEshTKUyR8Rq4hjMW\namI1KFblVQoQfIBJjRXTXh8bgUwPbU8Uy+Be+9mkI+gDR9SCU/rBeioyHJfImkvJ\nLaG7lR1EDo/sfBIancxY578Uc5ewCKonjTxOaz4BQtX1qiaxZXuOl80Zi3eSBrdJ\nhbQ0liaZzwMFwaIG6T5Rapc+rwKBgQDCzrKr0fAokU/jof41RIxJxv/oBMdibOU5\nqlFXb/e0H9wsOONIeSabpHbGA+Tu1Wwq8J5gsdHiXWc5G5IVFMD5jT41z0SZF+Pl\nV4rydQ4p+bYgiimxBBu6R34lSNlX1q/rFEeT82Q2bsV2YfwMnFQzGUBjAA5Oa9ps\navJrUtddDQKBgBldfTw1+mR4UzgdOyBfpWiyYzg+CQXKJ1QIlWNTbFtJKTD8HFai\nqKH0n1jLS12tiTPGPZoRIlgkDil2bGTymDMQCxnHH98QGErOzwmD2PA7CAVq76YF\nFDVPW+1YZdVLrY2W+Xn0KCA6tXK9+ALs+ndfEe9AVkZPy2dFlw0gXUftAoGAGHmz\nxRapX89yBB2UPMkR/yr7eAExs9IOssINWjj9HCpslTnIhJCEI0X0jkhq+P7jijmV\nDH0K66/kii5GmlNzM2dli4kxCzMPNP9cu72tO+Td1xTEzDLB8ROOa8zNUdXtYFG5\n9IK98oDUWl1RN5xkj876YfXd1kiCtuBw+L79w/kCgYA9b5ey895fxEvb7R4vmfhN\ncZ9/v3gmEve8zeCRCmHd8lMfCwCPnr6rrKbk9RLb6XiMzFu349UfCwSrISA/tMBl\nordL8RiHmAjthFf3YW3Xg8xIKW8PJsbAe5iAJYP5+ZFdm0HB4+lb5GF1rp6nIQs4\nhmTrRrL0J8V+Z7crl9bnBw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "hikero@hikeair.iam.gserviceaccount.com",
+  "client_id": "109078019303757312551",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/hikero%40hikeair.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

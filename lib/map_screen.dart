@@ -11,28 +11,90 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
 
-  final LatLng _center = const LatLng(45.34056550722687, 22.90814850614202);
+  Set<Polyline> polylines = {};
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void loadHikingTrailsData() async {
+    String data = await DefaultAssetBundle.of(context).loadString('assets/trails_data.txt');
+
+    List<String> lines = data.split('\n');
+
+    List<LatLng> coordinates = [];
+
+    for (String line in lines) {
+      if (line.isNotEmpty) {
+        List<String> coords = line.split(', ');
+        double lat = double.parse(coords[0]);
+        double lng = double.parse(coords[1]);
+        LatLng coordinate = LatLng(lat, lng);
+        coordinates.add(coordinate);
+      }
+    }
+
+    setState(() {
+      polylines.add(Polyline(
+        polylineId: PolylineId('123'),
+        color: Colors.blue,
+        points: coordinates,
+        width: 5,
+      ));
+      moveCameraToLocation(polylines.first.points[0]);
+    });
+  }
+
+  late LatLng _center = const LatLng(46.99748, 25.925763);
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    loadHikingTrailsData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Map'),
+        title: const Text('Harta'),
       ),
       body: GoogleMap(
         onMapCreated: _onMapCreated,
         myLocationEnabled: true,
         myLocationButtonEnabled: true,
-        markers: {Marker(markerId: const MarkerId('1'), position: _center, infoWindow: const InfoWindow(title: 'Retezat', snippet: 'Descriere scurta'))},
+        mapType: MapType.terrain,
+        polylines: polylines,
+        onTap: (LatLng tappedLocation) {
+          zoomToTappedLocation(tappedLocation);
+        },
+        markers: {
+          Marker(
+            markerId: const MarkerId('1'),
+            position: _center,
+            infoWindow: const InfoWindow(title: 'Retezat', snippet: 'Descriere scurta'),
+          ),
+        },
         initialCameraPosition: CameraPosition(
           target: _center,
-          zoom: 10.0,
+          zoom: 12.0,
         ),
       ),
     );
+  }
+
+  void moveCameraToLocation(LatLng location) {
+    mapController.animateCamera(CameraUpdate.newLatLng(location));
+  }
+
+  void zoomToPoint(LatLng location, double zoomLevel) {
+    mapController.animateCamera(
+      CameraUpdate.newLatLngZoom(location, zoomLevel),
+    );
+  }
+
+  void zoomToTappedLocation(LatLng tappedLocation) {
+    double zoomLevel = 8.0;
+    zoomToPoint(tappedLocation, zoomLevel);
   }
 }

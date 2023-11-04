@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "376999450516",
+    "project_id": "hikeconnect",
+    "storage_bucket": "hikeconnect.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376999450516:android:405dfde802c09e5c806181",
+        "android_client_info": {
+          "package_name": "com.hikeconnect.hike_connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "376999450516-i8aufg9pca4m12df7jihuspj8eifdovk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hikeconnect.hike_connect",
+            "certificate_hash": "0e43a6bdb90294e7a85f5f348cbe89cd9d336797"
+          }
+        },
+        {
+          "client_id": "376999450516-5e5vaaspne2k6m5q9q0vkb60s4eaeon3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBF4kWRAbe0682qyX0a4jaTEEahnPdyBYg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "376999450516-5e5vaaspne2k6m5q9q0vkb60s4eaeon3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "376999450516-3ra5528m3p16nhvfn6q6a5eegb10ia86.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hikeconnect.hikeConnect"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

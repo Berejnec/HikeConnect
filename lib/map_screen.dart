@@ -37,12 +37,11 @@ class _MapScreenState extends State<MapScreen> {
 
     setState(() {
       polylines.add(Polyline(
-        polylineId: PolylineId('123'),
+        polylineId: const PolylineId('123'),
         color: Colors.blue,
         points: coordinates,
         width: 5,
       ));
-      moveCameraToLocation(polylines.first.points[0]);
     });
   }
 
@@ -94,7 +93,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void zoomToTappedLocation(LatLng tappedLocation) {
-    double zoomLevel = 8.0;
+    double zoomLevel = 13.0;
     zoomToPoint(tappedLocation, zoomLevel);
   }
 }

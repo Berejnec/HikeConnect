@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>376999450516-3ra5528m3p16nhvfn6q6a5eegb10ia86.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.376999450516-3ra5528m3p16nhvfn6q6a5eegb10ia86</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>376999450516-i8aufg9pca4m12df7jihuspj8eifdovk.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDchwi9LRrXj5l5ZF1cXuawYb0DoeM_rtE</string>
+	<key>GCM_SENDER_ID</key>
+	<string>376999450516</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.hikeconnect.hikeConnect</string>
+	<key>PROJECT_ID</key>
+	<string>hikeconnect</string>
+	<key>STORAGE_BUCKET</key>
+	<string>hikeconnect.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:376999450516:ios:a7f9c0f5c66dcc43806181</string>
+</dict>
+</plist>

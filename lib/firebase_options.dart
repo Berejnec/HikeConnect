@@ -66,6 +66,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '376999450516',
     projectId: 'hikeconnect',
     storageBucket: 'hikeconnect.appspot.com',
+    androidClientId: '376999450516-i8aufg9pca4m12df7jihuspj8eifdovk.apps.googleusercontent.com',
     iosClientId: '376999450516-3ra5528m3p16nhvfn6q6a5eegb10ia86.apps.googleusercontent.com',
     iosBundleId: 'com.hikeconnect.hikeConnect',
   );
@@ -76,6 +77,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '376999450516',
     projectId: 'hikeconnect',
     storageBucket: 'hikeconnect.appspot.com',
+    androidClientId: '376999450516-i8aufg9pca4m12df7jihuspj8eifdovk.apps.googleusercontent.com',
     iosClientId: '376999450516-fd6ek1hr3etunb799ehj2gkj8ab7jdj1.apps.googleusercontent.com',
     iosBundleId: 'com.hikeconnect.hikeConnect.RunnerTests',
   );

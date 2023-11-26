@@ -72,7 +72,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Autentificare'),
+        title: const Text('Autentificare Google'),
       ),
       body: ConstrainedBox(
         constraints: const BoxConstraints.expand(),

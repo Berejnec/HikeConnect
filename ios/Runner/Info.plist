@@ -58,5 +58,12 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>sms</string>
+      <string>tel</string>
+      <string>googlechromes</string>
+      <string>comgooglemaps</string>
+    </array>
 </dict>
 </plist>

@@ -1,8 +1,8 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:hike_connect/features/hiker_profile/hiker_profile_screen.dart';
 import 'package:hike_connect/features/hiking_trails/hiking_trails_screen.dart';
 import 'package:hike_connect/map_screen.dart';
-import 'package:hike_connect/social_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> screens = [
     const HikesScreen(),
     const MapScreen(),
-    const SocialScreen(),
+    const HikerProfileScreen(),
   ];
 
   @override

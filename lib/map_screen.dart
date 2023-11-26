@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final LatLng? location;
+
+  const MapScreen({super.key, this.location});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -49,6 +51,9 @@ class _MapScreenState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+    if (widget.location != null) {
+      zoomToTappedLocation(widget.location!);
+    }
     loadHikingTrailsData();
   }
 
@@ -71,8 +76,20 @@ class _MapScreenState extends State<MapScreen> {
           Marker(
             markerId: const MarkerId('1'),
             position: _center,
+            onTap: () {
+              zoomToTappedLocation(_center);
+            },
             infoWindow: const InfoWindow(title: 'Retezat', snippet: 'Descriere scurta'),
           ),
+          if (widget.location != null)
+            Marker(
+              markerId: const MarkerId('1'),
+              position: widget.location!,
+              onTap: () {
+                zoomToTappedLocation(widget.location!);
+              },
+              infoWindow: const InfoWindow(title: 'Cabana Pietrele', snippet: 'Descriere inceput traseu Retezat'),
+            ),
         },
         initialCameraPosition: CameraPosition(
           target: _center,

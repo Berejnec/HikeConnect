@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HikingTrail {
+  String? uuid;
   DateTime dateOfIssue;
   String routeName;
   String administrator;
@@ -13,6 +14,7 @@ class HikingTrail {
   String equipmentLevelRequested;
 
   HikingTrail({
+    required this.uuid,
     required this.dateOfIssue,
     required this.routeName,
     required this.administrator,
@@ -27,6 +29,7 @@ class HikingTrail {
 
   Map<String, dynamic> toMap() {
     return {
+      'uuid': uuid,
       'dateOfIssue': dateOfIssue,
       'routeName': routeName,
       'administrator': administrator,
@@ -42,6 +45,7 @@ class HikingTrail {
 
   factory HikingTrail.fromMap(Map<String, dynamic> map) {
     return HikingTrail(
+      uuid: map['uuid'],
       dateOfIssue: (map['dateOfIssue'] as Timestamp).toDate(),
       routeName: map['routeName'],
       administrator: map['administrator'],

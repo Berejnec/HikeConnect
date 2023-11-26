@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:hike_connect/sign_in_screen.dart';
+import 'package:hike_connect/features/auth/sign_in_screen.dart';
 import 'package:hike_connect/theme/hike_connect_theme.dart';
 
 import 'firebase_options.dart';

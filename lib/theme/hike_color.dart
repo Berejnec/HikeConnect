@@ -4,6 +4,7 @@ class HikeColor {
   const HikeColor._();
 
   static const Color primaryColor = Color(0xFF127C0E);
+  static Color bgLoginColor = Colors.green.shade200;
 
   static const Color secondaryColor = Color(0xFF6F7C80);
   static const Color tertiaryColor = Color(0xFFA1A7AC);

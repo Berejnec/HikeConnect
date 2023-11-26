@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/home_screen.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 
 const List<String> scopes = <String>['email'];
 
@@ -17,6 +19,63 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return Container(
+      color: HikeColor.bgLoginColor,
+      child: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/ic_launcher.png'),
+            Center(
+              child: Text(
+                'HikeConnect',
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: HikeColor.primaryColor),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const Gap(24),
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  await signInWithGoogle();
+                  if (mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/google_icon.png',
+                      height: 24.0,
+                      width: 24.0,
+                    ),
+                    const Gap(8),
+                    const Text('Autentifica-te'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<UserCredential?> signInWithGoogle() async {
@@ -43,41 +102,5 @@ class _SignInScreenState extends State<SignInScreen> {
         {'displayName': displayName, 'email': email, 'uid': userUid},
       );
     }
-  }
-
-  Widget _buildBody() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('HikeConnect - tailored for connecting hikers.'),
-        ElevatedButton(
-          onPressed: () async {
-            await signInWithGoogle();
-            if (mounted) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomeScreen(),
-                ),
-              );
-            }
-          },
-          child: const Text('Autentifica-te'),
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Autentificare Google'),
-      ),
-      body: ConstrainedBox(
-        constraints: const BoxConstraints.expand(),
-        child: _buildBody(),
-      ),
-    );
   }
 }

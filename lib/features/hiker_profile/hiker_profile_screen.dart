@@ -24,7 +24,6 @@ class HikerProfileScreen extends StatefulWidget {
 
 class _HikerProfileScreenState extends State<HikerProfileScreen> {
   User? user;
-  HikerUser? hikerUser;
   List<dynamic> users = [];
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -34,6 +33,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
     try {
       await _auth.signOut();
       await _googleSignIn.signOut();
+      auth.currentUser = null;
       if (!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignInScreen()));
     } catch (e) {
@@ -55,7 +55,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
     if (auth.currentUser == null) {
       FirebaseFirestore.instance.collection('users').where("uid", isEqualTo: currentUser?.uid).get().then(
         (querySnapshot) {
-          print('Firestore call');
           for (var docSnapshot in querySnapshot.docs) {
             HikerUser hikerUser = HikerUser.fromMap({
               'uid': docSnapshot.data()['uid'],
@@ -64,7 +63,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
             });
 
             setState(() {
-              this.hikerUser = hikerUser;
+              print('set state current user');
               auth.currentUser = hikerUser;
             });
 
@@ -74,7 +73,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
         onError: (e) => print('Error completing: $e'),
       );
     }
-    print(auth.currentUser);
   }
 
   Future<void> uploadImage(String imagePath, String userId) async {

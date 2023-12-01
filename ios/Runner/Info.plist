@@ -39,6 +39,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSCameraUsageDescription</key>
+    <string>This app needs camera access to scan QR codes and take photos</string>
+   	<key>NSPhotoLibraryUsageDescription</key>
+   	<string>This app needs photo library access to upload files</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

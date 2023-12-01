@@ -100,6 +100,7 @@ class _SignInScreenState extends State<SignInScreen> {
     if (userUid != null) {
       await usersCollection.doc(userUid).set(
         {'displayName': displayName, 'email': email, 'uid': userUid},
+        SetOptions(merge: true),
       );
     }
   }

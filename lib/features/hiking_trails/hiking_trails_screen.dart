@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
-import 'package:maps_launcher/maps_launcher.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HikesScreen extends StatefulWidget {
@@ -22,11 +22,16 @@ class _HikesScreenState extends State<HikesScreen> {
   }
 
   Future<void> fetchHikingTrails() async {
-    List<HikingTrail> trails = await getAllHikingTrails();
-    if (!mounted) return;
-    setState(() {
-      hikingTrails = trails + trails + trails;
-    });
+    try {
+      List<HikingTrail> trails = await getAllHikingTrails();
+      if (mounted) {
+        setState(() {
+          hikingTrails = trails + trails + trails + trails + trails + trails + trails + trails + trails;
+        });
+      }
+    } catch (e) {
+      print('Error fetching hiking trails: $e');
+    }
   }
 
   @override
@@ -39,59 +44,60 @@ class _HikesScreenState extends State<HikesScreen> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: hikingTrails.isNotEmpty
-              ? ListView.builder(
+              ? ListView.separated(
                   itemCount: hikingTrails.length,
                   itemBuilder: (context, index) {
                     HikingTrail trail = hikingTrails[index];
                     return Card(
+                      elevation: 2.0,
                       child: ListTile(
-                        title: Text(trail.routeName),
+                        title: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.hiking),
+                            const Gap(8),
+                            Flexible(
+                              child: Text(
+                                trail.routeName,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        horizontalTitleGap: 0.0,
+                        trailing: IconButton(
+                          icon: const Icon(Icons.map),
+                          color: HikeColor.primaryColor,
+                          onPressed: () {
+                            launchMapDirections(45.4216444, 22.7976946);
+                          },
+                        ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                // MapsLauncher.launchCoordinates(45.4216444, 22.7976946);
-                                launchMapDirections(45.4216444, 22.7976946);
-                              },
-                              icon: const Icon(Icons.map),
-                              label: const Text('Directii'),
+                            const Gap(8),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_pin),
+                                const Gap(8),
+                                Expanded(
+                                  child: Text(
+                                    'Locatie: ${trail.location} - ${trail.county}',
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text('Location: ${trail.location}'),
-                            Text('County: ${trail.county}'),
-                            Text('Marking: ${trail.marking}'),
-                            Text('Echipament necesar: ${trail.equipmentLevelRequested}'),
-                            Text('Durata: ${trail.routeDuration}'),
-                            Text('Sezonalitate: ${trail.seasonality}'),
                           ],
                         ),
                       ),
                     );
                   },
+                  separatorBuilder: (BuildContext context, int index) => const Gap(8),
                 )
-              : Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
-                  enabled: true,
-                  child: Card(
-                    child: ListTile(
-                      title: Text('asddasdasdadsaasd'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              MapsLauncher.launchCoordinates(45.4216444, 22.7976946);
-                              // launchMapDirections(45.4216444, 22.7976946);
-                            },
-                            icon: const Icon(Icons.map),
-                            label: const Text('Directii'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              : const Center(child: CircularProgressIndicator()),
         ),
       ),
     );

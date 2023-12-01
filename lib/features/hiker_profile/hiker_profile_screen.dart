@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -223,38 +224,42 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                   ],
                 ),
                 const Gap(24),
-                Row(
-                  children: [
-                    if (auth.currentUser?.imageUrls != null)
-                      ...auth.currentUser!.imageUrls!
-                          .map((imageUrl) => Flexible(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return Dialog(
-                                          child: GestureDetector(
-                                            onTap: () => Navigator.pop(context),
-                                            child: Image.network(imageUrl),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                    child: Image.network(
-                                      imageUrl,
-                                      width: 300,
-                                      height: 150,
-                                      fit: BoxFit.cover,
+                CarouselSlider(
+                  options: CarouselOptions(height: 200.0),
+                  items: auth.currentUser?.imageUrls?.map((imageUrl) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    child: GestureDetector(
+                                      onTap: () => Navigator.pop(context),
+                                      child: Image.network(imageUrl),
                                     ),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
-                  ],
+                                  );
+                                },
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              child: Image.network(
+                                imageUrl,
+                                width: 300,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -294,8 +299,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
               'phoneNumber': docSnapshot.data()['phoneNumber']
             });
 
-            print(docSnapshot.data());
-
             setState(() {
               auth.currentUser = hikerUser;
             });
@@ -303,7 +306,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
             print(
               'User ID: ${hikerUser.uid}, DisplayName: ${hikerUser.displayName}, Email: ${hikerUser.email}, Phone number: ${hikerUser.phoneNumber}',
             );
-            // print('image: ${hikerUser.images?.length}');
           }
 
           CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(currentUser?.uid).collection('images');

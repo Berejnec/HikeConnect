@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hike_connect/features/hiker_profile/hiker_profile_screen.dart';
 import 'package:hike_connect/features/hiking_trails/hiking_trails_screen.dart';
 import 'package:hike_connect/map_screen.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ConvexAppBar buildConvexAppBar() {
     return ConvexAppBar(
       style: TabStyle.fixedCircle,
-      backgroundColor: const Color(0xFF127C0E),
+      backgroundColor: HikeColor.primaryColor,
       initialActiveIndex: 0,
       color: Colors.white60,
       items: const [

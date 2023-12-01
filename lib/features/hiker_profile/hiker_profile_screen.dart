@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
@@ -12,6 +13,7 @@ import 'package:hike_connect/globals/auth_global.dart' as auth;
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const List<String> scopes = <String>['email'];
 
@@ -223,6 +225,35 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                             Icon(Icons.camera_alt),
                             Gap(8),
                             Text('Incarca'),
+                          ],
+                        ),
+                      ),
+                      const Gap(16),
+                      FilledButton(
+                        onPressed: () async {
+                          var whatsappUrl = Uri.parse("whatsapp://send?phone=${'+40746431639'}" "&text=${Uri.encodeComponent("")}");
+                          try {
+                            if (await canLaunchUrl(whatsappUrl)) {
+                              launchUrl(whatsappUrl);
+                            } else {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  dismissDirection: DismissDirection.horizontal,
+                                  behavior: SnackBarBehavior.floating,
+                                  content: Text("WhatsApp is required to be installed in order to send message!"),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            debugPrint(e.toString());
+                          }
+                        },
+                        child: const Row(
+                          children: [
+                            Icon(FontAwesomeIcons.whatsapp),
+                            Gap(8),
+                            Text("Send Message"),
                           ],
                         ),
                       ),

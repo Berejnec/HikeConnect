@@ -53,7 +53,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
         });
       }
     } catch (e) {
-      print('Error fetching hiking trails: $e');
+      print('Error fetching users: $e');
     }
   }
 
@@ -81,69 +81,88 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Container(
-            color: Colors.green.shade50,
             constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(auth.currentUser?.imageUrls?[3] ?? ''),
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
+                      IconButton(
+                        icon: const Icon(FontAwesomeIcons.image),
+                        onPressed: () {
+                          print('add background image');
+                        },
+                        color: Colors.black,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (user?.photoURL != null)
-                            ClipOval(
-                              child: Image.network(
-                                user!.photoURL!,
-                                width: 70,
-                                height: 70,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          if (user?.photoURL == null) const Text('Loading photo...'),
-                          const Gap(25),
                           Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
                             children: [
-                              Text(
-                                auth.currentUser?.displayName ?? 'Loading name...',
-                                style: const TextStyle(
-                                  color: HikeColor.infoColor,
-                                  fontSize: 40,
+                              if (user?.photoURL != null)
+                                ClipOval(
+                                  child: Image.network(
+                                    user!.photoURL!,
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                              if (user?.photoURL == null) const Text('Loading photo...'),
+                              const Gap(25),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Text(
+                                    auth.currentUser?.displayName ?? 'Loading name...',
+                                    style: const TextStyle(
+                                      color: HikeColor.whiteColor,
+                                      fontSize: 40,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    auth.currentUser?.email ?? 'Loading email...',
+                                    style: const TextStyle(
+                                      color: HikeColor.whiteColor,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  if (user?.phoneNumber != null)
+                                    Text(
+                                      '${user?.phoneNumber}',
+                                      style: const TextStyle(color: HikeColor.whiteColor, fontSize: 16),
+                                    ),
+                                  if (user?.phoneNumber == null && auth.currentUser?.phoneNumber != null)
+                                    Text(
+                                      '${auth.currentUser?.phoneNumber}',
+                                      style: const TextStyle(color: HikeColor.whiteColor, fontSize: 16),
+                                    ),
+                                ],
                               ),
-                              Text(
-                                auth.currentUser?.email ?? 'Loading email...',
-                                style: const TextStyle(
-                                  color: HikeColor.infoColor,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              if (user?.phoneNumber != null)
-                                Text(
-                                  '${user?.phoneNumber}',
-                                  style: const TextStyle(color: HikeColor.infoColor, fontSize: 16),
-                                ),
-                              if (user?.phoneNumber == null && auth.currentUser?.phoneNumber != null)
-                                Text(
-                                  '${auth.currentUser?.phoneNumber}',
-                                  style: const TextStyle(color: HikeColor.infoColor, fontSize: 16),
-                                ),
                             ],
                           ),
                         ],
                       ),
                     ],
                   ),
-                  const Gap(25),
-                  Row(
+                ),
+                const Gap(8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: [
@@ -156,7 +175,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                         ],
                       ),
                       Container(
-                        height: 60,
+                        height: 50,
                         width: 1,
                         color: Colors.black54,
                       ),
@@ -173,7 +192,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                         ],
                       ),
                       Container(
-                        height: 60,
+                        height: 50,
                         width: 1,
                         color: Colors.black54,
                       ),
@@ -191,146 +210,135 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                       ),
                     ],
                   ),
-                  const Gap(16),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FilledButton(
-                        onPressed: () async {
-                          ImagePicker imagePicker = ImagePicker();
-                          XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+                ),
+                const Gap(16),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      color: HikeColor.infoDarkColor,
+                      onPressed: () async {
+                        ImagePicker imagePicker = ImagePicker();
+                        XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
 
-                          if (file == null) return;
-                          String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+                        if (file == null) return;
+                        String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
 
-                          Reference referenceRoot = FirebaseStorage.instance.ref();
-                          Reference referenceDirImages = referenceRoot.child('images');
+                        Reference referenceRoot = FirebaseStorage.instance.ref();
+                        Reference referenceDirImages = referenceRoot.child('images');
 
-                          Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
+                        Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
 
-                          try {
-                            await referenceImageToUpload.putFile(File(file.path));
-                            imageUrl = await referenceImageToUpload.getDownloadURL();
-                            await FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).collection('images').add({'imageUrl': imageUrl});
-                            fetchUserDetails(true);
-                          } catch (error) {
-                            print(error);
+                        try {
+                          await referenceImageToUpload.putFile(File(file.path));
+                          imageUrl = await referenceImageToUpload.getDownloadURL();
+                          await FirebaseFirestore.instance.collection('users').doc(auth.currentUser?.uid).collection('images').add({'imageUrl': imageUrl});
+                          fetchUserDetails(true);
+                        } catch (error) {
+                          print(error);
+                        }
+                      },
+                      icon: const Icon(FontAwesomeIcons.camera),
+                      padding: const EdgeInsets.all(12.0),
+                    ),
+                    IconButton(
+                      color: HikeColor.infoDarkColor,
+                      padding: const EdgeInsets.all(12.0),
+                      onPressed: () async {
+                        var whatsappUrl = Uri.parse("whatsapp://send?phone=${'+40746431639'}" "&text=${Uri.encodeComponent("")}");
+                        try {
+                          if (await canLaunchUrl(whatsappUrl)) {
+                            launchUrl(whatsappUrl);
+                          } else {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                dismissDirection: DismissDirection.horizontal,
+                                behavior: SnackBarBehavior.floating,
+                                content: Text("WhatsApp is required to be installed in order to send message!"),
+                              ),
+                            );
                           }
-                        },
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.camera_alt),
-                            Gap(8),
-                            Text('Incarca'),
-                          ],
-                        ),
-                      ),
-                      const Gap(16),
-                      FilledButton(
-                        onPressed: () async {
-                          var whatsappUrl = Uri.parse("whatsapp://send?phone=${'+40746431639'}" "&text=${Uri.encodeComponent("")}");
-                          try {
-                            if (await canLaunchUrl(whatsappUrl)) {
-                              launchUrl(whatsappUrl);
-                            } else {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  dismissDirection: DismissDirection.horizontal,
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text("WhatsApp is required to be installed in order to send message!"),
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            debugPrint(e.toString());
-                          }
-                        },
-                        child: const Row(
-                          children: [
-                            Icon(FontAwesomeIcons.whatsapp),
-                            Gap(8),
-                            Text("Send Message"),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Gap(24),
-                  if (auth.currentUser != null && auth.currentUser?.imageUrls != null)
-                    auth.currentUser!.imageUrls!.length > 1
-                        ? CarouselSlider(
-                            options: CarouselOptions(),
-                            items: auth.currentUser?.imageUrls?.map(
-                              (imageUrl) {
-                                return Builder(
-                                  builder: (BuildContext context) {
-                                    return Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return Dialog(
-                                                child: GestureDetector(
-                                                  onTap: () => Navigator.pop(context),
-                                                  child: Image.network(imageUrl),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                          child: Image.network(
-                                            imageUrl,
-                                            width: 300,
-                                            height: 150,
-                                            fit: BoxFit.cover,
-                                          ),
+                        } catch (e) {
+                          debugPrint(e.toString());
+                        }
+                      },
+                      icon: const Icon(FontAwesomeIcons.whatsapp),
+                    ),
+                  ],
+                ),
+                const Gap(24),
+                if (auth.currentUser != null && auth.currentUser?.imageUrls != null)
+                  auth.currentUser!.imageUrls!.length > 1
+                      ? CarouselSlider(
+                          options: CarouselOptions(),
+                          items: auth.currentUser?.imageUrls?.map(
+                            (imageUrl) {
+                              return Builder(
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+                                              child: GestureDetector(
+                                                onTap: () => Navigator.pop(context),
+                                                child: Image.network(imageUrl),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                        child: Image.network(
+                                          imageUrl,
+                                          width: 300,
+                                          height: 150,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                    );
-                                  },
-                                );
-                              },
-                            ).toList(),
-                          )
-                        : Container(
-                            width: MediaQuery.of(context).size.width,
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Dialog(
-                                      child: GestureDetector(
-                                        onTap: () => Navigator.pop(context),
-                                        child: Image.network(auth.currentUser!.imageUrls![0]),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                child: Image.network(
-                                  auth.currentUser!.imageUrls![0],
-                                  width: 300,
-                                  height: 150,
-                                  fit: BoxFit.cover,
-                                ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ).toList(),
+                        )
+                      : Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    child: GestureDetector(
+                                      onTap: () => Navigator.pop(context),
+                                      child: Image.network(auth.currentUser!.imageUrls![0]),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              child: Image.network(
+                                auth.currentUser!.imageUrls![0],
+                                width: 300,
+                                height: 150,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
-                ],
-              ),
+                        ),
+              ],
             ),
           ),
         ),

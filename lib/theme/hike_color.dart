@@ -20,4 +20,6 @@ class HikeColor {
   static const Color errorColor = Color(0xFFD32F2F); // Red
   static const Color errorLightColor = Color(0xFFFF6659);
   static const Color errorDarkColor = Color(0xFF9A0007);
+
+  static const Color whiteColor = Colors.white;
 }

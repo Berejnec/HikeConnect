@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/home_screen.dart';
@@ -57,17 +58,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     );
                   }
                 },
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      'assets/google_icon.png',
-                      height: 24.0,
-                      width: 24.0,
-                    ),
-                    const Gap(8),
-                    const Text('Autentifica-te'),
+                    Icon(FontAwesomeIcons.google),
+                    Gap(8),
+                    Text('Autentifica-te'),
                   ],
                 ),
               ),

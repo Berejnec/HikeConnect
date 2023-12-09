@@ -5,6 +5,7 @@ class HikeColor {
 
   static const Color primaryColor = Color(0xFF127C0E);
   static Color bgLoginColor = Colors.green.shade200;
+  static Color green = Colors.green.shade300;
 
   static const Color secondaryColor = Color(0xFF6F7C80);
   static const Color tertiaryColor = Color(0xFFA1A7AC);
@@ -21,5 +22,5 @@ class HikeColor {
   static const Color errorLightColor = Color(0xFFFF6659);
   static const Color errorDarkColor = Color(0xFF9A0007);
 
-  static const Color whiteColor = Colors.white;
+  static const Color white = Colors.white;
 }

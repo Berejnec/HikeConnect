@@ -7,7 +7,7 @@ class HikeConnectTheme {
 
   static ThemeData getPrimaryTheme() {
     return _primaryTheme.copyWith(
-      textTheme: GoogleFonts.aBeeZeeTextTheme(_primaryTheme.textTheme),
+      textTheme: GoogleFonts.ptSansTextTheme(_primaryTheme.textTheme),
     );
   }
 

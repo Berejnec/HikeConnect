@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HikingTrail {
   String? uuid;
@@ -12,6 +13,7 @@ class HikingTrail {
   String degreeOfDifficulty;
   String seasonality;
   String equipmentLevelRequested;
+  LatLng locationLatLng;
 
   HikingTrail({
     required this.uuid,
@@ -25,6 +27,7 @@ class HikingTrail {
     required this.degreeOfDifficulty,
     required this.seasonality,
     required this.equipmentLevelRequested,
+    required this.locationLatLng,
   });
 
   Map<String, dynamic> toMap() {
@@ -40,6 +43,10 @@ class HikingTrail {
       'degreeOfDifficulty': degreeOfDifficulty,
       'seasonality': seasonality,
       'equipmentLevelRequested': equipmentLevelRequested,
+      'locationLatLng': {
+        'latitude': locationLatLng.latitude.toDouble(),
+        'longitude': locationLatLng.longitude.toDouble(),
+      },
     };
   }
 
@@ -56,6 +63,10 @@ class HikingTrail {
       degreeOfDifficulty: map['degreeOfDifficulty'],
       seasonality: map['seasonality'],
       equipmentLevelRequested: map['equipmentLevelRequested'],
+      locationLatLng: LatLng(
+        (map['locationLatLng']['latitude'] as num).toDouble(),
+        (map['locationLatLng']['longitude'] as num).toDouble(),
+      ),
     );
   }
 }

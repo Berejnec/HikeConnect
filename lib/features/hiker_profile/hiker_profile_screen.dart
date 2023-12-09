@@ -30,31 +30,16 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  String imageUrl = '';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final ImagePicker _imagePicker = ImagePicker();
 
-  List<HikerUser> users = [];
+  String imageUrl = '';
 
   @override
   void initState() {
     super.initState();
     fetchUserDetails(false);
-    // fetchUsers();
-  }
-
-  Future<void> fetchUsers() async {
-    try {
-      List<HikerUser> hikerUsers = await getAllHikerUsers();
-      if (mounted) {
-        setState(() {
-          users = hikerUsers;
-          users.forEach((element) {
-            print(element.displayName);
-          });
-        });
-      }
-    } catch (e) {
-      print('Error fetching users: $e');
-    }
   }
 
   @override
@@ -86,19 +71,24 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(auth.currentUser?.imageUrls?[3] ?? ''),
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
+                  decoration: auth.currentUser != null && auth.currentUser?.backgroundUrl != null
+                      ? BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(auth.currentUser!.backgroundUrl!),
+                            fit: BoxFit.fitWidth,
+                          ),
+                        )
+                      : const BoxDecoration(color: Colors.grey),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       IconButton(
-                        icon: const Icon(FontAwesomeIcons.image),
+                        icon: const Icon(FontAwesomeIcons.image, color: HikeColor.white),
                         onPressed: () {
-                          print('add background image');
+                          String? userId = auth.currentUser?.uid;
+                          if (userId != null) {
+                            _uploadImageAndSetBackgroundUrl(userId);
+                          }
                         },
                         color: Colors.black,
                       ),
@@ -128,7 +118,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                   Text(
                                     auth.currentUser?.displayName ?? 'Loading name...',
                                     style: const TextStyle(
-                                      color: HikeColor.whiteColor,
+                                      color: HikeColor.white,
                                       fontSize: 40,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -136,19 +126,19 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                   Text(
                                     auth.currentUser?.email ?? 'Loading email...',
                                     style: const TextStyle(
-                                      color: HikeColor.whiteColor,
+                                      color: HikeColor.white,
                                       fontSize: 16,
                                     ),
                                   ),
                                   if (user?.phoneNumber != null)
                                     Text(
                                       '${user?.phoneNumber}',
-                                      style: const TextStyle(color: HikeColor.whiteColor, fontSize: 16),
+                                      style: const TextStyle(color: HikeColor.white, fontSize: 16),
                                     ),
                                   if (user?.phoneNumber == null && auth.currentUser?.phoneNumber != null)
                                     Text(
                                       '${auth.currentUser?.phoneNumber}',
-                                      style: const TextStyle(color: HikeColor.whiteColor, fontSize: 16),
+                                      style: const TextStyle(color: HikeColor.white, fontSize: 16),
                                     ),
                                 ],
                               ),
@@ -160,26 +150,13 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                   ),
                 ),
                 const Gap(8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      const Column(
-                        children: [
-                          Text(
-                            'Amateur',
-                            style: TextStyle(color: Colors.black54, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        height: 50,
-                        width: 1,
-                        color: Colors.black54,
-                      ),
-                      const Column(
+                      Column(
                         children: [
                           Text(
                             '3',
@@ -191,12 +168,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                           ),
                         ],
                       ),
-                      Container(
-                        height: 50,
-                        width: 1,
-                        color: Colors.black54,
-                      ),
-                      const Column(
+                      Column(
                         children: [
                           Text(
                             '5',
@@ -211,7 +183,9 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                     ],
                   ),
                 ),
-                const Gap(16),
+                const Gap(8),
+                Container(height: 1, color: HikeColor.tertiaryColor),
+                const Gap(8),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -346,18 +320,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
     );
   }
 
-  Future<List<HikerUser>> getAllHikerUsers() async {
-    CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
-
-    QuerySnapshot querySnapshot = await usersCollection.get();
-
-    List<HikerUser> users = querySnapshot.docs.map((DocumentSnapshot document) {
-      return HikerUser.fromMap(document.data() as Map<String, dynamic>);
-    }).toList();
-
-    return users;
-  }
-
   Future<void> fetchUserDetails(bool? fetch) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     setState(() {
@@ -373,7 +335,8 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
               'uid': docSnapshot.data()['uid'],
               'displayName': docSnapshot.data()['displayName'],
               'email': docSnapshot.data()['email'],
-              'phoneNumber': docSnapshot.data()['phoneNumber']
+              'phoneNumber': docSnapshot.data()['phoneNumber'],
+              'backgroundUrl': docSnapshot.data()['backgroundUrl']
             });
 
             setState(() {
@@ -414,6 +377,23 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignInScreen()));
     } catch (e) {
       print('Error signing out: $e');
+    }
+  }
+
+  Future<void> _uploadImageAndSetBackgroundUrl(String userId) async {
+    try {
+      final XFile? file = await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (file == null) return;
+
+      Reference storageReference = _storage.ref().child('background_images').child(userId);
+      await storageReference.putFile(File(file.path));
+
+      String imageUrl = await storageReference.getDownloadURL();
+
+      await _firestore.collection('users').doc(userId).update({'backgroundUrl': imageUrl});
+      fetchUserDetails(true);
+    } catch (error) {
+      print('Error uploading image: $error');
     }
   }
 }

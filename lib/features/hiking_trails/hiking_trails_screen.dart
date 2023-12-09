@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/theme/hike_color.dart';
+import 'package:hike_connect/utils/widgets/row_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HikesScreen extends StatefulWidget {
@@ -26,7 +27,7 @@ class _HikesScreenState extends State<HikesScreen> {
       List<HikingTrail> trails = await getAllHikingTrails();
       if (mounted) {
         setState(() {
-          hikingTrails = trails + trails + trails + trails + trails + trails + trails + trails + trails;
+          hikingTrails = trails;
         });
       }
     } catch (e) {
@@ -40,64 +41,79 @@ class _HikesScreenState extends State<HikesScreen> {
       appBar: AppBar(
         title: const Text('Trasee'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: hikingTrails.isNotEmpty
-              ? ListView.separated(
-                  itemCount: hikingTrails.length,
-                  itemBuilder: (context, index) {
-                    HikingTrail trail = hikingTrails[index];
-                    return Card(
-                      elevation: 2.0,
-                      child: ListTile(
-                        title: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.hiking),
-                            const Gap(8),
-                            Flexible(
-                              child: Text(
-                                trail.routeName,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        horizontalTitleGap: 0.0,
-                        trailing: IconButton(
-                          icon: const Icon(Icons.map),
-                          color: HikeColor.primaryColor,
-                          onPressed: () {
-                            launchMapDirections(45.4216444, 22.7976946);
-                          },
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Gap(8),
-                            Row(
-                              children: [
-                                const Icon(Icons.location_pin),
-                                const Gap(8),
-                                Expanded(
-                                  child: Text(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Gap(8),
+            Text('Trasee autorizate din Romania', style: Theme.of(context).textTheme.headlineMedium),
+            const Gap(16),
+            Expanded(
+              child: hikingTrails.isNotEmpty
+                  ? RefreshIndicator(
+                      onRefresh: fetchHikingTrails,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.only(bottom: 32.0),
+                        itemCount: hikingTrails.length,
+                        itemBuilder: (context, index) {
+                          HikingTrail trail = hikingTrails[index];
+                          return Card(
+                            key: Key(trail.routeName),
+                            elevation: 5.0,
+                            clipBehavior: Clip.antiAlias,
+                            color: HikeColor.tertiaryColor,
+                            child: ExpansionTile(
+                              tilePadding: const EdgeInsets.all(4.0),
+                              leading: const Icon(Icons.hiking, color: HikeColor.white),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    trail.routeName,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: HikeColor.white),
+                                  ),
+                                  Text(
                                     'Locatie: ${trail.location} - ${trail.county}',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(),
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: HikeColor.white),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: HikeColor.green,
+                              trailing: IconButton(
+                                icon: const Icon(Icons.map),
+                                color: HikeColor.white,
+                                onPressed: () {
+                                  launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
+                                },
+                              ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      RowInfo(info: 'Dificultate: ${trail.degreeOfDifficulty}', icon: const Icon(Icons.difference)),
+                                      const Gap(8),
+                                      RowInfo(info: 'Echipament: ${trail.equipmentLevelRequested}', icon: const Icon(Icons.difference)),
+                                      const Gap(8),
+                                      RowInfo(info: 'Marcaj: ${trail.marking}', icon: const Icon(Icons.difference)),
+                                      const Gap(8),
+                                      RowInfo(info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.difference)),
+                                      const Gap(8),
+                                      RowInfo(info: 'Durata: ${trail.routeDuration}', icon: const Icon(Icons.difference)),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) => const Gap(4),
                       ),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) => const Gap(8),
-                )
-              : const Center(child: CircularProgressIndicator()),
+                    )
+                  : const Center(child: CircularProgressIndicator()),
+            ),
+          ],
         ),
       ),
     );

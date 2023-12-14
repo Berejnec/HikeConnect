@@ -45,3 +45,5 @@ app.*.map.json
 
 # Large files related
 lib/romanian_hiking_trails.kml
+
+lib/datasource

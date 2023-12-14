@@ -5,6 +5,7 @@ class HikerUser {
   String? phoneNumber;
   String? backgroundUrl;
   List<String>? imageUrls;
+  List<String> favoriteHikingTrails;
 
   HikerUser({
     required this.uid,
@@ -13,6 +14,7 @@ class HikerUser {
     this.phoneNumber,
     this.backgroundUrl,
     this.imageUrls,
+    required this.favoriteHikingTrails,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class HikerUser {
       'phoneNumber': phoneNumber,
       'backgroundUrl': backgroundUrl,
       'imageUrls': imageUrls,
+      'favoriteHikingTrailIds': favoriteHikingTrails,
     };
   }
 
@@ -34,6 +37,7 @@ class HikerUser {
       phoneNumber: map['phoneNumber'] as String?,
       backgroundUrl: map['backgroundUrl'] as String?,
       imageUrls: map['imageUrls'] != null ? List<String>.from(map['imageUrls']) : null,
+      favoriteHikingTrails: List<String>.from(map['favoriteHikingTrailIds'] ?? []),
     );
   }
 }

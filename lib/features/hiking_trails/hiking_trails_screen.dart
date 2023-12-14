@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hike_connect/features/events/create_hike_event_form.dart';
+import 'package:hike_connect/features/hiking_trails/hiking_trail_form.dart';
+import 'package:hike_connect/globals/auth_global.dart' as auth;
 import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/row_info.dart';
@@ -47,7 +50,20 @@ class _HikesScreenState extends State<HikesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(8),
-            Text('Trasee autorizate din Romania', style: Theme.of(context).textTheme.headlineMedium),
+            Row(
+              children: [
+                Expanded(child: Text('Trasee autorizate din Romania', style: Theme.of(context).textTheme.headlineMedium)),
+                IconButton(
+                  icon: const Icon(Icons.file_open_rounded),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HikingTrailForm()),
+                    );
+                  },
+                ),
+              ],
+            ),
             const Gap(16),
             Expanded(
               child: hikingTrails.isNotEmpty
@@ -101,6 +117,25 @@ class _HikesScreenState extends State<HikesScreen> {
                                       RowInfo(info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.difference)),
                                       const Gap(8),
                                       RowInfo(info: 'Durata: ${trail.routeDuration}', icon: const Icon(Icons.difference)),
+                                      const Gap(16),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {
+                                              addToFavorites(trail.routeName);
+                                            },
+                                            icon: Icon(Icons.star, color: isFavorite(trail.routeName) ? Colors.yellowAccent : HikeColor.white),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              _showAddEventDialog(context, trail);
+                                            },
+                                            icon: const Icon(Icons.event),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -117,6 +152,53 @@ class _HikesScreenState extends State<HikesScreen> {
         ),
       ),
     );
+  }
+
+  bool isFavorite(String trailName) {
+    return auth.currentUser != null && auth.currentUser!.favoriteHikingTrails.contains(trailName);
+  }
+
+  void addToFavorites(String trailName) async {
+    if (auth.currentUser != null && !auth.currentUser!.favoriteHikingTrails.contains(trailName)) {
+      setState(() {
+        auth.currentUser!.favoriteHikingTrails.add(trailName);
+      });
+
+      await updateFavoritesInFirestore(trailName);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Traseu adaugat la favorite!'),
+        duration: Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Traseul este deja adaugat la favorite'),
+          duration: Duration(seconds: 3),
+          margin: EdgeInsets.only(bottom: 16.0),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> updateFavoritesInFirestore(String trailId) async {
+    try {
+      CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+
+      DocumentReference userDoc = usersCollection.doc(auth.currentUser?.uid ?? '');
+
+      await userDoc.update({
+        'favoriteHikingTrails': FieldValue.arrayUnion([trailId]),
+      });
+
+      print('Favorites updated successfully');
+    } catch (e) {
+      print('Error updating favorites: $e');
+    }
   }
 
   Future<List<HikingTrail>> getAllHikingTrails() async {
@@ -139,5 +221,17 @@ class _HikesScreenState extends State<HikesScreen> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void _showAddEventDialog(BuildContext context, HikingTrail trail) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Creeaza eveniment pentru traseul ${trail.routeName}'),
+          content: CreateHikeEventForm(trail: trail),
+        );
+      },
+    );
   }
 }

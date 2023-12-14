@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hike_connect/globals/auth_global.dart' as auth;
 import 'package:hike_connect/models/hiker_user.dart';
 
 class ConnectDashboardScreen extends StatefulWidget {
@@ -33,35 +34,66 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard conexiuni (Work in progress...)'),
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.construction),
+            Text('Dashboard conexiuni / Trasee favorite'),
+            Icon(Icons.construction),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  const Text('Conecteaza-te cu alti drumeti: '),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(users[index].displayName),
-                      IconButton(
-                        onPressed: () async {
-                          await connectUsers(currentUid, users[index].uid);
+          child: Column(
+            children: [
+              // Favorite Hiking Trails
+              auth.currentUser?.favoriteHikingTrails != null
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: auth.currentUser!.favoriteHikingTrails.length,
+                        itemBuilder: (context, index) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(child: Text('${index + 1}. ${auth.currentUser!.favoriteHikingTrails[index]}')),
+                            ],
+                          );
                         },
-                        icon: const Icon(Icons.connect_without_contact, size: 24),
                       ),
-                    ],
-                  ),
-                  const Gap(16),
-                  const Text('Conexiunile tale: '),
-                  Text(connectedUserNames.isNotEmpty ? connectedUserNames[0] : "Loading..."),
-                ],
-              );
-            },
+                    )
+                  : const Center(child: Text('Se incarca traseele favorite')),
+              const SizedBox(height: 16),
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        const Text('Conecteaza-te cu alti drumeti: '),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(users[index].displayName),
+                            IconButton(
+                              onPressed: () async {
+                                await connectUsers(currentUid, users[index].uid);
+                              },
+                              icon: const Icon(Icons.connect_without_contact, size: 24),
+                            ),
+                          ],
+                        ),
+                        const Gap(16),
+                        const Text('Conexiunile tale: '),
+                        Text(connectedUserNames.isNotEmpty ? connectedUserNames[0] : "Loading..."),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -123,7 +155,6 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
     await connectionsCollection.doc(connectionId).set({
       'user1Uid': user1Uid,
       'user2Uid': user2Uid,
-      // Add other connection metadata...
     });
   }
 
@@ -141,7 +172,6 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
         setState(() {
           connectedUsers = connectedUsers;
           connectedUserNames = connectedNames;
-          print(connectedUsers.length);
         });
       }
     } catch (e) {

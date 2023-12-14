@@ -130,7 +130,7 @@ class _HikingTrailFormState extends State<HikingTrailForm> {
               TextFormField(
                 controller: latitudeController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Latitude'),
+                decoration: const InputDecoration(labelText: 'Latitude'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a latitude';
@@ -141,7 +141,7 @@ class _HikingTrailFormState extends State<HikingTrailForm> {
               TextFormField(
                 controller: longitudeController,
                 keyboardType: TextInputType.text,
-                decoration: InputDecoration(labelText: 'Longitude'),
+                decoration: const InputDecoration(labelText: 'Longitude'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a longitude';
@@ -167,7 +167,7 @@ class _HikingTrailFormState extends State<HikingTrailForm> {
 
   Future<void> saveHikingTrail() async {
     HikingTrail newTrail = HikingTrail(
-      uuid: '', // Auto-generated ID will be assigned by Firestore
+      uuid: '',
       dateOfIssue: DateTime.now(),
       routeName: routeNameController.text,
       administrator: administratorController.text,

@@ -75,7 +75,12 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                       ? BoxDecoration(
                           image: DecorationImage(
                             image: NetworkImage(auth.currentUser!.backgroundUrl!),
-                            fit: BoxFit.fitWidth,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                            colorFilter: ColorFilter.mode(
+                              Colors.black.withOpacity(0.4),
+                              BlendMode.darken,
+                            ),
                           ),
                         )
                       : const BoxDecoration(color: Colors.grey),
@@ -150,8 +155,8 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                   ),
                 ),
                 const Gap(8),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     mainAxisSize: MainAxisSize.max,
@@ -159,23 +164,23 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                       Column(
                         children: [
                           Text(
-                            '3',
-                            style: TextStyle(color: Colors.black54, fontSize: 24),
+                            '${auth.currentUser?.favoriteHikingTrails.length ?? '...'}',
+                            style: const TextStyle(color: Colors.black54, fontSize: 24),
                           ),
-                          Text(
-                            'Hikes completed',
+                          const Text(
+                            'Trasee favorite',
                             style: TextStyle(color: Colors.black54, fontSize: 16),
                           ),
                         ],
                       ),
-                      Column(
+                      const Column(
                         children: [
                           Text(
                             '5',
                             style: TextStyle(color: Colors.black54, fontSize: 24),
                           ),
                           Text(
-                            'Connections',
+                            'Conexiuni',
                             style: TextStyle(color: Colors.black54, fontSize: 16),
                           ),
                         ],
@@ -220,7 +225,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                       color: HikeColor.infoDarkColor,
                       padding: const EdgeInsets.all(12.0),
                       onPressed: () async {
-                        var whatsappUrl = Uri.parse("whatsapp://send?phone=${'+40746431639'}" "&text=${Uri.encodeComponent("")}");
+                        var whatsappUrl = Uri.parse("whatsapp://send?phone=${auth.currentUser?.phoneNumber ?? ''}" "&text=${Uri.encodeComponent("")}");
                         try {
                           if (await canLaunchUrl(whatsappUrl)) {
                             launchUrl(whatsappUrl);
@@ -242,7 +247,12 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                     ),
                   ],
                 ),
-                const Gap(24),
+                const Gap(8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text('Imagini trasee', style: Theme.of(context).textTheme.headlineMedium),
+                ),
+                const Gap(16),
                 if (auth.currentUser != null && auth.currentUser?.imageUrls != null)
                   auth.currentUser!.imageUrls!.length > 1
                       ? CarouselSlider(
@@ -284,34 +294,36 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                             },
                           ).toList(),
                         )
-                      : Container(
-                          width: MediaQuery.of(context).size.width,
-                          margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Dialog(
-                                    child: GestureDetector(
-                                      onTap: () => Navigator.pop(context),
-                                      child: Image.network(auth.currentUser!.imageUrls![0]),
-                                    ),
+                      : auth.currentUser!.imageUrls!.isNotEmpty
+                          ? Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                        child: GestureDetector(
+                                          onTap: () => Navigator.pop(context),
+                                          child: Image.network(auth.currentUser!.imageUrls![0]),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
-                              child: Image.network(
-                                auth.currentUser!.imageUrls![0],
-                                width: 300,
-                                height: 150,
-                                fit: BoxFit.cover,
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                  child: Image.network(
+                                    auth.currentUser!.imageUrls![0],
+                                    width: 300,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            )
+                          : Center(child: Text('Nicio image incarcata', style: Theme.of(context).textTheme.titleMedium)),
               ],
             ),
           ),
@@ -331,16 +343,20 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       FirebaseFirestore.instance.collection('users').where("uid", isEqualTo: currentUser?.uid).get().then(
         (querySnapshot) async {
           for (var docSnapshot in querySnapshot.docs) {
+            print('qqq${docSnapshot.data()['favoriteHikingTrails'].length}');
             HikerUser hikerUser = HikerUser.fromMap({
               'uid': docSnapshot.data()['uid'],
               'displayName': docSnapshot.data()['displayName'],
               'email': docSnapshot.data()['email'],
               'phoneNumber': docSnapshot.data()['phoneNumber'],
-              'backgroundUrl': docSnapshot.data()['backgroundUrl']
+              'backgroundUrl': docSnapshot.data()['backgroundUrl'],
+              'favoriteHikingTrails': docSnapshot.data()['favoriteHikingTrails'],
             });
 
             setState(() {
+              print('fav:${hikerUser.favoriteHikingTrails.length}');
               auth.currentUser = hikerUser;
+              auth.currentUser?.favoriteHikingTrails = [...docSnapshot.data()['favoriteHikingTrails']];
             });
 
             print(

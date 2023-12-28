@@ -47,7 +47,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  late LatLng _center = const LatLng(46.99748, 25.925763);
+  late final LatLng _center = const LatLng(45.46706, 24.68328);
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -75,11 +75,35 @@ class _MapScreenState extends State<MapScreen> {
         markers: {
           Marker(
             markerId: const MarkerId('1'),
-            position: _center,
+            position: const LatLng(46.99748, 25.925763),
             onTap: () {
-              zoomToTappedLocation(_center);
+              zoomToTappedLocation(const LatLng(46.99748, 25.925763));
             },
-            infoWindow: const InfoWindow(title: 'Retezat', snippet: 'Descriere scurta'),
+            infoWindow: const InfoWindow(title: 'Durau'),
+          ),
+          Marker(
+            markerId: const MarkerId('2'),
+            position: const LatLng(45.349276999999994, 23.65254969999999),
+            onTap: () {
+              zoomToTappedLocation(const LatLng(45.349276999999994, 23.65254969999999));
+            },
+            infoWindow: const InfoWindow(title: 'Lacul Calcescu'),
+          ),
+          Marker(
+            markerId: const MarkerId('3'),
+            position: const LatLng(45.46706, 24.68328),
+            onTap: () {
+              zoomToTappedLocation(const LatLng(45.46706, 24.68328));
+            },
+            infoWindow: const InfoWindow(title: 'Valea Valsanului'),
+          ),
+          Marker(
+            markerId: const MarkerId('4'),
+            position: const LatLng(47.239074, 25.329229),
+            onTap: () {
+              zoomToTappedLocation(const LatLng(47.239074, 25.329229));
+            },
+            infoWindow: const InfoWindow(title: 'Neagra Sarului'),
           ),
           if (widget.location != null)
             Marker(
@@ -93,7 +117,7 @@ class _MapScreenState extends State<MapScreen> {
         },
         initialCameraPosition: CameraPosition(
           target: _center,
-          zoom: 12.0,
+          zoom: 6.0,
         ),
       ),
     );

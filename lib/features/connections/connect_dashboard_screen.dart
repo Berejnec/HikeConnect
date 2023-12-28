@@ -22,6 +22,7 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
   String currentUid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   List<String> connectedUserNames = [];
+  List<HikerUser> connectedHikerUsers = [];
 
   @override
   void initState() {
@@ -38,7 +39,7 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Icon(Icons.construction),
-            Text('Dashboard conexiuni / Trasee favorite'),
+            Text('Conexiuni / Trasee favorite'),
             Icon(Icons.construction),
           ],
         ),
@@ -71,10 +72,11 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Conecteaza-te cu alti drumeti: '),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(users[index].displayName),
                             IconButton(
@@ -87,7 +89,7 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
                         ),
                         const Gap(16),
                         const Text('Conexiunile tale: '),
-                        Text(connectedUserNames.isNotEmpty ? connectedUserNames[0] : "Loading..."),
+                        Text(connectedHikerUsers.isNotEmpty ? "${connectedHikerUsers[0].displayName}" : "Nicio conexiune"),
                       ],
                     );
                   },
@@ -172,6 +174,7 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
         setState(() {
           connectedUsers = connectedUsers;
           connectedUserNames = connectedNames;
+          connectedHikerUsers = connectedUsers;
         });
       }
     } catch (e) {

@@ -10,8 +10,10 @@ import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
 import 'package:hike_connect/globals/auth_global.dart' as auth;
+import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
+import 'package:hike_connect/utils/widgets/timeline.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -36,10 +38,13 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
 
   String imageUrl = '';
 
+  List<HikeEvent> userEvents = [];
+
   @override
   void initState() {
     super.initState();
     fetchUserDetails(false);
+    fetchUserEventsList();
   }
 
   @override
@@ -105,10 +110,10 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              if (user?.photoURL != null)
+                              if (auth.currentUser?.avatarUrl != null)
                                 ClipOval(
                                   child: Image.network(
-                                    user!.photoURL!,
+                                    auth.currentUser!.avatarUrl!,
                                     width: 70,
                                     height: 70,
                                     fit: BoxFit.cover,
@@ -176,7 +181,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                       const Column(
                         children: [
                           Text(
-                            '5',
+                            '1',
                             style: TextStyle(color: Colors.black54, fontSize: 24),
                           ),
                           Text(
@@ -250,7 +255,13 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                 const Gap(8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text('Imagini trasee', style: Theme.of(context).textTheme.headlineMedium),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.photo_library_outlined),
+                      const Gap(4),
+                      Text('Imagini trasee', style: Theme.of(context).textTheme.headlineLarge),
+                    ],
+                  ),
                 ),
                 const Gap(16),
                 if (auth.currentUser != null && auth.currentUser?.imageUrls != null)
@@ -324,6 +335,28 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               ),
                             )
                           : Center(child: Text('Nicio image incarcata', style: Theme.of(context).textTheme.titleMedium)),
+                const Gap(16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.hiking),
+                      const Gap(4),
+                      Text('Trasee parcurse', style: Theme.of(context).textTheme.headlineLarge),
+                    ],
+                  ),
+                ),
+                if (userEvents.isNotEmpty)
+                  Container(
+                    height: 400,
+                    decoration: const BoxDecoration(border: Border.symmetric(horizontal: BorderSide(color: HikeColor.tertiaryColor))),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Timeline(pastEvents: userEvents),
+                    ),
+                  ),
+                if (userEvents.isEmpty) const Center(child: Text('No past hiking trails for the user')),
+                const Gap(16),
               ],
             ),
           ),
@@ -339,29 +372,23 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
     });
 
     if (auth.currentUser == null || fetch == true) {
-      print('Fetching data for user');
       FirebaseFirestore.instance.collection('users').where("uid", isEqualTo: currentUser?.uid).get().then(
         (querySnapshot) async {
           for (var docSnapshot in querySnapshot.docs) {
-            print('qqq${docSnapshot.data()['favoriteHikingTrails'].length}');
             HikerUser hikerUser = HikerUser.fromMap({
               'uid': docSnapshot.data()['uid'],
               'displayName': docSnapshot.data()['displayName'],
               'email': docSnapshot.data()['email'],
               'phoneNumber': docSnapshot.data()['phoneNumber'],
+              'avatarUrl': docSnapshot.data()['avatarUrl'],
               'backgroundUrl': docSnapshot.data()['backgroundUrl'],
               'favoriteHikingTrails': docSnapshot.data()['favoriteHikingTrails'],
             });
 
             setState(() {
-              print('fav:${hikerUser.favoriteHikingTrails.length}');
               auth.currentUser = hikerUser;
               auth.currentUser?.favoriteHikingTrails = [...docSnapshot.data()['favoriteHikingTrails']];
             });
-
-            print(
-              'User ID: ${hikerUser.uid}, DisplayName: ${hikerUser.displayName}, Email: ${hikerUser.email}, Phone number: ${hikerUser.phoneNumber}',
-            );
           }
 
           CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(currentUser?.uid).collection('images');
@@ -410,6 +437,38 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       fetchUserDetails(true);
     } catch (error) {
       print('Error uploading image: $error');
+    }
+  }
+
+  Future<List<HikeEvent>> fetchUserEvents(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('events').orderBy('date', descending: true).get();
+      List<HikeEvent> userEvents = [];
+
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        HikeEvent hikeEvent = HikeEvent.fromMap(doc.data()! as Map<String, dynamic>);
+
+        bool isParticipant = hikeEvent.participants.any((participant) => participant.userId == userId);
+        bool isPastEvent = hikeEvent.date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
+
+        if (isParticipant && isPastEvent) {
+          userEvents.add(hikeEvent);
+        }
+      }
+
+      return userEvents;
+    } catch (e) {
+      print('Error fetching user events: $e');
+      return [];
+    }
+  }
+
+  Future<void> fetchUserEventsList() async {
+    if (auth.currentUser != null) {
+      List<HikeEvent> events = await fetchUserEvents(auth.currentUser!.uid);
+      setState(() {
+        userEvents = events;
+      });
     }
   }
 }

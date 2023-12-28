@@ -3,6 +3,7 @@ class HikerUser {
   String displayName;
   String email;
   String? phoneNumber;
+  String? avatarUrl;
   String? backgroundUrl;
   List<String>? imageUrls;
   List<String> favoriteHikingTrails;
@@ -12,6 +13,7 @@ class HikerUser {
     required this.displayName,
     required this.email,
     this.phoneNumber,
+    this.avatarUrl,
     this.backgroundUrl,
     this.imageUrls,
     required this.favoriteHikingTrails,
@@ -23,6 +25,7 @@ class HikerUser {
       'displayName': displayName,
       'email': email,
       'phoneNumber': phoneNumber,
+      'avatarUrl': avatarUrl,
       'backgroundUrl': backgroundUrl,
       'imageUrls': imageUrls,
       'favoriteHikingTrailIds': favoriteHikingTrails,
@@ -35,6 +38,7 @@ class HikerUser {
       displayName: map['displayName'],
       email: map['email'],
       phoneNumber: map['phoneNumber'] as String?,
+      avatarUrl: map['avatarUrl'] as String?,
       backgroundUrl: map['backgroundUrl'] as String?,
       imageUrls: map['imageUrls'] != null ? List<String>.from(map['imageUrls']) : null,
       favoriteHikingTrails: List<String>.from(map['favoriteHikingTrailIds'] ?? []),

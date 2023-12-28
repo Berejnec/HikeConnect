@@ -90,16 +90,16 @@ class _SignInScreenState extends State<SignInScreen> {
       idToken: googleAuth.idToken,
     );
     await auth.signInWithCredential(credential);
-    await addUserToFirestore(auth.currentUser?.uid, auth.currentUser?.displayName, auth.currentUser?.email);
+    await addUserToFirestore(auth.currentUser?.uid, auth.currentUser?.displayName, auth.currentUser?.email, auth.currentUser?.photoURL);
     return null;
   }
 
-  Future<void> addUserToFirestore(String? userUid, String? displayName, String? email) async {
+  Future<void> addUserToFirestore(String? userUid, String? displayName, String? email, String? avatarUrl) async {
     final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
     if (userUid != null) {
       await usersCollection.doc(userUid).set(
-        {'displayName': displayName, 'email': email, 'uid': userUid},
+        {'displayName': displayName, 'email': email, 'uid': userUid, 'avatarUrl': avatarUrl},
         SetOptions(merge: true),
       );
       if (auth.currentUser == null) {
@@ -113,6 +113,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 'email': docSnapshot.data()['email'],
                 'phoneNumber': docSnapshot.data()['phoneNumber'],
                 'backgroundUrl': docSnapshot.data()['backgroundUrl'],
+                'avatarUrl': docSnapshot.data()['avatarUrl'],
                 'favoriteHikingTrails': docSnapshot.data()['favoriteHikingTrails'],
               });
 
@@ -136,7 +137,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
               setState(() {
                 auth.currentUser?.imageUrls = imageUrls;
-                print(auth.currentUser?.imageUrls?.length);
               });
             } catch (e) {
               print('Error retrieving images: $e');

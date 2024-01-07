@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hike_connect/features/connections/connect_dashboard_screen.dart';
 import 'package:hike_connect/features/events/events_screen.dart';
 import 'package:hike_connect/features/hiker_profile/hiker_profile_screen.dart';
-import 'package:hike_connect/features/hiking_trails/hiking_trails_screen.dart';
+import 'package:hike_connect/features/hiking_trails/hikes_screen.dart';
 import 'package:hike_connect/map_screen.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 

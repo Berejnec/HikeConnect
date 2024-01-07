@@ -3,14 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
 
-class HikingTrailForm extends StatefulWidget {
-  const HikingTrailForm({super.key});
+class HikeForm extends StatefulWidget {
+  const HikeForm({super.key});
 
   @override
-  State<HikingTrailForm> createState() => _HikingTrailFormState();
+  State<HikeForm> createState() => _HikeFormState();
 }
 
-class _HikingTrailFormState extends State<HikingTrailForm> {
+class _HikeFormState extends State<HikeForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController routeNameController = TextEditingController();

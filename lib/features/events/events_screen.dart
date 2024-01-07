@@ -107,6 +107,36 @@ class _EventsPageState extends State<EventsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   FutureBuilder(
+                    future: fetchWeatherData(event.hikingTrail.locationLatLng),
+                    builder: (context, weatherDataSnapshot) {
+                      if (weatherDataSnapshot.hasError) {
+                        return Text('Error: ${weatherDataSnapshot.error}');
+                      } else {
+                        Map<String, dynamic>? weatherData = weatherDataSnapshot.data;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              title: Text(event.hikingTrail.routeName),
+                              subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text('Data: ${DateFormat.yMMMd().format(event.date)}'),
+                                if (weatherData != null) ...[
+                                  const Gap(8),
+                                  Row(
+                                    children: [
+                                      const Icon(FontAwesomeIcons.temperatureFull),
+                                      Text('Temperatura: ${weatherData['current']['temp_c']} Celsius'),
+                                    ],
+                                  ),
+                                ],
+                              ]),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                  FutureBuilder(
                     future: fetchSunriseSunsetData(event.hikingTrail.locationLatLng.latitude, event.hikingTrail.locationLatLng.longitude),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
@@ -114,17 +144,30 @@ class _EventsPageState extends State<EventsScreen> {
                       } else {
                         Map<String, dynamic>? sunriseSunsetData = snapshot.data;
 
-                        return ListTile(
-                          title: Text(event.hikingTrail.routeName),
-                          subtitle: Column(
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Data: ${DateFormat.yMMMd().format(event.date)}'),
                               if (sunriseSunsetData != null) ...[
-                                const Gap(8),
-                                Text('Rasarit: ${sunriseSunsetData['sunrise']}'),
-                                Text('Apus: ${sunriseSunsetData['sunset']}'),
-                                Text('Durata zilei: ${sunriseSunsetData['day_length']}')
+                                Row(
+                                  children: [
+                                    const Icon(Icons.sunny),
+                                    Text('Rasarit: ${sunriseSunsetData['sunrise']}'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.nightlight_round_rounded),
+                                    Text('Apus: ${sunriseSunsetData['sunset']}'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.timer),
+                                    Text('Durata zilei: ${sunriseSunsetData['day_length']}'),
+                                  ],
+                                )
                               ],
                               if (event.participants.isNotEmpty) ...[
                                 const Gap(8),
@@ -195,29 +238,7 @@ class _EventsPageState extends State<EventsScreen> {
                         );
                       }
                     },
-                  ),
-                  FutureBuilder(
-                    future: fetchWeatherData(event.hikingTrail.locationLatLng),
-                    builder: (context, weatherDataSnapshot) {
-                      if (weatherDataSnapshot.hasError) {
-                        return Text('Error: ${weatherDataSnapshot.error}');
-                      } else {
-                        Map<String, dynamic>? weatherData = weatherDataSnapshot.data;
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (weatherData != null) ...[
-                                const Gap(8),
-                                Text('Temperatura: ${weatherData['current']['temp_c']} Celsius'),
-                              ],
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                  )
                 ],
               );
             },

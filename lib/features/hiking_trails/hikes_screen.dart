@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
-import 'package:hike_connect/features/hiking_trails/hiking_trail_form.dart';
+import 'package:hike_connect/features/hiking_trails/hike_form.dart';
 import 'package:hike_connect/globals/auth_global.dart' as auth;
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
@@ -33,12 +33,12 @@ class _HikesScreenState extends State<HikesScreen> {
       appBar: AppBar(
         title: const Text('Trasee'),
         actions: [
-          IconButton.outlined(
-            onPressed: () {},
-            icon: const Icon(Icons.sos_outlined),
-            highlightColor: Colors.red.shade400,
-            color: Colors.red.shade200,
-          ),
+          // IconButton.outlined(
+          //   onPressed: () {},
+          //   icon: const Icon(Icons.sos_outlined),
+          //   highlightColor: Colors.red.shade400,
+          //   color: Colors.red.shade200,
+          // ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -68,7 +68,7 @@ class _HikesScreenState extends State<HikesScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const HikingTrailForm()),
+                          MaterialPageRoute(builder: (context) => const HikeForm()),
                         );
                       },
                     ),

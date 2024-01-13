@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
 import 'package:hike_connect/features/hiking_trails/hike_form.dart';
 import 'package:hike_connect/globals/auth_global.dart' as auth;
@@ -24,7 +25,6 @@ class _HikesScreenState extends State<HikesScreen> {
   @override
   void initState() {
     super.initState();
-    fetchUserDetails(false);
   }
 
   @override
@@ -121,9 +121,12 @@ class _HikesScreenState extends State<HikesScreen> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Column(
                                         children: [
-                                          RowInfo(info: 'Dificultate: ${trail.degreeOfDifficulty}', icon: const Icon(Icons.rocket_launch_outlined, size: 18)),
+                                          RowInfo(
+                                              info: 'Dificultate: ${trail.degreeOfDifficulty}',
+                                              icon: const Icon(Icons.rocket_launch_outlined, size: 18)),
                                           const Gap(8),
-                                          RowInfo(info: 'Echipament: ${trail.equipmentLevelRequested}', icon: const Icon(Icons.shield_rounded, size: 18)),
+                                          RowInfo(
+                                              info: 'Echipament: ${trail.equipmentLevelRequested}', icon: const Icon(Icons.shield_rounded, size: 18)),
                                           const Gap(8),
                                           RowInfo(info: 'Marcaj: ${trail.marking}', icon: const Icon(Icons.track_changes_outlined, size: 18)),
                                           const Gap(8),
@@ -199,6 +202,7 @@ class _HikesScreenState extends State<HikesScreen> {
         content: Text(message),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 16.0),
       ),
     );
   }
@@ -212,48 +216,36 @@ class _HikesScreenState extends State<HikesScreen> {
       await userDoc.update({
         'favoriteHikingTrails': FieldValue.arrayRemove([trailName]),
       });
+
+      if (!mounted) return;
+
+      HikerUser? updatedHikerUser = context.read<AuthCubit>().getHikerUser()?.copyWith(
+            favoriteHikingTrails: (context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails ?? [])..remove(trailName),
+          );
+
+      context.read<AuthCubit>().setHikerUser(updatedHikerUser);
     } catch (e) {
       print('Error updating favorites: $e');
     }
   }
 
-  void addToFavorites(String trailName) async {
-    if (auth.currentUser != null && !auth.currentUser!.favoriteHikingTrails.contains(trailName)) {
-      setState(() {
-        auth.currentUser!.favoriteHikingTrails.add(trailName);
-      });
-
-      await updateFavoritesInFirestore(trailName);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Traseu adaugat la favorite!'),
-        duration: Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Traseul este deja adaugat la favorite'),
-          duration: Duration(seconds: 3),
-          margin: EdgeInsets.only(bottom: 16.0),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-  }
-
-  Future<void> updateFavoritesInFirestore(String trailId) async {
+  Future<void> updateFavoritesInFirestore(String trailName) async {
     try {
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
       DocumentReference userDoc = usersCollection.doc(auth.currentUser?.uid ?? '');
 
       await userDoc.update({
-        'favoriteHikingTrails': FieldValue.arrayUnion([trailId]),
+        'favoriteHikingTrails': FieldValue.arrayUnion([trailName]),
       });
 
+      if (!mounted) return;
+
+      HikerUser? updatedHikerUser = context.read<AuthCubit>().getHikerUser()?.copyWith(
+            favoriteHikingTrails: (context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails ?? [])..add(trailName),
+          );
+
+      context.read<AuthCubit>().setHikerUser(updatedHikerUser);
       print('Favorites updated successfully');
     } catch (e) {
       print('Error updating favorites: $e');
@@ -295,47 +287,5 @@ class _HikesScreenState extends State<HikesScreen> {
         );
       },
     );
-  }
-
-  Future<void> fetchUserDetails(bool? fetch) async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-
-    if (auth.currentUser == null || fetch == true) {
-      FirebaseFirestore.instance.collection('users').where("uid", isEqualTo: currentUser?.uid).get().then(
-        (querySnapshot) async {
-          for (var docSnapshot in querySnapshot.docs) {
-            HikerUser hikerUser = HikerUser.fromMap({
-              'uid': docSnapshot.data()['uid'],
-              'displayName': docSnapshot.data()['displayName'],
-              'email': docSnapshot.data()['email'],
-              'phoneNumber': docSnapshot.data()['phoneNumber'],
-              'avatarUrl': docSnapshot.data()['avatarUrl'],
-              'backgroundUrl': docSnapshot.data()['backgroundUrl'],
-              'favoriteHikingTrails': docSnapshot.data()['favoriteHikingTrails'],
-            });
-
-            setState(() {
-              auth.currentUser = hikerUser;
-              auth.currentUser?.favoriteHikingTrails = [...docSnapshot.data()['favoriteHikingTrails']];
-            });
-          }
-
-          CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(currentUser?.uid).collection('images');
-
-          try {
-            QuerySnapshot imagesQuerySnapshot = await imagesCollection.get();
-
-            List<String> imageUrls = imagesQuerySnapshot.docs.map((docSnapshot) => (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String).toList();
-
-            setState(() {
-              auth.currentUser?.imageUrls = imageUrls;
-            });
-          } catch (e) {
-            print('Error retrieving images: $e');
-          }
-        },
-        onError: (e) => print('Error completing: $e'),
-      );
-    }
   }
 }

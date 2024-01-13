@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hike_connect/globals/auth_global.dart' as auth;
+import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/home_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
@@ -19,7 +20,6 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  User? currentUser = FirebaseAuth.instance.currentUser;
   @override
   void initState() {
     super.initState();
@@ -78,7 +78,7 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Future<UserCredential?> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
@@ -90,7 +90,33 @@ class _SignInScreenState extends State<SignInScreen> {
       idToken: googleAuth.idToken,
     );
     await auth.signInWithCredential(credential);
+
+    final currentUser = auth.currentUser;
+
+    HikerUser? hikerUser = await fetchHikerUser(currentUser?.uid);
+
+    if (!mounted) return;
+    context.read<AuthCubit>().setUser(currentUser, hikerUser);
     await addUserToFirestore(auth.currentUser?.uid, auth.currentUser?.displayName, auth.currentUser?.email, auth.currentUser?.photoURL);
+  }
+
+  Future<HikerUser?> fetchHikerUser(String? userUid) async {
+    if (userUid == null) return null;
+
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userUid).get();
+
+      if (userSnapshot.exists) {
+        HikerUser hikerUser = HikerUser.fromMap(userSnapshot.data() as Map<String, dynamic>);
+        if (!mounted) return null;
+        context.read<AuthCubit>().setHikerUser(hikerUser);
+
+        return hikerUser;
+      }
+    } catch (e) {
+      print('Error fetching HikerUser: $e');
+    }
+
     return null;
   }
 
@@ -102,48 +128,24 @@ class _SignInScreenState extends State<SignInScreen> {
         {'displayName': displayName, 'email': email, 'uid': userUid, 'avatarUrl': avatarUrl},
         SetOptions(merge: true),
       );
-      if (auth.currentUser == null) {
-        print('Fetching data for user');
-        await FirebaseFirestore.instance.collection('users').where("uid", isEqualTo: currentUser?.uid).get().then(
-          (querySnapshot) async {
-            for (var docSnapshot in querySnapshot.docs) {
-              HikerUser hikerUser = HikerUser.fromMap({
-                'uid': docSnapshot.data()['uid'],
-                'displayName': docSnapshot.data()['displayName'],
-                'email': docSnapshot.data()['email'],
-                'phoneNumber': docSnapshot.data()['phoneNumber'],
-                'backgroundUrl': docSnapshot.data()['backgroundUrl'],
-                'avatarUrl': docSnapshot.data()['avatarUrl'],
-                'favoriteHikingTrails': docSnapshot.data()['favoriteHikingTrails'],
-              });
 
-              setState(() {
-                auth.currentUser = hikerUser;
-                auth.currentUser?.favoriteHikingTrails = [...docSnapshot.data()['favoriteHikingTrails']];
-              });
+      HikerUser? hikerUser = await fetchHikerUser(userUid);
 
-              print(
-                'User ID: ${hikerUser.uid}, DisplayName: ${hikerUser.displayName}, Email: ${hikerUser.email}, Phone number: ${hikerUser.phoneNumber}'
-                'backgroundUrl: ${hikerUser.backgroundUrl}, fav trails length: ${hikerUser.favoriteHikingTrails.length}, images length: ${hikerUser.imageUrls?.length}',
-              );
-            }
+      if (!mounted) return;
+      context.read<AuthCubit>().setUser(FirebaseAuth.instance.currentUser, hikerUser);
 
-            CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(currentUser?.uid).collection('images');
+      if (hikerUser != null) {
+        CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(userUid).collection('images');
 
-            try {
-              QuerySnapshot imagesQuerySnapshot = await imagesCollection.get();
-
-              List<String> imageUrls = imagesQuerySnapshot.docs.map((docSnapshot) => (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String).toList();
-
-              setState(() {
-                auth.currentUser?.imageUrls = imageUrls;
-              });
-            } catch (e) {
-              print('Error retrieving images: $e');
-            }
-          },
-          onError: (e) => print('Error completing: $e'),
-        );
+        try {
+          QuerySnapshot imagesQuerySnapshot = await imagesCollection.get();
+          List<String> imageUrls =
+              imagesQuerySnapshot.docs.map((docSnapshot) => (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String).toList();
+          if (!mounted) return;
+          context.read<AuthCubit>().setHikerUser(hikerUser.copyWith(imageUrls: imageUrls));
+        } catch (e) {
+          print('Error retrieving images: $e');
+        }
       }
     }
   }

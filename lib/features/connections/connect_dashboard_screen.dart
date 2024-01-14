@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:hike_connect/globals/auth_global.dart' as auth;
+import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 
 class ConnectDashboardScreen extends StatefulWidget {
@@ -50,15 +51,15 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
           child: Column(
             children: [
               // Favorite Hiking Trails
-              auth.currentUser?.favoriteHikingTrails != null
+              context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails != null
                   ? Expanded(
                       child: ListView.builder(
-                        itemCount: auth.currentUser!.favoriteHikingTrails.length,
+                        itemCount: context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length,
                         itemBuilder: (context, index) {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Expanded(child: Text('${index + 1}. ${auth.currentUser!.favoriteHikingTrails[index]}')),
+                              Expanded(child: Text('${index + 1}. ${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails[index]}')),
                             ],
                           );
                         },

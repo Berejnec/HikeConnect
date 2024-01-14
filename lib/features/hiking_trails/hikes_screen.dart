@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
 import 'package:hike_connect/features/hiking_trails/hike_form.dart';
-import 'package:hike_connect/globals/auth_global.dart' as auth;
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/theme/hike_color.dart';
@@ -29,166 +28,173 @@ class _HikesScreenState extends State<HikesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Trasee'),
-        actions: [
-          // IconButton.outlined(
-          //   onPressed: () {},
-          //   icon: const Icon(Icons.sos_outlined),
-          //   highlightColor: Colors.red.shade400,
-          //   color: Colors.red.shade200,
-          // ),
-        ],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('hikingTrails').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return BlocBuilder<AuthCubit, AuthState>(builder: (BuildContext context, AuthState authState) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Trasee'),
+          actions: [
+            // IconButton.outlined(
+            //   onPressed: () {},
+            //   icon: const Icon(Icons.sos_outlined),
+            //   highlightColor: Colors.red.shade400,
+            //   color: Colors.red.shade200,
+            // ),
+          ],
+        ),
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('hikingTrails').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error loading hiking trails'));
-          }
+            if (snapshot.hasError) {
+              return const Center(child: Text('Error loading hiking trails'));
+            }
 
-          List<HikingTrail> hikingTrails = snapshot.data!.docs.map((doc) => HikingTrail.fromMap(doc.data() as Map<String, dynamic>)).toList();
+            List<HikingTrail> hikingTrails = snapshot.data!.docs.map((doc) => HikingTrail.fromMap(doc.data() as Map<String, dynamic>)).toList();
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Gap(8),
-                Row(
-                  children: [
-                    Expanded(child: Text('Trasee autorizate din Romania', style: Theme.of(context).textTheme.headlineMedium)),
-                    IconButton(
-                      icon: const Icon(Icons.file_open_rounded),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HikeForm()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const Gap(16),
-                Expanded(
-                  child: hikingTrails.isNotEmpty
-                      ? RefreshIndicator(
-                          onRefresh: () async {
-                            // Handle refreshing the data (if needed)
-                          },
-                          child: ListView.separated(
-                            padding: const EdgeInsets.only(bottom: 32.0),
-                            itemCount: hikingTrails.length,
-                            itemBuilder: (context, index) {
-                              HikingTrail trail = hikingTrails[index];
-                              return Card(
-                                key: Key(trail.routeName),
-                                elevation: 5.0,
-                                clipBehavior: Clip.antiAlias,
-                                color: HikeColor.tertiaryColor,
-                                child: ExpansionTile(
-                                  maintainState: true,
-                                  tilePadding: const EdgeInsets.all(4.0),
-                                  leading: const Icon(Icons.hiking, color: HikeColor.white),
-                                  title: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Gap(8),
+                  Row(
+                    children: [
+                      Expanded(child: Text('Trasee autorizate din Romania', style: Theme.of(context).textTheme.headlineMedium)),
+                      IconButton(
+                        icon: const Icon(Icons.file_open_rounded),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const HikeForm()),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const Gap(16),
+                  Expanded(
+                    child: hikingTrails.isNotEmpty
+                        ? RefreshIndicator(
+                            onRefresh: () async {
+                              // Handle refreshing the data (if needed)
+                            },
+                            child: ListView.separated(
+                              padding: const EdgeInsets.only(bottom: 32.0),
+                              itemCount: hikingTrails.length,
+                              itemBuilder: (context, index) {
+                                HikingTrail trail = hikingTrails[index];
+                                return Card(
+                                  key: Key(trail.routeName),
+                                  elevation: 5.0,
+                                  clipBehavior: Clip.antiAlias,
+                                  color: HikeColor.tertiaryColor,
+                                  child: ExpansionTile(
+                                    maintainState: true,
+                                    tilePadding: const EdgeInsets.all(4.0),
+                                    leading: const Icon(Icons.hiking, color: HikeColor.white),
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          trail.routeName,
+                                          style:
+                                              Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: HikeColor.white),
+                                        ),
+                                        Text(
+                                          'Locatie: ${trail.location} - ${trail.county}',
+                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: HikeColor.white),
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor: HikeColor.green,
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.map),
+                                      color: HikeColor.white,
+                                      onPressed: () {
+                                        launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
+                                      },
+                                    ),
                                     children: [
-                                      Text(
-                                        trail.routeName,
-                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: HikeColor.white),
-                                      ),
-                                      Text(
-                                        'Locatie: ${trail.location} - ${trail.county}',
-                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: HikeColor.white),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            RowInfo(
+                                                info: 'Dificultate: ${trail.degreeOfDifficulty}',
+                                                icon: const Icon(Icons.rocket_launch_outlined, size: 18)),
+                                            const Gap(8),
+                                            RowInfo(
+                                                info: 'Echipament: ${trail.equipmentLevelRequested}',
+                                                icon: const Icon(Icons.shield_rounded, size: 18)),
+                                            const Gap(8),
+                                            RowInfo(info: 'Marcaj: ${trail.marking}', icon: const Icon(Icons.track_changes_outlined, size: 18)),
+                                            const Gap(8),
+                                            RowInfo(
+                                                info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.hotel_class_outlined, size: 18)),
+                                            const Gap(8),
+                                            RowInfo(info: 'Durata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 18)),
+                                            const Gap(16),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    toggleFavorite(trail.routeName);
+                                                  },
+                                                  icon: Icon(Icons.star, color: isFavorite(trail.routeName) ? Colors.yellowAccent : HikeColor.white),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    _showAddEventDialog(context, trail);
+                                                  },
+                                                  icon: const Icon(Icons.event),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  backgroundColor: HikeColor.green,
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.map),
-                                    color: HikeColor.white,
-                                    onPressed: () {
-                                      launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
-                                    },
-                                  ),
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: [
-                                          RowInfo(
-                                              info: 'Dificultate: ${trail.degreeOfDifficulty}',
-                                              icon: const Icon(Icons.rocket_launch_outlined, size: 18)),
-                                          const Gap(8),
-                                          RowInfo(
-                                              info: 'Echipament: ${trail.equipmentLevelRequested}', icon: const Icon(Icons.shield_rounded, size: 18)),
-                                          const Gap(8),
-                                          RowInfo(info: 'Marcaj: ${trail.marking}', icon: const Icon(Icons.track_changes_outlined, size: 18)),
-                                          const Gap(8),
-                                          RowInfo(info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.hotel_class_outlined, size: 18)),
-                                          const Gap(8),
-                                          RowInfo(info: 'Durata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 18)),
-                                          const Gap(16),
-                                          Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  toggleFavorite(trail.routeName);
-                                                },
-                                                icon: Icon(Icons.star, color: isFavorite(trail.routeName) ? Colors.yellowAccent : HikeColor.white),
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  _showAddEventDialog(context, trail);
-                                                },
-                                                icon: const Icon(Icons.event),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            separatorBuilder: (BuildContext context, int index) => const Gap(4),
-                          ),
-                        )
-                      : const Center(child: CircularProgressIndicator()),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+                                );
+                              },
+                              separatorBuilder: (BuildContext context, int index) => const Gap(4),
+                            ),
+                          )
+                        : const Center(child: CircularProgressIndicator()),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 
   bool isFavorite(String trailName) {
-    return auth.currentUser != null && auth.currentUser!.favoriteHikingTrails.contains(trailName);
+    return context.read<AuthCubit>().getHikerUser() != null && context.read<AuthCubit>().getHikerUser()!.favoriteHikingTrails.contains(trailName);
   }
 
   void toggleFavorite(String trailName) async {
-    if (auth.currentUser != null) {
-      if (auth.currentUser!.favoriteHikingTrails.contains(trailName)) {
-        setState(() {
-          auth.currentUser!.favoriteHikingTrails.remove(trailName);
-        });
+    if (context.read<AuthCubit>().getHikerUser() != null) {
+      if (context.read<AuthCubit>().getHikerUser()!.favoriteHikingTrails.contains(trailName)) {
+        // setState(() {
+        //   auth.currentUser!.favoriteHikingTrails.remove(trailName);
+        // });
+        print('remove');
 
         await removeFromFavoritesInFirestore(trailName);
         showSnackBar('Traseu eliminat de la favorite!');
       } else {
-        setState(() {
-          auth.currentUser!.favoriteHikingTrails.add(trailName);
-        });
+        // setState(() {
+        //   auth.currentUser!.favoriteHikingTrails.add(trailName);
+        // });
+        print('add');
 
         await updateFavoritesInFirestore(trailName);
         showSnackBar('Traseu adaugat la favorite!');
@@ -209,9 +215,10 @@ class _HikesScreenState extends State<HikesScreen> {
 
   Future<void> removeFromFavoritesInFirestore(String trailName) async {
     try {
+      print(trailName);
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-      DocumentReference userDoc = usersCollection.doc(auth.currentUser?.uid ?? '');
+      DocumentReference userDoc = usersCollection.doc(context.read<AuthCubit>().getHikerUser()?.uid ?? '');
 
       await userDoc.update({
         'favoriteHikingTrails': FieldValue.arrayRemove([trailName]),
@@ -233,7 +240,7 @@ class _HikesScreenState extends State<HikesScreen> {
     try {
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-      DocumentReference userDoc = usersCollection.doc(auth.currentUser?.uid ?? '');
+      DocumentReference userDoc = usersCollection.doc(context.read<AuthCubit>().getHikerUser()?.uid ?? '');
 
       await userDoc.update({
         'favoriteHikingTrails': FieldValue.arrayUnion([trailName]),

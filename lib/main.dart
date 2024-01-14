@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hike_connect/app_navigation_cubit.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
 import 'package:hike_connect/theme/hike_connect_theme.dart';
@@ -20,8 +21,11 @@ class HikeConnectApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>(create: (context) => AuthCubit()),
+        BlocProvider<ScreenCubit>(create: (context) => ScreenCubit()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: HikeConnectTheme.getPrimaryTheme(),

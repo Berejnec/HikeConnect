@@ -1,5 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hike_connect/app_navigation_cubit.dart';
 import 'package:hike_connect/features/connections/connect_dashboard_screen.dart';
 import 'package:hike_connect/features/events/events_screen.dart';
 import 'package:hike_connect/features/hiker_profile/hiker_profile_screen.dart';
@@ -27,10 +29,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: screens[currentIndex],
-      bottomNavigationBar: buildConvexAppBar(),
+    return BlocBuilder<ScreenCubit, AppScreen>(
+      builder: (context, selectedScreen) {
+        return Scaffold(
+          body: _buildScreen(selectedScreen),
+          bottomNavigationBar: _buildBottomNavigationBar(context),
+        );
+      },
     );
+  }
+
+  Widget _buildScreen(AppScreen selectedScreen) {
+    switch (selectedScreen) {
+      case AppScreen.hikes:
+        return const HikesScreen();
+      case AppScreen.events:
+        return const EventsScreen();
+      case AppScreen.map:
+        return const MapScreen();
+      case AppScreen.connect:
+        return const ConnectDashboardScreen();
+      case AppScreen.profile:
+        return const HikerProfileScreen();
+    }
   }
 
   void changeTab(int index) {
@@ -39,11 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  ConvexAppBar buildConvexAppBar() {
+  Widget _buildBottomNavigationBar(BuildContext context) {
     return ConvexAppBar(
       style: TabStyle.custom,
       backgroundColor: HikeColor.primaryColor,
-      initialActiveIndex: 0,
       color: Colors.white60,
       top: -15.0,
       items: const [
@@ -53,7 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
         TabItem(icon: Icons.connect_without_contact_outlined, title: 'Conexiuni'),
         TabItem(icon: Icons.person, title: 'Profil'),
       ],
-      onTap: changeTab,
+      initialActiveIndex: context.read<ScreenCubit>().state.index,
+      onTap: (index) {
+        context.read<ScreenCubit>().setScreen(AppScreen.values[index]);
+      },
     );
   }
 }

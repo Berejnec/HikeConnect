@@ -11,6 +11,7 @@ import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
+import 'package:hike_connect/features/connections/connect_dashboard_screen.dart';
 import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/timeline.dart';
@@ -173,13 +174,25 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                         children: [
                           Column(
                             children: [
-                              Text(
-                                '${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length ?? '...'}',
-                                style: const TextStyle(color: Colors.black54, fontSize: 24),
-                              ),
-                              const Text(
-                                'Trasee favorite',
-                                style: TextStyle(color: Colors.black54, fontSize: 16),
+                              GestureDetector(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length ?? '...'}',
+                                      style: const TextStyle(color: Colors.black54, fontSize: 24),
+                                    ),
+                                    const Text(
+                                      'Trasee favorite',
+                                      style: TextStyle(color: Colors.black54, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const ConnectDashboardScreen()),
+                                  );
+                                },
                               ),
                             ],
                           ),

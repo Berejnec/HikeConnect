@@ -86,6 +86,19 @@ flutter:
     - assets/trails_data.txt
     - assets/ic_launcher.png
     - assets/google_icon.png
+    - assets/banda_albastra.png
+    - assets/banda_galbena.png
+    - assets/banda_rosie.png
+    - assets/cruce_albastra.png
+    - assets/cruce_galbena.png
+    - assets/cruce_rosie.png
+    - assets/triunghi_albastru.png
+    - assets/triunghi_galben.png
+    - assets/triunghi_rosu.png
+    - assets/punct_albastru.png
+    - assets/punct_galben.png
+    - assets/punct_rosu.png
+    - assets/trasee_turistice_oficial.xlsx
 
   # To add assets to your application, add an assets section, like this:
   # assets:

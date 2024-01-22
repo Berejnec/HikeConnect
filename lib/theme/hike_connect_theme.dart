@@ -12,11 +12,11 @@ class HikeConnectTheme {
   }
 
   static final ThemeData _primaryTheme = ThemeData(
-    useMaterial3: true,
-    colorSchemeSeed: HikeColor.primaryColor,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: HikeColor.secondaryColor,
-      foregroundColor: Colors.white,
-    ),
-  );
+      useMaterial3: true,
+      colorSchemeSeed: HikeColor.primaryColor,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: HikeColor.secondaryColor,
+        foregroundColor: Colors.white,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(modalBackgroundColor: HikeColor.white));
 }

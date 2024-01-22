@@ -2,11 +2,9 @@ import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hike_connect/app_navigation_cubit.dart';
-import 'package:hike_connect/features/connections/connect_dashboard_screen.dart';
 import 'package:hike_connect/features/events/events_screen.dart';
 import 'package:hike_connect/features/hiker_profile/hiker_profile_screen.dart';
 import 'package:hike_connect/features/hiking_trails/hikes_screen.dart';
-import 'package:hike_connect/map_screen.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,8 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> screens = [
     const HikesScreen(),
     const EventsScreen(),
-    const MapScreen(),
-    const ConnectDashboardScreen(),
+    // const MapScreen(),
+    // const ConnectDashboardScreen(),
     const HikerProfileScreen(),
   ];
 
@@ -45,10 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
         return const HikesScreen();
       case AppScreen.events:
         return const EventsScreen();
-      case AppScreen.map:
-        return const MapScreen();
-      case AppScreen.connect:
-        return const ConnectDashboardScreen();
+      // case AppScreen.map:
+      //   return const MapScreen();
+      // case AppScreen.connect:
+      //   return const ConnectDashboardScreen();
       case AppScreen.profile:
         return const HikerProfileScreen();
     }
@@ -62,15 +60,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return ConvexAppBar(
-      style: TabStyle.custom,
+      style: TabStyle.reactCircle,
       backgroundColor: HikeColor.primaryColor,
       color: Colors.white60,
       top: -15.0,
       items: const [
         TabItem(icon: Icons.hiking, title: 'Trasee'),
         TabItem(icon: Icons.event, title: 'Evenimente'),
-        TabItem(icon: Icons.map, title: 'Harta'),
-        TabItem(icon: Icons.connect_without_contact_outlined, title: 'Conexiuni'),
+        // TabItem(icon: Icons.map, title: 'Harta'),
+        // TabItem(icon: Icons.connect_without_contact_outlined, title: 'Dashboard'),
         TabItem(icon: Icons.person, title: 'Profil'),
       ],
       initialActiveIndex: context.read<ScreenCubit>().state.index,

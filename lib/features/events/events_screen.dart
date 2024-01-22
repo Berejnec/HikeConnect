@@ -2,10 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hike_connect/globals/auth_global.dart' as auth;
+import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/models/event_participant.dart';
 import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/models/hiker_user.dart';
@@ -22,23 +25,24 @@ class EventsScreen extends StatefulWidget {
 
 class _EventsPageState extends State<EventsScreen> {
   final sunsetSunriseApiBaseUrl = 'https://api.sunrisesunset.io/json';
-  final weatherApiBaseUrl = 'https://api.weatherapi.com/v1/forecast.json?';
+  final weatherApiBaseUrl = 'https://api.open-meteo.com/v1/forecast';
 
   @override
   void initState() {
     super.initState();
-    fetchWeatherData(const LatLng(45.0, 25.0));
   }
 
-  Future<Map<String, dynamic>> fetchWeatherData(LatLng latLng) async {
+  Future<Map<String, dynamic>> fetchWeatherData(LatLng latLng, DateTime date) async {
     try {
+      print(DateFormat('yyyy-MM-dd').format(date));
       final dio = Dio();
       final response = await dio.get(
         weatherApiBaseUrl,
         queryParameters: {
-          'key': 'bb6f222f2a7d4166b1c112651232412',
-          'q': '${latLng.latitude},${latLng.longitude}',
-          'days': '1',
+          'latitude': '${latLng.latitude}',
+          'longitude': '${latLng.longitude}',
+          'start_date': DateFormat('yyyy-MM-dd').format(date),
+          'end_date': DateFormat('yyyy-MM-dd').format(date),
         },
       );
       if (response.statusCode == 200) {
@@ -53,7 +57,7 @@ class _EventsPageState extends State<EventsScreen> {
     }
   }
 
-  Future<Map<String, dynamic>> fetchSunriseSunsetData(double lat, double lng) async {
+  Future<Map<String, dynamic>> fetchSunriseSunsetData(double lat, double lng, DateTime date) async {
     try {
       final dio = Dio();
       final response = await dio.get(
@@ -61,6 +65,7 @@ class _EventsPageState extends State<EventsScreen> {
         queryParameters: {
           'lat': lat,
           'lng': lng,
+          'date': DateFormat('yyyy-MM-dd').format(date),
         },
       );
 
@@ -77,177 +82,167 @@ class _EventsPageState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.grey[300],
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Evenimente'),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('events').orderBy('date').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          List<HikeEvent> events = snapshot.data!.docs
-              .map((doc) => HikeEvent.fromMap(doc.data() as Map<String, dynamic>))
-              .where(
-                (event) => event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
-              )
-              .toList();
-
-          return ListView.separated(
-            itemCount: events.length,
-            padding: const EdgeInsets.only(bottom: 32.0),
-            itemBuilder: (context, index) {
-              HikeEvent event = events[index];
-
-              bool isParticipant = event.participants.any((participant) => participant.userId == auth.currentUser!.uid);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FutureBuilder(
-                    future: fetchWeatherData(event.hikingTrail.locationLatLng),
-                    builder: (context, weatherDataSnapshot) {
-                      if (weatherDataSnapshot.hasError) {
-                        return Text('Error: ${weatherDataSnapshot.error}');
-                      } else {
-                        Map<String, dynamic>? weatherData = weatherDataSnapshot.data;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              title: Text(event.hikingTrail.routeName),
-                              subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text('Data: ${DateFormat.yMMMd().format(event.date)}'),
-                                if (weatherData != null) ...[
-                                  const Gap(8),
-                                  Row(
-                                    children: [
-                                      const Icon(FontAwesomeIcons.temperatureFull),
-                                      Text('Temperatura: ${weatherData['current']['temp_c']} Celsius'),
-                                    ],
-                                  ),
-                                ],
-                              ]),
-                            ),
-                          ],
-                        );
-                      }
-                    },
+        title: const Text('Evenimente HikeConnect'),
+        centerTitle: false,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EmergencyTabsScreen(),
                   ),
-                  FutureBuilder(
-                    future: fetchSunriseSunsetData(event.hikingTrail.locationLatLng.latitude, event.hikingTrail.locationLatLng.longitude),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        Map<String, dynamic>? sunriseSunsetData = snapshot.data;
+                );
+              },
+              icon: const Icon(Icons.emergency))
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const Gap(16),
+            Flexible(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('events').orderBy('date').snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (sunriseSunsetData != null) ...[
+                  List<HikeEvent> events = snapshot.data!.docs
+                      .map((doc) => HikeEvent.fromMap(doc.data() as Map<String, dynamic>))
+                      .where(
+                        (event) => event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
+                      )
+                      .toList();
+
+                  return ListView.separated(
+                    itemCount: events.length,
+                    padding: const EdgeInsets.only(bottom: 32.0),
+                    itemBuilder: (context, index) {
+                      HikeEvent event = events[index];
+
+                      bool isParticipant =
+                          event.participants.any((participant) => participant.userId == context.read<AuthCubit>().getHikerUser()?.uid);
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Icon(Icons.sunny),
-                                    Text('Rasarit: ${sunriseSunsetData['sunrise']}'),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.nightlight_round_rounded),
-                                    Text('Apus: ${sunriseSunsetData['sunset']}'),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.timer),
-                                    Text('Durata zilei: ${sunriseSunsetData['day_length']}'),
-                                  ],
-                                )
-                              ],
-                              if (event.participants.isNotEmpty) ...[
-                                const Gap(8),
-                                Text('Participanti:', style: Theme.of(context).textTheme.titleSmall),
-                                for (EventParticipant participant in event.participants) ...[
-                                  Row(
-                                    children: [
-                                      CircleAvatar(
-                                        backgroundImage: NetworkImage(participant.avatarUrl),
-                                        radius: 16.0,
+                                    Flexible(
+                                      child: Text(
+                                        event.hikingTrail.routeName,
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
                                       ),
-                                      const Gap(8),
-                                      Text(participant.displayName.split(' ')[0]),
-                                      if (isParticipant && participant.userId != auth.currentUser!.uid) ...[
-                                        IconButton(
-                                          color: HikeColor.infoDarkColor,
-                                          padding: const EdgeInsets.all(4.0),
-                                          onPressed: () async {
-                                            var whatsappUrl = Uri.parse("whatsapp://send?phone=${participant.phoneNumber}"
-                                                "&text=${Uri.encodeComponent("HikeConnect: M-am alaturat evenimentului ${event.hikingTrail.routeName} din data de ${DateFormat.yMMMd().format(event.date)} !")}");
-                                            try {
-                                              if (await canLaunchUrl(whatsappUrl)) {
-                                                launchUrl(whatsappUrl);
-                                              } else {
-                                                if (!mounted) return;
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    dismissDirection: DismissDirection.horizontal,
-                                                    behavior: SnackBarBehavior.floating,
-                                                    content: Text("WhatsApp is required to be installed in order to send a message!"),
-                                                  ),
-                                                );
-                                              }
-                                            } catch (e) {
-                                              debugPrint(e.toString());
-                                            }
-                                          },
-                                          icon: const Icon(FontAwesomeIcons.whatsapp, size: 20.0),
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        await _showSunriseSunsetModal(event);
+                                      },
+                                      icon: const Icon(Icons.info),
+                                    ),
+                                  ],
+                                ),
+                                Text('Data: ${DateFormat.yMMMd().format(event.date)}'),
+                                const Gap(4),
+                                if (event.participants.isNotEmpty) ...[
+                                  Text('Participanti:', style: Theme.of(context).textTheme.titleSmall),
+                                  for (EventParticipant participant in event.participants) ...[
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundImage: NetworkImage(participant.avatarUrl),
+                                          radius: 16.0,
                                         ),
-                                      ] else if (isParticipant && participant.userId == auth.currentUser!.uid) ...[
                                         const Gap(8),
-                                        const Text('(Dvs.)'),
+                                        Text(participant.displayName.split(' ')[0]),
+                                        if (isParticipant && participant.userId != context.read<AuthCubit>().getHikerUser()?.uid) ...[
+                                          IconButton(
+                                            color: HikeColor.infoDarkColor,
+                                            padding: const EdgeInsets.all(8.0),
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () async {
+                                              var whatsappUrl = Uri.parse("whatsapp://send?phone=${participant.phoneNumber}"
+                                                  "&text=${Uri.encodeComponent("HikeConnect: M-am alaturat evenimentului ${event.hikingTrail.routeName} din data de ${DateFormat.yMMMd().format(event.date)} !")}");
+                                              try {
+                                                if (await canLaunchUrl(whatsappUrl)) {
+                                                  launchUrl(whatsappUrl);
+                                                } else {
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(
+                                                      dismissDirection: DismissDirection.horizontal,
+                                                      behavior: SnackBarBehavior.floating,
+                                                      margin: EdgeInsets.only(bottom: 16.0),
+                                                      backgroundColor: HikeColor.infoColor,
+                                                      content: Text("WhatsApp is required to be installed in order to send a message!"),
+                                                    ),
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                debugPrint(e.toString());
+                                              }
+                                            },
+                                            icon: const Icon(FontAwesomeIcons.whatsapp, size: 20.0),
+                                          ),
+                                        ] else if (isParticipant && participant.userId == context.read<AuthCubit>().getHikerUser()?.uid) ...[
+                                          const Gap(8),
+                                          const Text('(Dvs.)'),
+                                        ],
                                       ],
-                                    ],
+                                    ),
+                                  ],
+                                ],
+                                if (!isParticipant) ...[
+                                  const Gap(8),
+                                  FilledButton.tonal(
+                                    onPressed: () {
+                                      joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Te-ai alaturat evenimentului cu succes!'),
+                                          duration: Duration(seconds: 5),
+                                          behavior: SnackBarBehavior.floating,
+                                          margin: EdgeInsets.only(bottom: 16.0),
+                                        ),
+                                      );
+                                    },
+                                    style: FilledButton.styleFrom(),
+                                    child: const Text('Participa'),
                                   ),
                                 ],
                               ],
-                              if (isParticipant) ...[
-                                const Gap(8),
-                                const Text('V-ati alaturat acestui eveniment.'),
-                              ] else ...[
-                                const Gap(8),
-                                FilledButton.tonal(
-                                  onPressed: () {
-                                    joinEvent(event.id, auth.currentUser!);
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                      content: Text('Te-ai alaturat evenimentului cu succes!'),
-                                      duration: Duration(seconds: 5),
-                                      behavior: SnackBarBehavior.floating,
-                                    ));
-                                  },
-                                  style: FilledButton.styleFrom(),
-                                  child: const Text('Participa'),
-                                ),
-                              ],
-                            ],
+                            ),
                           ),
-                        );
-                      }
+                        ],
+                      );
                     },
-                  )
-                ],
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) => const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
-              child: Divider(),
+                    separatorBuilder: (BuildContext context, int index) => const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+                      child: Divider(),
+                    ),
+                  );
+                },
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -277,5 +272,116 @@ class _EventsPageState extends State<EventsScreen> {
     } catch (e) {
       print('Error joining event: $e');
     }
+  }
+
+  Future<void> _showSunriseSunsetModal(HikeEvent event) async {
+    try {
+      Map<String, dynamic> sunriseSunsetData = await fetchSunriseSunsetData(
+        event.hikingTrail.locationLatLng.latitude,
+        event.hikingTrail.locationLatLng.longitude,
+        event.date,
+      );
+
+      if (!mounted) return;
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (BuildContext context) {
+          return _SunriseSunsetModalContent(event: event, sunriseSunsetData: sunriseSunsetData);
+        },
+      );
+    } catch (e) {
+      print('Error fetching sunrise and sunset data: $e');
+    }
+  }
+}
+
+class _SunriseSunsetModalContent extends StatefulWidget {
+  final HikeEvent event;
+  final Map<String, dynamic> sunriseSunsetData;
+
+  const _SunriseSunsetModalContent({
+    Key? key,
+    required this.event,
+    required this.sunriseSunsetData,
+  }) : super(key: key);
+
+  @override
+  State<_SunriseSunsetModalContent> createState() => _SunriseSunsetModalContentState();
+}
+
+class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.66,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Date despre ziua traseului',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const Gap(4),
+                const Flexible(
+                  child: Text(
+                    'Powered by SunriseSunset.io',
+                    style: TextStyle(fontSize: 10.0),
+                  ),
+                ),
+              ],
+            ),
+            Text(widget.event.hikingTrail.routeName),
+            Text(
+              DateFormat.yMMMd().format(widget.event.date),
+            ),
+            const Gap(16),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.sunny),
+                    Text('Rasarit: ${widget.sunriseSunsetData['sunrise']}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.nightlight_round_rounded),
+                    Text('Apus: ${widget.sunriseSunsetData['sunset']}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.timer),
+                    Text('Durata zilei: ${widget.sunriseSunsetData['day_length']}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.info),
+                    Text('Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.timer),
+                    Text('Timezone: ${widget.sunriseSunsetData['timezone']}'),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

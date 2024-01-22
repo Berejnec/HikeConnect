@@ -3,7 +3,7 @@ import 'package:gap/gap.dart';
 
 class RowInfo extends StatelessWidget {
   final String info;
-  final Icon? icon;
+  final Widget? icon;
 
   const RowInfo({super.key, required this.info, this.icon});
 

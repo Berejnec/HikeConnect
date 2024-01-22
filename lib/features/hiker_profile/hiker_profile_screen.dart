@@ -5,20 +5,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
-import 'package:hike_connect/features/connections/connect_dashboard_screen.dart';
+import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/models/hike_event.dart';
+import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/timeline.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:side_sheet/side_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-const List<String> scopes = <String>['email'];
 
 class HikerProfileScreen extends StatefulWidget {
   const HikerProfileScreen({Key? key}) : super(key: key);
@@ -48,12 +49,151 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.grey[300],
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (BuildContext context, AuthState authState) {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Profil'),
+            leading: IconButton(
+              onPressed: () => SideSheet.left(
+                body: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          InkWell(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const EmergencyTabsScreen(),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.emergency,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  'Informatii esentiale',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                    const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: TextButton.icon(
+                                onPressed: () async {
+                                  if (await canLaunchUrl(Uri.parse("tel:123"))) {
+                                    await launchUrl(Uri.parse("tel:123"));
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.emergency_outlined,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  'Apel de urgenta - 112 -',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                    const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: TextButton.icon(
+                                onPressed: () async {
+                                  if (await canLaunchUrl(Uri.parse("tel:0725826668"))) {
+                                    await launchUrl(Uri.parse("tel:0725826668"));
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.emergency_outlined,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  'Dispeceratul National Salvamont',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                    const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  _signOut();
+                                },
+                                icon: const Icon(Icons.logout, color: Colors.white),
+                                label: const Text('Deconecteaza-te', style: TextStyle(color: Colors.white)),
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                    const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                context: context,
+                width: MediaQuery.of(context).size.width * 0.66,
+                sheetColor: Colors.grey,
+              ),
+              icon: const Icon(Icons.menu),
+            ),
             actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmergencyTabsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.emergency),
+              ),
               IconButton(
                 onPressed: () {
                   _signOut();
@@ -71,6 +211,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
+                      constraints: const BoxConstraints.expand(height: 300.0),
                       decoration: authState is BackgroundImageUploading
                           ? BoxDecoration(
                               color: Colors.grey.withOpacity(0.3),
@@ -122,6 +263,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                   const Gap(25),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.max,
                                     children: [
                                       Text(
@@ -140,14 +282,36 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                         ),
                                       ),
                                       if (user?.phoneNumber != null)
-                                        Text(
-                                          '${user?.phoneNumber}',
-                                          style: const TextStyle(color: HikeColor.white, fontSize: 16),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '${user?.phoneNumber}',
+                                              style: const TextStyle(color: HikeColor.white, fontSize: 16),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                _showPhoneNumberDialog(context);
+                                              },
+                                              icon: const Icon(Icons.edit),
+                                            ),
+                                          ],
                                         ),
                                       if (user?.phoneNumber == null && context.read<AuthCubit>().getHikerUser()?.phoneNumber != null)
-                                        Text(
-                                          '${context.read<AuthCubit>().getHikerUser()?.phoneNumber}',
-                                          style: const TextStyle(color: HikeColor.white, fontSize: 16),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Text(
+                                              '${context.read<AuthCubit>().getHikerUser()?.phoneNumber}',
+                                              style: const TextStyle(color: HikeColor.white, fontSize: 16),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                _showPhoneNumberDialog(context);
+                                              },
+                                              icon: const Icon(Icons.edit, color: HikeColor.white),
+                                            ),
+                                          ],
                                         ),
                                     ],
                                   ),
@@ -176,6 +340,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                             children: [
                               GestureDetector(
                                 child: Column(
+                                  mainAxisSize: MainAxisSize.max,
                                   children: [
                                     Text(
                                       '${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length ?? '...'}',
@@ -188,12 +353,48 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                   ],
                                 ),
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const ConnectDashboardScreen()),
+                                  showModalBottomSheet<dynamic>(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    useSafeArea: true,
+                                    builder: (BuildContext context) {
+                                      return SizedBox(
+                                        height: MediaQuery.of(context).size.height * 0.66,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails != null
+                                                  ? Expanded(
+                                                      child: ListView.builder(
+                                                        itemCount: context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length,
+                                                        itemBuilder: (context, index) {
+                                                          return Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Expanded(
+                                                                  child: Text(
+                                                                      '${index + 1}. ${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails[index]}')),
+                                                            ],
+                                                          );
+                                                        },
+                                                      ),
+                                                    )
+                                                  : const Center(child: Text('Se incarca traseele favorite')),
+                                              ElevatedButton(
+                                                child: const Text('Close BottomSheet'),
+                                                onPressed: () => Navigator.pop(context),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
-                              ),
+                              )
                             ],
                           ),
                           const Column(
@@ -235,7 +436,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               String imageUrl = await referenceImageToUpload.getDownloadURL();
 
                               if (!mounted) return;
-                              // Use the AuthCubit method to add image and update user details
                               await context.read<AuthCubit>().addImageAndUpdate(imageUrl);
                             } catch (error) {
                               print(error);
@@ -258,7 +458,9 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     dismissDirection: DismissDirection.horizontal,
+                                    duration: Duration(seconds: 2),
                                     behavior: SnackBarBehavior.floating,
+                                    margin: EdgeInsets.only(bottom: 16.0),
                                     content: Text("WhatsApp is required to be installed in order to send message!"),
                                   ),
                                 );
@@ -353,7 +555,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                     ),
                                   ),
                                 )
-                              : Center(child: Text('Nicio image incarcata', style: Theme.of(context).textTheme.titleMedium)),
+                              : Center(child: Text('Nicio image incarcata.', style: Theme.of(context).textTheme.titleMedium)),
                     const Gap(16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -365,6 +567,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                         ],
                       ),
                     ),
+                    const Gap(16),
                     if (userEvents.isNotEmpty)
                       Container(
                         height: 400,
@@ -374,7 +577,9 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                           child: Timeline(pastEvents: userEvents),
                         ),
                       ),
-                    if (userEvents.isEmpty) const Center(child: Text('No past hiking trails for the user')),
+                    if (userEvents.isEmpty) ...[
+                      const Center(child: Text('Niciun traseu parcurs momentan.')),
+                    ],
                     const Gap(16),
                   ],
                 ),
@@ -443,11 +648,64 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
 
   Future<void> fetchUserEventsList() async {
     if (context.read<AuthCubit>().getHikerUser() != null) {
-      // context.read<AuthCubit>().printHikerUserDetails();
       List<HikeEvent> events = await fetchUserEvents(context.read<AuthCubit>().getHikerUser()!.uid);
       setState(() {
         userEvents = events;
       });
+    }
+  }
+
+  void _showPhoneNumberDialog(BuildContext context) {
+    String newPhoneNumber = '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Phone Number'),
+          content: TextField(
+            onChanged: (value) {
+              newPhoneNumber = value;
+            },
+            decoration: const InputDecoration(
+              hintText: 'Enter your new phone number',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _updatePhoneNumber(newPhoneNumber);
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _updatePhoneNumber(String newPhoneNumber) async {
+    try {
+      CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+
+      String uid = context.read<AuthCubit>().getHikerUser()?.uid ?? '';
+      DocumentReference userDoc = usersCollection.doc(uid);
+
+      await userDoc.update({'phoneNumber': newPhoneNumber});
+
+      if (!mounted) return;
+
+      HikerUser? updatedHikerUser = context.read<AuthCubit>().getHikerUser()?.copyWith(phoneNumber: newPhoneNumber);
+      context.read<AuthCubit>().setHikerUser(updatedHikerUser);
+    } catch (e) {
+      print('Error updating phone number: $e');
     }
   }
 }

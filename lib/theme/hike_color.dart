@@ -9,6 +9,7 @@ class HikeColor {
 
   static const Color secondaryColor = Color(0xFF6F7C80);
   static const Color tertiaryColor = Color(0xFFA1A7AC);
+  static Color? fourthColor = Colors.grey[300];
 
   static const Color infoColor = Color(0xFF0E7C7C); // Teal
   static const Color infoLightColor = Color(0xFFA5D8D8);

@@ -1,10 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hike_connect/app_navigation_cubit.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
 import 'package:hike_connect/theme/hike_connect_theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
 
@@ -21,6 +23,12 @@ class HikeConnectApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.grey[300], // Set the status bar color to white
+      statusBarIconBrightness: Brightness.dark, // Set the status bar icons to dark
+      systemNavigationBarIconBrightness: Brightness.dark, // Set the navigation bar icons to dark
+    ));
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthCubit>(create: (context) => AuthCubit()),

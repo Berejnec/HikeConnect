@@ -18,49 +18,58 @@ class Timeline extends StatelessWidget {
 
         bool isStartChild = index.isEven;
 
-        return TimelineTile(
-          alignment: TimelineAlign.manual,
-          lineXY: 0.5,
-          beforeLineStyle: const LineStyle(color: HikeColor.infoDarkColor, thickness: 2.5),
-          afterLineStyle: const LineStyle(color: HikeColor.infoDarkColor, thickness: 2.5),
-          indicatorStyle: IndicatorStyle(
-            width: 16,
-            color: HikeColor.primaryColor,
-            indicatorXY: index == pastEvents.length - 1 ? 1.0 : 0.0,
-          ),
-          startChild: isStartChild
-              ? Container(
-                  constraints: const BoxConstraints(maxWidth: 300),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: index != pastEvents.length - 1 ? MainAxisAlignment.start : MainAxisAlignment.end,
-                      children: [
-                        Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text(DateFormat.yMMMd().format(event.date)),
-                      ],
-                    ),
-                  ),
-                )
-              : null,
-          endChild: isStartChild
-              ? null
-              : Container(
-                  constraints: const BoxConstraints(maxWidth: 300),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: index != pastEvents.length - 1 ? MainAxisAlignment.start : MainAxisAlignment.end,
-                      children: [
-                        Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text(DateFormat.yMMMd().format(event.date)),
-                      ],
-                    ),
-                  ),
+        return pastEvents.length > 1
+            ? TimelineTile(
+                alignment: TimelineAlign.manual,
+                lineXY: 0.5,
+                beforeLineStyle: const LineStyle(color: HikeColor.infoDarkColor, thickness: 2.5),
+                afterLineStyle: const LineStyle(color: HikeColor.infoDarkColor, thickness: 2.5),
+                indicatorStyle: IndicatorStyle(
+                  width: 16,
+                  color: HikeColor.primaryColor,
+                  indicatorXY: index == pastEvents.length - 1 ? 1.0 : 0.0,
                 ),
-        );
+                startChild: isStartChild
+                    ? Container(
+                        constraints: const BoxConstraints(maxWidth: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: index != pastEvents.length - 1 ? MainAxisAlignment.start : MainAxisAlignment.end,
+                            children: [
+                              Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(DateFormat.yMMMd().format(event.date)),
+                            ],
+                          ),
+                        ),
+                      )
+                    : null,
+                endChild: isStartChild
+                    ? null
+                    : Container(
+                        constraints: const BoxConstraints(maxWidth: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: index != pastEvents.length - 1 ? MainAxisAlignment.start : MainAxisAlignment.end,
+                            children: [
+                              Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(DateFormat.yMMMd().format(event.date)),
+                            ],
+                          ),
+                        ),
+                      ),
+              )
+            : Center(
+                child: Column(
+                  children: [
+                    Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(DateFormat.yMMMd().format(event.date)),
+                  ],
+                ),
+              );
       },
     );
   }

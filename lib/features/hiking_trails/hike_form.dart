@@ -167,7 +167,7 @@ class _HikeFormState extends State<HikeForm> {
 
   Future<void> saveHikingTrail() async {
     HikingTrail newTrail = HikingTrail(
-      uuid: '',
+      id: '',
       dateOfIssue: DateTime.now(),
       routeName: routeNameController.text,
       administrator: administratorController.text,

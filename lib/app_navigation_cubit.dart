@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 
-enum AppScreen { hikes, events, map, connect, profile }
+enum AppScreen { hikes, events, profile }
 
 class ScreenCubit extends Cubit<AppScreen> {
   ScreenCubit() : super(AppScreen.hikes);

@@ -21,12 +21,10 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthState(firebaseAuthUser: FirebaseAuth.instance.currentUser, hikerUser: null));
 
   void setUser(User? user, HikerUser? hikerUser) {
-    print('auth cubit setUser method: ${user?.uid} - ${hikerUser?.uid}');
     emit(AuthState(firebaseAuthUser: user, hikerUser: hikerUser));
   }
 
   void setHikerUser(HikerUser? hikerUser) {
-    print('auth cubit setHikerUser method: ${hikerUser?.uid} ${hikerUser?.favoriteHikingTrails}');
     emit(AuthState(firebaseAuthUser: state.firebaseAuthUser, hikerUser: hikerUser));
   }
 

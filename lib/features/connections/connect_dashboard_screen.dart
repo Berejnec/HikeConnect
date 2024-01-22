@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 
 class ConnectDashboardScreen extends StatefulWidget {
@@ -34,40 +33,18 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.grey[300],
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(Icons.construction),
-            Text('Conexiuni / Trasee favorite'),
-            Icon(Icons.construction),
-          ],
-        ),
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              // Favorite Hiking Trails
-              context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails != null
-                  ? Expanded(
-                      child: ListView.builder(
-                        itemCount: context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length,
-                        itemBuilder: (context, index) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(child: Text('${index + 1}. ${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails[index]}')),
-                            ],
-                          );
-                        },
-                      ),
-                    )
-                  : const Center(child: Text('Se incarca traseele favorite')),
-              const SizedBox(height: 16),
-
               Expanded(
                 child: ListView.builder(
                   itemCount: users.length,
@@ -75,6 +52,7 @@ class _ConnectDashboardScreenState extends State<ConnectDashboardScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Text('WORK IN PROGRESS'),
                         const Text('Conecteaza-te cu alti drumeti: '),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,

@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
 import 'package:hike_connect/features/posts/posts_screen.dart';
+import 'package:hike_connect/map_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/theme/hike_color.dart';
@@ -23,6 +25,31 @@ class HikesScreen extends StatefulWidget {
 class _HikesScreenState extends State<HikesScreen> {
   List<HikingTrail> hikingTrails = [];
   String selectedDifficulty = 'Toate';
+  String selectedCounty = 'Toate';
+  List<String> counties = [
+    'Mureş',
+    'Caraș - Severin',
+    'Covasna',
+    'Hunedoara',
+    'Sibiu',
+    'Bihor',
+    'Maramureș',
+    'Alba',
+    'Harghita',
+    'Suceava',
+    'Arad',
+    'Bistrița - Năsăud',
+    'Vâlcea',
+    'Cluj',
+    'Mehedinți',
+    'Brașov',
+    'Neamț',
+    'Satu - Mare',
+    'Argeş',
+    'Prahova',
+    'Bacău',
+    'Satu Mare'
+  ];
 
   @override
   void initState() {
@@ -59,56 +86,32 @@ class _HikesScreenState extends State<HikesScreen> {
         backgroundColor: Colors.grey[100],
         body: SafeArea(
           child: StreamBuilder<QuerySnapshot>(
-            stream: selectedDifficulty == 'Toate'
-                ? FirebaseFirestore.instance.collection('hikingTrails').snapshots()
-                : FirebaseFirestore.instance
-                    .collection('hikingTrails')
-                    .where('degreeOfDifficulty', isEqualTo: selectedDifficulty.toLowerCase())
-                    .snapshots(),
+            stream: buildQuery().snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
 
               if (snapshot.hasError) {
-                return const Center(child: Text('Error loading hiking trails'));
+                return Center(child: Text('Error loading hiking trails ${snapshot.error}'));
               }
 
               List<HikingTrail> hikingTrails = snapshot.data!.docs.map((doc) => HikingTrail.fromMap(doc.data() as Map<String, dynamic>)).toList();
 
+              print('${snapshot.data?.size}');
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // const Gap(8),
-                    // Row(
-                    //   children: [
-                    //     Expanded(child: Text('Trasee autorizate din Romania', style: Theme.of(context).textTheme.headlineSmall)),
-                    //     // IconButton(
-                    //     //   icon: const Icon(Icons.file_open_rounded),
-                    //     //   onPressed: () {
-                    //     //     Navigator.push(
-                    //     //       context,
-                    //     //       MaterialPageRoute(builder: (context) => const HikeForm()),
-                    //     //     );
-                    //     //   },
-                    //     // ),
-                    //   ],
-                    // ),
-                    const Gap(4),
-                    const Text(
-                      'Filtreaza',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Grad de dificultate:'),
+                        const Text(
+                          'Grad de dificultate:',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                         Row(
                           children: [
                             getDifficultyIcon(selectedDifficulty),
@@ -147,13 +150,41 @@ class _HikesScreenState extends State<HikesScreen> {
                         ),
                       ],
                     ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: const Text(
+                            'Judet: ',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12.0),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton(
+                                value: selectedCounty,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedCounty = newValue ?? 'Toate';
+                                  });
+                                },
+                                items: getCountyDropdownItems(),
+                                isExpanded: true,
+                                isDense: false,
+                                icon: const Icon(Icons.arrow_downward),
+                                iconEnabledColor: Colors.black,
+                                hint: const Text('Alege judetul'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const Divider(height: 8.0),
-                    // TextButton(
-                    //   onPressed: () {
-                    //     updateHikingTrails();
-                    //   },
-                    //   child: const Text('Update hike Ids'),
-                    // ),
                     Expanded(
                       child: hikingTrails.isNotEmpty
                           ? ListView.separated(
@@ -169,6 +200,7 @@ class _HikesScreenState extends State<HikesScreen> {
                                   child: ExpansionTile(
                                     tilePadding: const EdgeInsets.all(4.0),
                                     leading: const Icon(Icons.hiking, color: Colors.black),
+                                    maintainState: true,
                                     title: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -183,11 +215,16 @@ class _HikesScreenState extends State<HikesScreen> {
                                       ],
                                     ),
                                     backgroundColor: HikeColor.green,
-                                    // Adjusted background color
                                     trailing: IconButton(
                                       icon: const Icon(Icons.map, color: Colors.black),
                                       onPressed: () {
-                                        launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MapScreen(routeName: trail.routeName.split('-').first.trim()),
+                                          ),
+                                        );
+                                        // launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
                                       },
                                     ),
                                     children: [
@@ -252,7 +289,7 @@ class _HikesScreenState extends State<HikesScreen> {
                                   ),
                                 );
                               },
-                              separatorBuilder: (BuildContext context, int index) => const Gap(4))
+                              separatorBuilder: (BuildContext context, int index) => const Gap(4)).animate().fadeIn(duration: 200.ms)
                           : const Center(
                               child: Text(
                                 'Niciun traseu disponibil.',
@@ -447,7 +484,7 @@ class _HikesScreenState extends State<HikesScreen> {
         color = Colors.red;
         break;
       default:
-        icon = Icons.stars_outlined;
+        icon = Icons.stars_rounded;
         color = HikeColor.infoDarkColor;
     }
 
@@ -455,23 +492,24 @@ class _HikesScreenState extends State<HikesScreen> {
   }
 
   void updateHikingTrails() async {
-    final QuerySnapshot<Map<String, dynamic>> trailsSnapshot = await FirebaseFirestore.instance.collection('hikingTrails').get();
-
-    WriteBatch batch = FirebaseFirestore.instance.batch();
-
-    for (var trailDoc in trailsSnapshot.docs) {
-      final String trailId = trailDoc.id;
-
-      final Map<String, dynamic> updatedData = {
-        'id': trailId,
-      };
-
-      final DocumentReference trailRef = FirebaseFirestore.instance.collection('hikingTrails').doc(trailId);
-
-      batch.set(trailRef, updatedData, SetOptions(merge: true));
-    }
-
-    await batch.commit();
+    // final QuerySnapshot<Map<String, dynamic>> trailsSnapshot = await FirebaseFirestore.instance.collection('hikingTrails').get();
+    //
+    // WriteBatch batch = FirebaseFirestore.instance.batch();
+    //
+    // for (var trailDoc in trailsSnapshot.docs) {
+    //   final String trailId = trailDoc.id;
+    //
+    //   final Map<String, dynamic> updatedData = {
+    //     'id': trailId,
+    //   };
+    //
+    //   final DocumentReference trailRef = FirebaseFirestore.instance.collection('hikingTrails').doc(trailId);
+    //
+    //   batch.set(trailRef, updatedData, SetOptions(merge: true));
+    // }
+    //
+    // await batch.commit();
+    // print('updated ids successfully!');
   }
 
   Color getDifficultyTextColor(String difficulty) {
@@ -485,5 +523,45 @@ class _HikesScreenState extends State<HikesScreen> {
       default:
         return HikeColor.infoDarkColor;
     }
+  }
+
+  Query buildQuery() {
+    Query query = selectedDifficulty == 'Toate'
+        ? FirebaseFirestore.instance.collection('hikingTrails').orderBy('routeName')
+        : FirebaseFirestore.instance
+            .collection('hikingTrails')
+            .orderBy('routeName')
+            .where('degreeOfDifficulty', isEqualTo: selectedDifficulty.toLowerCase());
+
+    String searchQuery = '';
+
+    if (selectedCounty != 'Toate') {
+      query = query.where('county', isEqualTo: selectedCounty);
+    }
+
+    if (searchQuery.isNotEmpty) {
+      query = query.where('location', isEqualTo: searchQuery);
+    }
+
+    return query;
+  }
+
+  List<DropdownMenuItem<String>> getCountyDropdownItems() {
+    counties.sort();
+
+    List<DropdownMenuItem<String>> items = [];
+    items.add(const DropdownMenuItem<String>(
+      value: 'Toate',
+      child: Text('Toate judetele'),
+    ));
+
+    for (String county in counties) {
+      items.add(DropdownMenuItem<String>(
+        value: county,
+        child: Text(county),
+      ));
+    }
+
+    return items;
   }
 }

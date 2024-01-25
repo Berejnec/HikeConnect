@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
@@ -90,7 +91,16 @@ class _EventsPageState extends State<EventsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Evenimente HikeConnect'),
+        title: const Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text('Evenimente '),
+            Text(
+              'HikeConnect',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
         centerTitle: false,
         actions: [
           IconButton(
@@ -152,6 +162,11 @@ class _EventsPageState extends State<EventsScreen> {
                                       ),
                                     ),
                                     IconButton(
+                                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                                      constraints: const BoxConstraints(),
+                                      style: const ButtonStyle(
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
                                       onPressed: () async {
                                         await _showSunriseSunsetModal(event);
                                       },
@@ -159,11 +174,12 @@ class _EventsPageState extends State<EventsScreen> {
                                     ),
                                   ],
                                 ),
-                                Text('Data: ${DateFormat.yMMMd().format(event.date)}'),
+                                Text('Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}'),
                                 const Gap(4),
                                 if (event.participants.isNotEmpty) ...[
                                   Text('Participanti:', style: Theme.of(context).textTheme.titleSmall),
                                   for (EventParticipant participant in event.participants) ...[
+                                    const Gap(4),
                                     Row(
                                       children: [
                                         CircleAvatar(
@@ -172,14 +188,18 @@ class _EventsPageState extends State<EventsScreen> {
                                         ),
                                         const Gap(8),
                                         Text(participant.displayName.split(' ')[0]),
+                                        const Gap(8),
                                         if (isParticipant && participant.userId != context.read<AuthCubit>().getHikerUser()?.uid) ...[
                                           IconButton(
                                             color: HikeColor.infoDarkColor,
                                             padding: const EdgeInsets.all(8.0),
                                             constraints: const BoxConstraints(),
+                                            style: const ButtonStyle(
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            ),
                                             onPressed: () async {
                                               var whatsappUrl = Uri.parse("whatsapp://send?phone=${participant.phoneNumber}"
-                                                  "&text=${Uri.encodeComponent("HikeConnect: M-am alaturat evenimentului ${event.hikingTrail.routeName} din data de ${DateFormat.yMMMd().format(event.date)} !")}");
+                                                  "&text=${Uri.encodeComponent("HikeConnect: M-am alaturat evenimentului ${event.hikingTrail.routeName} din data de ${DateFormat('yMMMMd', 'ro').format(event.date)} !")}");
                                               try {
                                                 if (await canLaunchUrl(whatsappUrl)) {
                                                   launchUrl(whatsappUrl);
@@ -202,7 +222,7 @@ class _EventsPageState extends State<EventsScreen> {
                                             icon: const Icon(FontAwesomeIcons.whatsapp, size: 20.0),
                                           ),
                                         ] else if (isParticipant && participant.userId == context.read<AuthCubit>().getHikerUser()?.uid) ...[
-                                          const Gap(8),
+                                          const Gap(4),
                                           const Text('(Dvs.)'),
                                         ],
                                       ],
@@ -234,10 +254,10 @@ class _EventsPageState extends State<EventsScreen> {
                       );
                     },
                     separatorBuilder: (BuildContext context, int index) => const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+                      padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.0),
                       child: Divider(),
                     ),
-                  );
+                  ).animate().fade(duration: 200.ms);
                 },
               ),
             ),
@@ -277,8 +297,8 @@ class _EventsPageState extends State<EventsScreen> {
   Future<void> _showSunriseSunsetModal(HikeEvent event) async {
     try {
       Map<String, dynamic> sunriseSunsetData = await fetchSunriseSunsetData(
-        event.hikingTrail.locationLatLng.latitude,
-        event.hikingTrail.locationLatLng.longitude,
+        event.hikingTrail.locationLatLng?.latitude ?? 45.0,
+        event.hikingTrail.locationLatLng?.longitude ?? 25.0,
         event.date,
       );
 
@@ -321,61 +341,80 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Date despre ziua traseului',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Informatii despre ziua traseului',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
                 ),
-                const Gap(4),
-                const Flexible(
-                  child: Text(
-                    'Powered by SunriseSunset.io',
-                    style: TextStyle(fontSize: 10.0),
-                  ),
+                const Gap(8),
+                Text(widget.event.hikingTrail.routeName),
+                const Gap(2),
+                Text(DateFormat('yMMMMd', 'ro').format(widget.event.date)),
+                const Gap(16),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.sunny),
+                        const Gap(4),
+                        Text('Rasarit: ${widget.sunriseSunsetData['sunrise']}'),
+                      ],
+                    ),
+                    const Gap(4),
+                    Row(
+                      children: [
+                        const Icon(Icons.nightlight_round_rounded),
+                        const Gap(4),
+                        Text('Apus: ${widget.sunriseSunsetData['sunset']}'),
+                      ],
+                    ),
+                    const Gap(4),
+                    Row(
+                      children: [
+                        const Icon(Icons.timer),
+                        const Gap(4),
+                        Text('Durata zilei: ${widget.sunriseSunsetData['day_length']}'),
+                      ],
+                    ),
+                    const Gap(4),
+                    Row(
+                      children: [
+                        const Icon(Icons.info),
+                        const Gap(4),
+                        Text('Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}'),
+                      ],
+                    ),
+                    // Row(
+                    //   children: [
+                    //     const Icon(Icons.timer),
+                    // const Gap(4),
+                    //     Text('Timezone: ${widget.sunriseSunsetData['timezone']}'),
+                    //   ],
+                    // ),
+                  ],
                 ),
               ],
             ),
-            Text(widget.event.hikingTrail.routeName),
-            Text(
-              DateFormat.yMMMd().format(widget.event.date),
-            ),
-            const Gap(16),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            const Row(
               mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.sunny),
-                    Text('Rasarit: ${widget.sunriseSunsetData['sunrise']}'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.nightlight_round_rounded),
-                    Text('Apus: ${widget.sunriseSunsetData['sunset']}'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.timer),
-                    Text('Durata zilei: ${widget.sunriseSunsetData['day_length']}'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.info),
-                    Text('Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.timer),
-                    Text('Timezone: ${widget.sunriseSunsetData['timezone']}'),
-                  ],
+                Text(
+                  'Powered by SunriseSunset.io',
+                  style: TextStyle(fontSize: 10.0),
                 ),
               ],
             ),

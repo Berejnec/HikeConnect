@@ -18,5 +18,13 @@ class HikeConnectTheme {
         backgroundColor: HikeColor.secondaryColor,
         foregroundColor: Colors.white,
       ),
-      bottomSheetTheme: const BottomSheetThemeData(modalBackgroundColor: HikeColor.white));
+      bottomSheetTheme: const BottomSheetThemeData(
+        modalBackgroundColor: HikeColor.white,
+      ),
+      dropdownMenuTheme: const DropdownMenuThemeData(
+        menuStyle: MenuStyle(
+          backgroundColor: MaterialStatePropertyAll(HikeColor.primaryColor),
+          fixedSize: MaterialStatePropertyAll(Size.fromHeight(200)),
+        ),
+      ));
 }

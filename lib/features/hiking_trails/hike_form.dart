@@ -168,7 +168,6 @@ class _HikeFormState extends State<HikeForm> {
   Future<void> saveHikingTrail() async {
     HikingTrail newTrail = HikingTrail(
       id: '',
-      dateOfIssue: DateTime.now(),
       routeName: routeNameController.text,
       administrator: administratorController.text,
       location: locationController.text,
@@ -187,8 +186,23 @@ class _HikeFormState extends State<HikeForm> {
     try {
       await FirebaseFirestore.instance.collection('hikingTrails').add(newTrail.toMap());
       print('Hiking trail added successfully');
+      _clearForm();
     } catch (e) {
       print('Error adding hiking trail: $e');
     }
+  }
+
+  void _clearForm() {
+    routeNameController.clear();
+    administratorController.clear();
+    locationController.clear();
+    countyController.clear();
+    markingController.clear();
+    routeDurationController.clear();
+    degreeOfDifficultyController.clear();
+    seasonalityController.clear();
+    equipmentLevelController.clear();
+    latitudeController.clear();
+    longitudeController.clear();
   }
 }

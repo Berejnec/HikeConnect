@@ -60,6 +60,7 @@ dependencies:
   equatable: ^2.0.5
   meta: ^1.9.1
   side_sheet: ^1.0.4
+  flutter_animate: ^4.4.0
 
 dev_dependencies:
   flutter_test:
@@ -99,6 +100,7 @@ flutter:
     - assets/punct_galben.png
     - assets/punct_rosu.png
     - assets/trasee_turistice_oficial.xlsx
+    - lib/datasource/trasee_turistice_oficial.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

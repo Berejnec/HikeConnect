@@ -185,17 +185,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
             actions: [
               IconButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EmergencyTabsScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.emergency),
-              ),
-              IconButton(
-                onPressed: () {
                   _signOut();
                 },
                 icon: const Icon(Icons.logout),
@@ -383,10 +372,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                                       ),
                                                     )
                                                   : const Center(child: Text('Se incarca traseele favorite')),
-                                              ElevatedButton(
-                                                child: const Text('Close BottomSheet'),
-                                                onPressed: () => Navigator.pop(context),
-                                              ),
                                             ],
                                           ),
                                         ),

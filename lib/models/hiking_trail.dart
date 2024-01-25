@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HikingTrail {
   String? id;
-  DateTime dateOfIssue;
   String routeName;
   String administrator;
   String location;
@@ -13,11 +11,10 @@ class HikingTrail {
   String degreeOfDifficulty;
   String seasonality;
   String equipmentLevelRequested;
-  LatLng locationLatLng;
+  LatLng? locationLatLng;
 
   HikingTrail({
     required this.id,
-    required this.dateOfIssue,
     required this.routeName,
     required this.administrator,
     required this.location,
@@ -27,13 +24,12 @@ class HikingTrail {
     required this.degreeOfDifficulty,
     required this.seasonality,
     required this.equipmentLevelRequested,
-    required this.locationLatLng,
+    this.locationLatLng,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'uuid': id,
-      'dateOfIssue': dateOfIssue,
+      'id': id,
       'routeName': routeName,
       'administrator': administrator,
       'location': location,
@@ -44,8 +40,8 @@ class HikingTrail {
       'seasonality': seasonality,
       'equipmentLevelRequested': equipmentLevelRequested,
       'locationLatLng': {
-        'latitude': locationLatLng.latitude.toDouble(),
-        'longitude': locationLatLng.longitude.toDouble(),
+        'latitude': locationLatLng?.latitude.toDouble() ?? 45.0,
+        'longitude': locationLatLng?.longitude.toDouble() ?? 25.0,
       },
     };
   }
@@ -53,7 +49,6 @@ class HikingTrail {
   factory HikingTrail.fromMap(Map<String, dynamic> map) {
     return HikingTrail(
       id: map['id'],
-      dateOfIssue: (map['dateOfIssue'] as Timestamp).toDate(),
       routeName: map['routeName'],
       administrator: map['administrator'],
       location: map['location'],
@@ -64,8 +59,8 @@ class HikingTrail {
       seasonality: map['seasonality'],
       equipmentLevelRequested: map['equipmentLevelRequested'],
       locationLatLng: LatLng(
-        (map['locationLatLng']['latitude'] as num).toDouble(),
-        (map['locationLatLng']['longitude'] as num).toDouble(),
+        (map['locationLatLng']?['latitude'] as num?)?.toDouble() ?? 45.0,
+        (map['locationLatLng']?['longitude'] as num?)?.toDouble() ?? 25.0,
       ),
     );
   }

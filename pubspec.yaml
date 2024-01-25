@@ -37,9 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   convex_bottom_bar: ^3.2.0
   google_maps_flutter: ^2.5.0
-  xml: ^6.3.0
   google_fonts: ^6.1.0
-  excel: ^3.0.0
   firebase_core: ^2.21.0
   firebase_auth: ^4.12.1
   google_sign_in: ^6.1.5
@@ -48,7 +46,6 @@ dependencies:
   maps_launcher: ^2.2.0
   firebase_storage: ^11.5.2
   gap: ^3.0.1
-  shimmer: ^3.0.0
   image_picker: ^1.0.4
   carousel_slider: ^4.2.1
   font_awesome_flutter: ^10.6.0

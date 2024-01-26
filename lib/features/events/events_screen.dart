@@ -211,7 +211,8 @@ class _EventsPageState extends State<EventsScreen> {
                                                       behavior: SnackBarBehavior.floating,
                                                       margin: EdgeInsets.only(bottom: 16.0),
                                                       backgroundColor: HikeColor.infoColor,
-                                                      content: Text("WhatsApp is required to be installed in order to send a message!"),
+                                                      content:
+                                                          Text("Este necesar sa aveti aplicatia WhatsApp instalata pentru a putea trimite un mesaj!"),
                                                     ),
                                                   );
                                                 }
@@ -224,6 +225,16 @@ class _EventsPageState extends State<EventsScreen> {
                                         ] else if (isParticipant && participant.userId == context.read<AuthCubit>().getHikerUser()?.uid) ...[
                                           const Gap(4),
                                           const Text('(Dvs.)'),
+                                          IconButton(
+                                            onPressed: () {
+                                              withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context);
+                                            },
+                                            icon: const Icon(
+                                              Icons.person_remove,
+                                              size: 20,
+                                            ),
+                                            color: HikeColor.secondaryColor,
+                                          ),
                                         ],
                                       ],
                                     ),
@@ -315,6 +326,61 @@ class _EventsPageState extends State<EventsScreen> {
     } catch (e) {
       print('Error fetching sunrise and sunset data: $e');
     }
+  }
+
+  Future<void> withdrawEvent(String eventId, HikerUser currentUser, BuildContext context) async {
+    try {
+      CollectionReference eventsCollection = FirebaseFirestore.instance.collection('events');
+
+      DocumentSnapshot eventDoc = await eventsCollection.doc(eventId).get();
+
+      if (eventDoc.exists) {
+        HikeEvent existingEvent = HikeEvent.fromMap(eventDoc.data() as Map<String, dynamic>);
+        if (!mounted) return;
+        if (existingEvent.participants.any((participant) => participant.userId == currentUser.uid)) {
+          bool confirmed = await showWithdrawConfirmationDialog(context) ?? false;
+
+          if (confirmed) {
+            existingEvent.participants.removeWhere((participant) => participant.userId == currentUser.uid);
+
+            await eventsCollection.doc(eventId).update(existingEvent.toMap());
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Te-ai retras din eveniment cu succes!'),
+                duration: Duration(seconds: 3),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(bottom: 16.0),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print('Error withdrawing from event: $e');
+    }
+  }
+
+  Future<bool?> showWithdrawConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Retragere din eveniment'),
+          content: const Text('Esti sigur ca doresti sa te retragi din acest eveniment?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Inchide'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Retrage-ma'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

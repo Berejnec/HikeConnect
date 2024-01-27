@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +27,7 @@ class _PostsScreenState extends State<PostsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Posts for Hike ${widget.hikeId}'),
+        title: const Text('Postari'),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -37,7 +38,7 @@ class _PostsScreenState extends State<PostsScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(strokeWidth: 6.0));
           }
 
           if (snapshot.hasError) {
@@ -58,7 +59,12 @@ class _PostsScreenState extends State<PostsScreen> {
                         } else if (!snapshot.hasData || snapshot.data == null) {
                           return const SizedBox.shrink();
                         } else {
-                          return PostCard(post: posts[index], postData: snapshot.data!);
+                          return Column(
+                            children: [
+                              // Text(snapshot.data!.hikeName),
+                              PostCard(post: posts[index], postData: snapshot.data!),
+                            ],
+                          );
                         }
                       },
                     );
@@ -74,7 +80,7 @@ class _PostsScreenState extends State<PostsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CreatePostScreen(hikeId: widget.hikeId, userId: userId), // Pass the user ID accordingly
+                builder: (context) => CreatePostScreen(hikeId: widget.hikeId, userId: userId),
               ),
             );
           } else {
@@ -131,6 +137,46 @@ class PostCard extends StatelessWidget {
                   children: [Flexible(child: Text(post.content))],
                 ),
                 const Gap(8),
+                if (postData.imageUrls.isNotEmpty) ...[
+                  CarouselSlider(
+                    options: CarouselOptions(),
+                    items: postData.imageUrls.map(
+                      (imageUrl) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                        child: GestureDetector(
+                                          onTap: () => Navigator.pop(context),
+                                          child: Image.network(imageUrl),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                                  child: Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ).toList(),
+                  ),
+                  const Gap(24),
+                ],
                 Text('Likes: ${post.likes}'),
               ],
             ),
@@ -163,23 +209,17 @@ class PostCardData {
 
 Future<PostCardData?> getPostData(Post post) async {
   try {
-    // Get user information
     DocumentSnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore.instance.collection('users').doc(post.userId).get();
 
-    // Get hike information
     DocumentSnapshot<Map<String, dynamic>> hikeSnapshot = await FirebaseFirestore.instance.collection('hikingTrails').doc(post.hikeId).get();
 
-    // Check if both user and hike exist
     if (!userSnapshot.exists || !hikeSnapshot.exists) {
       return null;
     }
 
-    // Extract necessary data
     final String username = userSnapshot['displayName'];
     final String avatarUrl = userSnapshot['avatarUrl'];
     final String hikeName = hikeSnapshot['routeName'];
-
-    print(userSnapshot['email']);
 
     return PostCardData(
       username: username,

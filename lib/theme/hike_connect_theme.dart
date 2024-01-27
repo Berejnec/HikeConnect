@@ -12,19 +12,29 @@ class HikeConnectTheme {
   }
 
   static final ThemeData _primaryTheme = ThemeData(
-      useMaterial3: true,
-      colorSchemeSeed: HikeColor.primaryColor,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: HikeColor.secondaryColor,
-        foregroundColor: Colors.white,
+    useMaterial3: true,
+    colorSchemeSeed: HikeColor.primaryColor,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: HikeColor.secondaryColor,
+      foregroundColor: Colors.white,
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      modalBackgroundColor: HikeColor.white,
+    ),
+    dropdownMenuTheme: const DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: MaterialStatePropertyAll(HikeColor.primaryColor),
+        fixedSize: MaterialStatePropertyAll(Size.fromHeight(200)),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
-        modalBackgroundColor: HikeColor.white,
-      ),
-      dropdownMenuTheme: const DropdownMenuThemeData(
-        menuStyle: MenuStyle(
-          backgroundColor: MaterialStatePropertyAll(HikeColor.primaryColor),
-          fixedSize: MaterialStatePropertyAll(Size.fromHeight(200)),
-        ),
-      ));
+    ),
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: HikeColor.infoColor,
+      behavior: SnackBarBehavior.floating,
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(),
+    dialogTheme: const DialogTheme(
+      backgroundColor: Colors.white,
+      actionsPadding: EdgeInsets.only(right: 8.0),
+    ),
+  );
 }

@@ -104,6 +104,7 @@ class _HikesScreenState extends State<HikesScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Gap(8),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -122,27 +123,27 @@ class _HikesScreenState extends State<HikesScreen> {
                             ),
                           ],
                         ),
-                        PopupMenuButton<String>(
+                        PopupMenuButton(
                           icon: const Icon(Icons.arrow_downward),
                           onSelected: (String value) {
                             setState(() {
                               selectedDifficulty = value;
                             });
                           },
-                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
+                          itemBuilder: (BuildContext context) => [
+                            const PopupMenuItem(
                               value: 'Toate',
                               child: Text('Toate'),
                             ),
-                            const PopupMenuItem<String>(
+                            const PopupMenuItem(
                               value: 'Mic',
                               child: Text('Mic'),
                             ),
-                            const PopupMenuItem<String>(
+                            const PopupMenuItem(
                               value: 'Mediu',
                               child: Text('Mediu'),
                             ),
-                            const PopupMenuItem<String>(
+                            const PopupMenuItem(
                               value: 'Mare',
                               child: Text('Mare'),
                             ),

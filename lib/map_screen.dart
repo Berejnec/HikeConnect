@@ -1,13 +1,13 @@
-import 'package:excel/excel.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
-  final LatLng? location;
+  final String routeName;
 
-  const MapScreen({super.key, this.location});
+  const MapScreen({super.key, required this.routeName});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -15,151 +15,51 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
-
-  Set<Polyline> polylines = {};
+  Set<Marker> markers = {};
+  final String geocodingApiBaseUrl = 'https://api.opencagedata.com/geocode/v1/json?key=ee255c46e8e94da38ce279c35a8b8898&pretty=1&no_annotations=1';
 
   @override
   void initState() {
     super.initState();
-    readExcel();
-  }
-
-  void readExcel() async {
-    ByteData data = await DefaultAssetBundle.of(context).load('assets/trasee_turistice_oficial.xlsx');
-    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    var excel = Excel.decodeBytes(bytes);
-
-    for (var table in excel.tables.keys) {
-      print(table); //sheet Name
-      print(excel.tables[table]?.maxColumns);
-      print(excel.tables[table]?.maxRows);
-      for (var row in excel.tables[table]?.rows ?? []) {
-        print('$row');
-        for (var cell in row) {
-          final value = cell?.value;
-          print(value);
-        }
-      }
-    }
-  }
-
-  void loadHikingTrailsData() async {
-    // String data = await DefaultAssetBundle.of(context).loadString('assets/trails_data.txt');
-    //
-    // List<String> lines = data.split('\n');
-    //
-    // List<LatLng> coordinates = [];
-    //
-    // for (String line in lines) {
-    //   if (line.isNotEmpty) {
-    //     List<String> coords = line.split(', ');
-    //     double lat = double.parse(coords[0]);
-    //     double lng = double.parse(coords[1]);
-    //     LatLng coordinate = LatLng(lat, lng);
-    //     coordinates.add(coordinate);
-    //   }
-    // }
-    //
-    // setState(() {
-    //   polylines.add(Polyline(
-    //     polylineId: const PolylineId('123'),
-    //     color: Colors.blue,
-    //     points: coordinates,
-    //     width: 5,
-    //   ));
-    // });
   }
 
   late final LatLng _center = const LatLng(45.46706, 24.68328);
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    if (widget.location != null) {
-      zoomToTappedLocation(widget.location!);
-    }
-    // loadHikingTrailsData();
+    geocodeRouteName(widget.routeName);
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.grey[300], // Set the status bar color to white
-      statusBarIconBrightness: Brightness.dark, // Set the status bar icons to dark
-      // systemNavigationBarColor: HikeColor.primaryColor, // Set the navigation bar color to white
-      systemNavigationBarIconBrightness: Brightness.dark, // Set the navigation bar icons to dark
+      statusBarColor: Colors.grey[300],
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
     return Scaffold(
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        mapType: MapType.terrain,
-        polylines: polylines,
-        zoomControlsEnabled: true,
-        onTap: (LatLng tappedLocation) {
-          zoomToTappedLocation(tappedLocation);
-        },
-        // todo replace hard-coded markers with fetching
-        markers: {
-          Marker(
-            markerId: const MarkerId('1'),
-            position: const LatLng(46.99748, 25.925763),
-            onTap: () {
-              zoomToTappedLocation(const LatLng(46.99748, 25.925763));
-            },
-            infoWindow: InfoWindow(
-              title: 'Durau',
-              onTap: () async {
-                print('on tap Calcescu');
-                // todo redirect to maps for all markers
-                final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=46.99748, 25.925763');
-
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                } else {
-                  throw 'Could not launch $url';
-                }
-              },
-            ),
+      appBar: AppBar(
+        title: const Text('Harta'),
+      ),
+      body: SafeArea(
+        bottom: false,
+        child: GoogleMap(
+          onMapCreated: _onMapCreated,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
+          mapType: MapType.terrain,
+          zoomControlsEnabled: true,
+          mapToolbarEnabled: false,
+          padding: const EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
+          markers: markers,
+          onTap: (LatLng tappedLocation) {
+            zoomToTappedLocation(tappedLocation);
+          },
+          initialCameraPosition: CameraPosition(
+            target: _center,
+            zoom: 6.0,
           ),
-          Marker(
-            markerId: const MarkerId('2'),
-            position: const LatLng(45.349276999999994, 23.65254969999999),
-            onTap: () {
-              zoomToTappedLocation(const LatLng(45.349276999999994, 23.65254969999999));
-            },
-            infoWindow: const InfoWindow(title: 'Lacul Calcescu'),
-          ),
-          Marker(
-            markerId: const MarkerId('3'),
-            position: const LatLng(45.46706, 24.68328),
-            onTap: () {
-              zoomToTappedLocation(const LatLng(45.46706, 24.68328));
-            },
-            infoWindow: const InfoWindow(title: 'Valea Valsanului'),
-          ),
-          Marker(
-            markerId: const MarkerId('4'),
-            position: const LatLng(47.239074, 25.329229),
-            onTap: () {
-              zoomToTappedLocation(const LatLng(47.239074, 25.329229));
-            },
-            infoWindow: const InfoWindow(title: 'Neagra Sarului'),
-          ),
-          if (widget.location != null)
-            Marker(
-              markerId: const MarkerId('1'),
-              position: widget.location!,
-              onTap: () {
-                zoomToTappedLocation(widget.location!);
-              },
-              infoWindow: const InfoWindow(title: 'Cabana Pietrele', snippet: 'Descriere inceput traseu Retezat'),
-            ),
-        },
-        initialCameraPosition: CameraPosition(
-          target: _center,
-          zoom: 6.0,
         ),
       ),
     );
@@ -178,5 +78,65 @@ class _MapScreenState extends State<MapScreen> {
   void zoomToTappedLocation(LatLng tappedLocation) {
     double zoomLevel = 13.0;
     zoomToPoint(tappedLocation, zoomLevel);
+  }
+
+  void geocodeRouteName(String routeName) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        geocodingApiBaseUrl,
+        queryParameters: {
+          'q': '$routeName, Romania',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('successful api call for ${routeName}!');
+        print(response.data);
+        print(response.data['results']?[0]?['geometry']);
+        if (response.data?['results']?[0] != null) {
+          addMarker(LatLng(response.data['results'][0]['geometry']['lat'], response.data['results'][0]['geometry']['lng']), routeName, routeName);
+          zoomToPoint(LatLng(response.data['results'][0]['geometry']['lat'], response.data['results'][0]['geometry']['lng']), 13.0);
+        }
+      } else {
+        throw Exception('Failed to geocode routeName');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Failed to geocode routeName: ${routeName}');
+    }
+  }
+
+  void addMarker(LatLng location, String markerId, String markerTitle) {
+    final Marker marker = Marker(
+      markerId: MarkerId(markerId),
+      position: location,
+      infoWindow: InfoWindow(
+        title: markerTitle,
+        snippet: 'Click pentru directii de navigare',
+        onTap: () {
+          launchMapDirections(location);
+        },
+      ),
+      onTap: () {
+        zoomToPoint(location, 15.0);
+      },
+    );
+
+    setState(() {
+      markers.add(marker);
+    });
+  }
+
+  void launchMapDirections(LatLng latLng) async {
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${latLng.latitude},${latLng.longitude}');
+
+    if (await canLaunchUrl(url)) {
+
+      print('launch!');
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

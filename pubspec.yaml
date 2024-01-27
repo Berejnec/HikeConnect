@@ -81,7 +81,6 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/trails_data.txt
     - assets/ic_launcher.png
     - assets/google_icon.png
     - assets/banda_albastra.png
@@ -96,8 +95,6 @@ flutter:
     - assets/punct_albastru.png
     - assets/punct_galben.png
     - assets/punct_rosu.png
-    - assets/trasee_turistice_oficial.xlsx
-    - lib/datasource/trasee_turistice_oficial.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

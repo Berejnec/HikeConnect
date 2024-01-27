@@ -298,7 +298,11 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                               onPressed: () {
                                                 _showPhoneNumberDialog(context);
                                               },
-                                              icon: const Icon(Icons.edit, color: HikeColor.white),
+                                              icon: const Icon(
+                                                Icons.edit,
+                                                color: HikeColor.white,
+                                                size: 18,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -350,22 +354,46 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                       return SizedBox(
                                         height: MediaQuery.of(context).size.height * 0.66,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
+                                              const Gap(8),
+                                              Text(
+                                                'Trasee favorite',
+                                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                                              ),
+                                              const Gap(8),
                                               context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails != null
                                                   ? Expanded(
                                                       child: ListView.builder(
                                                         itemCount: context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length,
                                                         itemBuilder: (context, index) {
                                                           return Row(
-                                                            mainAxisAlignment: MainAxisAlignment.center,
                                                             children: [
                                                               Expanded(
-                                                                  child: Text(
-                                                                      '${index + 1}. ${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails[index]}')),
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets.only(bottom: 12.0),
+                                                                  child: Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                                    children: [
+                                                                      const Icon(
+                                                                        Icons.star,
+                                                                        color: HikeColor.infoLightColor,
+                                                                        size: 18,
+                                                                      ),
+                                                                      const Gap(8),
+                                                                      Expanded(
+                                                                        child: Text(
+                                                                          '${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails[index]}',
+                                                                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ],
                                                           );
                                                         },
@@ -382,14 +410,14 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               )
                             ],
                           ),
-                          const Column(
+                          Column(
                             children: [
                               Text(
-                                '1',
-                                style: TextStyle(color: Colors.black54, fontSize: 24),
+                                '${userEvents.length}',
+                                style: const TextStyle(color: Colors.black54, fontSize: 24),
                               ),
-                              Text(
-                                'Conexiuni',
+                              const Text(
+                                'Trasee parcurse',
                                 style: TextStyle(color: Colors.black54, fontSize: 16),
                               ),
                             ],
@@ -408,7 +436,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                           color: HikeColor.infoDarkColor,
                           onPressed: () async {
                             ImagePicker imagePicker = ImagePicker();
-                            XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+                            XFile? file = await imagePicker.pickImage(source: ImageSource.camera);
 
                             if (file == null) return;
 
@@ -431,30 +459,28 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                         ),
                         IconButton(
                           color: HikeColor.infoDarkColor,
-                          padding: const EdgeInsets.all(12.0),
                           onPressed: () async {
-                            var whatsappUrl = Uri.parse("whatsapp://send?phone=${context.read<AuthCubit>().getHikerUser()?.phoneNumber ?? ''}"
-                                "&text=${Uri.encodeComponent("")}");
+                            ImagePicker imagePicker = ImagePicker();
+                            XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+
+                            if (file == null) return;
+
                             try {
-                              if (await canLaunchUrl(whatsappUrl)) {
-                                launchUrl(whatsappUrl);
-                              } else {
-                                if (!mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    dismissDirection: DismissDirection.horizontal,
-                                    duration: Duration(seconds: 2),
-                                    behavior: SnackBarBehavior.floating,
-                                    margin: EdgeInsets.only(bottom: 16.0),
-                                    content: Text("WhatsApp is required to be installed in order to send message!"),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              debugPrint(e.toString());
+                              Reference referenceRoot = FirebaseStorage.instance.ref();
+                              Reference referenceDirImages = referenceRoot.child('images');
+                              Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
+
+                              await referenceImageToUpload.putFile(File(file.path));
+                              String imageUrl = await referenceImageToUpload.getDownloadURL();
+
+                              if (!mounted) return;
+                              await context.read<AuthCubit>().addImageAndUpdate(imageUrl);
+                            } catch (error) {
+                              print(error);
                             }
                           },
-                          icon: const Icon(FontAwesomeIcons.whatsapp),
+                          icon: const Icon(FontAwesomeIcons.image),
+                          padding: const EdgeInsets.all(12.0),
                         ),
                       ],
                     ),

@@ -34,7 +34,7 @@ class HikeConnectTheme {
     progressIndicatorTheme: const ProgressIndicatorThemeData(),
     dialogTheme: const DialogTheme(
       backgroundColor: Colors.white,
-      actionsPadding: EdgeInsets.only(right: 8.0),
+      actionsPadding: EdgeInsets.only(right: 16.0),
     ),
   );
 }

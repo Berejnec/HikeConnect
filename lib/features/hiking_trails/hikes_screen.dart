@@ -42,7 +42,7 @@ class _HikesScreenState extends State<HikesScreen> {
     'Vâlcea',
     'Cluj',
     'Mehedinți',
-    'Brașov',
+    'Braşov',
     'Neamț',
     'Satu - Mare',
     'Argeş',
@@ -222,7 +222,8 @@ class _HikesScreenState extends State<HikesScreen> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => MapScreen(routeName: trail.routeName.split('-').first.trim()),
+                                            builder: (context) =>
+                                                MapScreen(routeName: trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim()),
                                           ),
                                         );
                                         // launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
@@ -279,7 +280,7 @@ class _HikesScreenState extends State<HikesScreen> {
                                                       ),
                                                     );
                                                   },
-                                                  icon: const Icon(Icons.post_add),
+                                                  icon: const Icon(Icons.feed_outlined),
                                                 ),
                                               ],
                                             ),
@@ -414,7 +415,11 @@ class _HikesScreenState extends State<HikesScreen> {
             ],
           ),
           scrollable: true,
-          content: CreateHikeEventForm(trail: trail),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: CreateHikeEventForm(trail: trail),
+          ),
+          insetPadding: const EdgeInsets.all(10.0),
         );
       },
     );

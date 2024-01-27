@@ -54,22 +54,33 @@ class _CreateHikeEventFormState extends State<CreateHikeEventForm> {
               return null;
             },
           ),
-          const Gap(16),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                HikeEvent newEvent = HikeEvent(
-                  id: '',
-                  date: _selectedDate!,
-                  hikingTrail: widget.trail,
-                  participants: [],
-                );
-                addHikeEvent(newEvent);
+          const Gap(32),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: FilledButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  HikeEvent newEvent = HikeEvent(
+                    id: '',
+                    date: _selectedDate!,
+                    hikingTrail: widget.trail,
+                    participants: [],
+                  );
+                  addHikeEvent(newEvent);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Creare eveniment cu succes!'),
+                      duration: Duration(seconds: 5),
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.only(bottom: 16.0),
+                    ),
+                  );
 
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Creeaza eveniment'),
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Creeaza eveniment'),
+            ),
           ),
         ],
       ),

@@ -118,6 +118,13 @@ class _EventsPageState extends State<EventsScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // const Text(
+            //   'Participa la evenimente si conecteaza-te cu participanti: ',
+            //   style: TextStyle(
+            //     fontWeight: FontWeight.bold,
+            //     fontSize: 18
+            //   ),
+            // ),
             const Gap(16),
             Flexible(
               child: StreamBuilder<QuerySnapshot>(
@@ -133,6 +140,18 @@ class _EventsPageState extends State<EventsScreen> {
                         (event) => event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
                       )
                       .toList();
+
+                  if (events.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'Niciun eveniment momentan.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    );
+                  }
 
                   return ListView.separated(
                     itemCount: events.length,
@@ -254,7 +273,9 @@ class _EventsPageState extends State<EventsScreen> {
                                         ),
                                       );
                                     },
-                                    style: FilledButton.styleFrom(),
+                                    style: FilledButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
+                                    ),
                                     child: const Text('Participa'),
                                   ),
                                 ],
@@ -367,7 +388,11 @@ class _EventsPageState extends State<EventsScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Retragere din eveniment'),
-          content: const Text('Esti sigur ca doresti sa te retragi din acest eveniment?'),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: const Text('Esti sigur ca doresti sa te retragi din acest eveniment?'),
+          ),
+          insetPadding: const EdgeInsets.all(10.0),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -417,15 +442,31 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Informatii despre ziua traseului',
+                      'Informatii despre ziua evenimentului',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),
+                const Gap(16),
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(color: Colors.black),
+                    children: [
+                      const TextSpan(text: 'Traseu: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: widget.event.hikingTrail.routeName),
+                    ],
+                  ),
+                ),
                 const Gap(8),
-                Text(widget.event.hikingTrail.routeName),
-                const Gap(2),
-                Text(DateFormat('yMMMMd', 'ro').format(widget.event.date)),
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(color: Colors.black),
+                    children: [
+                      const TextSpan(text: 'Data: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: DateFormat('yMMMMd', 'ro').format(widget.event.date)),
+                    ],
+                  ),
+                ),
                 const Gap(16),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -457,18 +498,11 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                     const Gap(4),
                     Row(
                       children: [
-                        const Icon(Icons.info),
+                        const Icon(Icons.camera_alt),
                         const Gap(4),
                         Text('Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}'),
                       ],
                     ),
-                    // Row(
-                    //   children: [
-                    //     const Icon(Icons.timer),
-                    // const Gap(4),
-                    //     Text('Timezone: ${widget.sunriseSunsetData['timezone']}'),
-                    //   ],
-                    // ),
                   ],
                 ),
               ],

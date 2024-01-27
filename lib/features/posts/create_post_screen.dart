@@ -38,7 +38,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 textAlign: TextAlign.start,
                 controller: _contentController,
                 decoration: const InputDecoration(labelText: 'Descriere'),
-                maxLines: 1,
+                maxLines: 2,
               ),
               const Gap(16),
               Row(
@@ -139,21 +139,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         // Add other fields as needed (likes, etc.)
       });
 
-      await FirebaseFirestore.instance.collection('hikingTrails').doc(widget.hikeId).collection('posts').add({
-        'content': _contentController.text,
-        'imageUrls': imageUrls,
-        'hikeId': widget.hikeId,
-        'userId': widget.userId,
-        'timestamp': now,
-        // Add other fields as needed (likes, etc.)
-      });
+      if (_contentController.text.isNotEmpty) {
+        await FirebaseFirestore.instance.collection('hikingTrails').doc(widget.hikeId).collection('posts').add({
+          'content': _contentController.text,
+          'imageUrls': imageUrls,
+          'hikeId': widget.hikeId,
+          'userId': widget.userId,
+          'timestamp': now,
+          // Add other fields as needed (likes, etc.)
+        });
 
-      _contentController.clear();
-      imageUrls.clear();
-
-      if (!mounted) return;
-
-      Navigator.pop(context);
+        _contentController.clear();
+        imageUrls.clear();
+        if (!mounted) return;
+        Navigator.pop(context);
+      }
     } catch (e) {
       print('Error creating post: $e');
     }

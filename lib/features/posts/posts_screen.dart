@@ -1,6 +1,5 @@
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
@@ -89,7 +88,7 @@ class _PostsScreenState extends State<PostsScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
@@ -138,46 +137,71 @@ class PostCard extends StatelessWidget {
                 ),
                 const Gap(8),
                 if (postData.imageUrls.isNotEmpty) ...[
-                  CarouselSlider(
-                    options: CarouselOptions(),
-                    items: postData.imageUrls.map(
-                      (imageUrl) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                              child: GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return Dialog(
-                                        child: GestureDetector(
-                                          onTap: () => Navigator.pop(context),
-                                          child: Image.network(imageUrl),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                  child: Image.network(
-                                    imageUrl,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ).toList(),
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            child: GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Image.network(postData.imageUrls[0]),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      child: Image.network(
+                        postData.imageUrls[0],
+                        height: 350,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                  const Gap(24),
                 ],
-                Text('Likes: ${post.likes}'),
+                // if (postData.imageUrls.isNotEmpty) ...[
+                //   CarouselSlider(
+                //     options: CarouselOptions(),
+                //     items: postData.imageUrls.map(
+                //       (imageUrl) {
+                //         return Builder(
+                //           builder: (BuildContext context) {
+                //             return Container(
+                //               width: MediaQuery.of(context).size.width,
+                //               margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                //               child: GestureDetector(
+                //                 onTap: () {
+                //                   showDialog(
+                //                     context: context,
+                //                     builder: (BuildContext context) {
+                //                       return Dialog(
+                //                         child: GestureDetector(
+                //                           onTap: () => Navigator.pop(context),
+                //                           child: Image.network(imageUrl),
+                //                         ),
+                //                       );
+                //                     },
+                //                   );
+                //                 },
+                //                 child: ClipRRect(
+                //                   borderRadius: const BorderRadius.all(Radius.circular(10)),
+                //                   child: Image.network(
+                //                     imageUrl,
+                //                     fit: BoxFit.cover,
+                //                   ),
+                //                 ),
+                //               ),
+                //             );
+                //           },
+                //         );
+                //       },
+                //     ).toList(),
+                //   ),
+                //   const Gap(24),
+                // ],
               ],
             ),
           ),

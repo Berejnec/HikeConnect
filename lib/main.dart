@@ -25,9 +25,9 @@ class HikeConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     initializeDateFormatting();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.grey[300], // Set the status bar color to white
-      statusBarIconBrightness: Brightness.dark, // Set the status bar icons to dark
-      systemNavigationBarIconBrightness: Brightness.dark, // Set the navigation bar icons to dark
+      statusBarColor: Colors.grey[300],
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ));
     return MultiBlocProvider(
       providers: [

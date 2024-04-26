@@ -20,8 +20,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> screens = [
     const HikesScreen(),
     const EventsScreen(),
-    // const MapScreen(),
-    // const ConnectDashboardScreen(),
     const HikerProfileScreen(),
   ];
 
@@ -43,10 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return const HikesScreen();
       case AppScreen.events:
         return const EventsScreen();
-      // case AppScreen.map:
-      //   return const MapScreen();
-      // case AppScreen.connect:
-      //   return const ConnectDashboardScreen();
       case AppScreen.profile:
         return const HikerProfileScreen();
     }
@@ -67,8 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
       items: const [
         TabItem(icon: Icons.hiking, title: 'Trasee'),
         TabItem(icon: Icons.event, title: 'Evenimente'),
-        // TabItem(icon: Icons.map, title: 'Harta'),
-        // TabItem(icon: Icons.connect_without_contact_outlined, title: 'Dashboard'),
         TabItem(icon: Icons.person, title: 'Profil'),
       ],
       initialActiveIndex: context.read<ScreenCubit>().state.index,

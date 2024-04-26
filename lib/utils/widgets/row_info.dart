@@ -16,7 +16,10 @@ class RowInfo extends StatelessWidget {
         if (icon != null) icon!,
         const Gap(12),
         Expanded(
-          child: Text(info),
+          child: Text(
+            info,
+            style: const TextStyle(fontSize: 16),
+          ),
         ),
       ],
     );

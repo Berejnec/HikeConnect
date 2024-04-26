@@ -10,6 +10,8 @@ import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
+import 'package:hike_connect/features/events/chat/chat_messages.dart';
+import 'package:hike_connect/features/events/chat/chat_room_screen.dart';
 import 'package:hike_connect/models/event_participant.dart';
 import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/models/hiker_user.dart';
@@ -35,7 +37,6 @@ class _EventsPageState extends State<EventsScreen> {
 
   Future<Map<String, dynamic>> fetchWeatherData(LatLng latLng, DateTime date) async {
     try {
-      print(DateFormat('yyyy-MM-dd').format(date));
       final dio = Dio();
       final response = await dio.get(
         weatherApiBaseUrl,
@@ -47,7 +48,6 @@ class _EventsPageState extends State<EventsScreen> {
         },
       );
       if (response.statusCode == 200) {
-        print(response.data);
         return response.data;
       } else {
         throw Exception('Failed to load weather');
@@ -118,14 +118,7 @@ class _EventsPageState extends State<EventsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // const Text(
-            //   'Participa la evenimente si conecteaza-te cu participanti: ',
-            //   style: TextStyle(
-            //     fontWeight: FontWeight.bold,
-            //     fontSize: 18
-            //   ),
-            // ),
-            const Gap(16),
+            const Gap(8),
             Flexible(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection('events').orderBy('date').snapshots(),
@@ -180,16 +173,38 @@ class _EventsPageState extends State<EventsScreen> {
                                         style: const TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                     ),
-                                    IconButton(
-                                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                                      constraints: const BoxConstraints(),
-                                      style: const ButtonStyle(
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      onPressed: () async {
-                                        await _showSunriseSunsetModal(event);
-                                      },
-                                      icon: const Icon(Icons.info),
+                                    Row(
+                                      children: [
+                                        if (isParticipant) ...[
+                                          IconButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => ChatRoomScreen(eventId: event.id), // Pass event ID to ChatRoomScreen
+                                                ),
+                                              );
+                                            },
+                                            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                                            constraints: const BoxConstraints(),
+                                            style: const ButtonStyle(
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            ),
+                                            icon: const Icon(Icons.chat),
+                                          ),
+                                        ],
+                                        IconButton(
+                                          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                                          constraints: const BoxConstraints(),
+                                          style: const ButtonStyle(
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          ),
+                                          onPressed: () async {
+                                            await _showSunriseSunsetModal(event);
+                                          },
+                                          icon: const Icon(Icons.info),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),

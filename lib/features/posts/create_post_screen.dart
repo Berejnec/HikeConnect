@@ -60,7 +60,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         String imageUrl = await referenceImageToUpload.getDownloadURL();
 
                         if (!mounted) return;
-                        imageUrls.add(imageUrl);
+                        setState(() {
+                          imageUrls.add(imageUrl);
+                        });
                       } catch (error) {
                         print(error);
                       }

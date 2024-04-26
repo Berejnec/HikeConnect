@@ -50,6 +50,8 @@ class _HikesScreenState extends State<HikesScreen> {
     'Bacău',
     'Satu Mare'
   ];
+  int _limit = 10; // Number of documents to fetch each time
+  DocumentSnapshot? _lastDocument; // Keep track of the last document fetched
 
   @override
   void initState() {
@@ -86,19 +88,17 @@ class _HikesScreenState extends State<HikesScreen> {
         backgroundColor: Colors.grey[100],
         body: SafeArea(
           child: StreamBuilder<QuerySnapshot>(
-            stream: buildQuery().snapshots(),
+            stream: buildQuery().limit(_limit).snapshots(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+              if (snapshot.connectionState == ConnectionState.waiting) {}
 
               if (snapshot.hasError) {
                 return Center(child: Text('Error loading hiking trails ${snapshot.error}'));
               }
 
-              List<HikingTrail> hikingTrails = snapshot.data!.docs.map((doc) => HikingTrail.fromMap(doc.data() as Map<String, dynamic>)).toList();
+              List<HikingTrail> hikingTrails =
+                  snapshot.data?.docs.map((doc) => HikingTrail.fromMap(doc.data() as Map<String, dynamic>)).toList() ?? [];
 
-              print('${snapshot.data?.size}');
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
@@ -133,19 +133,79 @@ class _HikesScreenState extends State<HikesScreen> {
                           itemBuilder: (BuildContext context) => [
                             const PopupMenuItem(
                               value: 'Toate',
-                              child: Text('Toate'),
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Icon(
+                                    Icons.stars_rounded,
+                                    color: HikeColor.infoDarkColor,
+                                  ),
+                                  Gap(8),
+                                  Text(
+                                    'Toate',
+                                    style: TextStyle(color: HikeColor.infoDarkColor),
+                                  ),
+                                ],
+                              ),
                             ),
                             const PopupMenuItem(
                               value: 'Mic',
-                              child: Text('Mic'),
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Icon(
+                                    Icons.star_border_outlined,
+                                    color: Colors.green,
+                                  ),
+                                  Gap(8),
+                                  Text(
+                                    'Mic',
+                                    style: TextStyle(color: Colors.green),
+                                  ),
+                                ],
+                              ),
                             ),
                             const PopupMenuItem(
                               value: 'Mediu',
-                              child: Text('Mediu'),
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Icon(
+                                    Icons.star_half,
+                                    color: HikeColor.infoColor,
+                                  ),
+                                  Gap(8),
+                                  Text(
+                                    'Mediu',
+                                    style: TextStyle(color: HikeColor.infoColor),
+                                  ),
+                                ],
+                              ),
                             ),
                             const PopupMenuItem(
                               value: 'Mare',
-                              child: Text('Mare'),
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.red,
+                                  ),
+                                  Gap(8),
+                                  Text(
+                                    'Mare',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -250,9 +310,9 @@ class _HikesScreenState extends State<HikesScreen> {
                                             ),
                                             const Gap(8),
                                             RowInfo(
-                                                info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.hotel_class_outlined, size: 18)),
+                                                info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.hotel_class_outlined, size: 24)),
                                             const Gap(8),
-                                            RowInfo(info: 'Durata estimata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 18)),
+                                            RowInfo(info: 'Durata estimata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 24)),
                                             const Gap(16),
                                             Row(
                                               mainAxisSize: MainAxisSize.max,
@@ -302,6 +362,7 @@ class _HikesScreenState extends State<HikesScreen> {
                               ),
                             ),
                     ),
+                    TextButton(onPressed: loadMoreHikes, child: const Text('Mai multe trasee...')),
                   ],
                 ),
               );
@@ -309,6 +370,12 @@ class _HikesScreenState extends State<HikesScreen> {
           ),
         ),
       );
+    });
+  }
+
+  void loadMoreHikes() {
+    setState(() {
+      _limit += 10;
     });
   }
 
@@ -497,27 +564,6 @@ class _HikesScreenState extends State<HikesScreen> {
     return Icon(icon, color: color);
   }
 
-  void updateHikingTrails() async {
-    // final QuerySnapshot<Map<String, dynamic>> trailsSnapshot = await FirebaseFirestore.instance.collection('hikingTrails').get();
-    //
-    // WriteBatch batch = FirebaseFirestore.instance.batch();
-    //
-    // for (var trailDoc in trailsSnapshot.docs) {
-    //   final String trailId = trailDoc.id;
-    //
-    //   final Map<String, dynamic> updatedData = {
-    //     'id': trailId,
-    //   };
-    //
-    //   final DocumentReference trailRef = FirebaseFirestore.instance.collection('hikingTrails').doc(trailId);
-    //
-    //   batch.set(trailRef, updatedData, SetOptions(merge: true));
-    // }
-    //
-    // await batch.commit();
-    // print('updated ids successfully!');
-  }
-
   Color getDifficultyTextColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'mic':
@@ -549,8 +595,33 @@ class _HikesScreenState extends State<HikesScreen> {
       query = query.where('location', isEqualTo: searchQuery);
     }
 
+    if (_lastDocument != null) {
+      query = query.startAfterDocument(_lastDocument!); // Start after the last document fetched
+    }
+
     return query;
   }
+
+  // Query buildQuery() {
+  //   Query query = selectedDifficulty == 'Toate'
+  //       ? FirebaseFirestore.instance.collection('hikingTrails').orderBy('routeName')
+  //       : FirebaseFirestore.instance
+  //           .collection('hikingTrails')
+  //           .orderBy('routeName')
+  //           .where('degreeOfDifficulty', isEqualTo: selectedDifficulty.toLowerCase());
+  //
+  //   String searchQuery = '';
+  //
+  //   if (selectedCounty != 'Toate') {
+  //     query = query.where('county', isEqualTo: selectedCounty);
+  //   }
+  //
+  //   if (searchQuery.isNotEmpty) {
+  //     query = query.where('location', isEqualTo: searchQuery);
+  //   }
+  //
+  //   return query;
+  // }
 
   List<DropdownMenuItem<String>> getCountyDropdownItems() {
     counties.sort();

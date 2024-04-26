@@ -10,8 +10,6 @@ import 'package:hike_connect/home_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 
-const List<String> scopes = <String>['email'];
-
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 

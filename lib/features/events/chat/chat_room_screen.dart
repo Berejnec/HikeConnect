@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/events/chat/chat_messages.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final String eventId;
@@ -64,7 +65,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         _messageController.clear();
                       }
                     },
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(Icons.send, color: HikeColor.primaryColor),
                   ),
                 ],
               ),

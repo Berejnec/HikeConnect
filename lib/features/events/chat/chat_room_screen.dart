@@ -14,6 +14,24 @@ class ChatRoomScreen extends StatefulWidget {
 
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final TextEditingController _messageController = TextEditingController();
+  List<Map<String, dynamic>> _userData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('users').get();
+      setState(() {
+        _userData = snapshot.docs.map((doc) => doc.data()).toList();
+      });
+    } catch (error) {
+      print('Failed to fetch user data: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +43,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ChatMessages(eventId: widget.eventId),
+              child: ChatMessages(eventId: widget.eventId, userData: _userData),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

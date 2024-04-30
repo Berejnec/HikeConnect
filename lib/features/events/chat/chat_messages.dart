@@ -27,12 +27,14 @@ class ChatMessages extends StatelessWidget {
 
         return ListView.builder(
           reverse: true,
+          key: Key(eventId),
           itemCount: messages.length,
           itemBuilder: (context, index) {
             final message = messages[index].data();
             final isSenderLoggedUser =
                 message['sender'] == context.read<AuthCubit>().getHikerUser()?.uid;
             return FutureBuilder<DocumentSnapshot>(
+              key: Key(eventId),
               future: FirebaseFirestore.instance.collection('users').doc(message['sender']).get(),
               builder: (context, userSnapshot) {
                 if (!userSnapshot.hasData || userSnapshot.data?.data() == null) {
@@ -42,6 +44,7 @@ class ChatMessages extends StatelessWidget {
                 final senderData = userSnapshot.data?.data() as Map<String, dynamic>;
 
                 return ListTile(
+                  key: Key(messages[index].id),
                   title: Text(senderData['displayName'],
                       textAlign: isSenderLoggedUser ? TextAlign.end : TextAlign.start),
                   subtitle: Text(message['content'],

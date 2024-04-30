@@ -29,100 +29,109 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Gap(8),
-              TextFormField(
-                textAlignVertical: TextAlignVertical.top,
-                textAlign: TextAlign.start,
-                controller: _contentController,
-                decoration: const InputDecoration(labelText: 'Descriere'),
-                maxLines: 2,
-              ),
-              const Gap(16),
-              Row(
-                children: [
-                  IconButton(
-                    color: HikeColor.infoDarkColor,
-                    onPressed: () async {
-                      ImagePicker imagePicker = ImagePicker();
-                      XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Gap(8),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
 
-                      if (file == null) return;
+                    TextFormField(
+                      textAlignVertical: TextAlignVertical.top,
+                      textAlign: TextAlign.start,
+                      controller: _contentController,
+                      decoration: const InputDecoration(labelText: 'Descriere'),
+                      maxLines: 2,
+                    ),
+                    const Gap(16),
+                    Row(
+                      children: [
+                        IconButton(
+                          color: HikeColor.infoDarkColor,
+                          onPressed: () async {
+                            ImagePicker imagePicker = ImagePicker();
+                            XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
 
-                      try {
-                        Reference referenceRoot = FirebaseStorage.instance.ref();
-                        Reference referenceDirImages = referenceRoot.child('post_images');
-                        Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
+                            if (file == null) return;
 
-                        await referenceImageToUpload.putFile(File(file.path));
-                        String imageUrl = await referenceImageToUpload.getDownloadURL();
+                            try {
+                              Reference referenceRoot = FirebaseStorage.instance.ref();
+                              Reference referenceDirImages = referenceRoot.child('post_images');
+                              Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
 
-                        if (!mounted) return;
-                        setState(() {
-                          imageUrls.add(imageUrl);
-                        });
-                      } catch (error) {
-                        print(error);
-                      }
-                    },
-                    icon: const Icon(Icons.image),
-                    padding: const EdgeInsets.all(12.0),
-                  ),
-                  IconButton(
-                    color: HikeColor.infoDarkColor,
-                    onPressed: () async {
-                      ImagePicker imagePicker = ImagePicker();
-                      XFile? file = await imagePicker.pickImage(source: ImageSource.camera);
+                              await referenceImageToUpload.putFile(File(file.path));
+                              String imageUrl = await referenceImageToUpload.getDownloadURL();
 
-                      if (file == null) return;
+                              if (!mounted) return;
+                              setState(() {
+                                imageUrls.add(imageUrl);
+                              });
+                            } catch (error) {
+                              print(error);
+                            }
+                          },
+                          icon: const Icon(Icons.image),
+                          padding: const EdgeInsets.all(12.0),
+                        ),
+                        IconButton(
+                          color: HikeColor.infoDarkColor,
+                          onPressed: () async {
+                            ImagePicker imagePicker = ImagePicker();
+                            XFile? file = await imagePicker.pickImage(source: ImageSource.camera);
 
-                      try {
-                        Reference referenceRoot = FirebaseStorage.instance.ref();
-                        Reference referenceDirImages = referenceRoot.child('post_images');
-                        Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
+                            if (file == null) return;
 
-                        await referenceImageToUpload.putFile(File(file.path));
-                        String imageUrl = await referenceImageToUpload.getDownloadURL();
+                            try {
+                              Reference referenceRoot = FirebaseStorage.instance.ref();
+                              Reference referenceDirImages = referenceRoot.child('post_images');
+                              Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
 
-                        if (!mounted) return;
-                        setState(() {
-                          imageUrls.add(imageUrl);
-                        });
-                      } catch (error) {
-                        print(error);
-                      }
-                    },
-                    icon: const Icon(Icons.camera_alt),
-                    padding: const EdgeInsets.all(12.0),
-                  ),
-                ],
-              ),
-              const Gap(16),
-              if (imageUrls.isNotEmpty)
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  child: Image.network(
-                    imageUrls[0],
-                    width: MediaQuery.of(context).size.width,
-                    height: 300,
-                    fit: BoxFit.cover,
-                  ),
+                              await referenceImageToUpload.putFile(File(file.path));
+                              String imageUrl = await referenceImageToUpload.getDownloadURL();
+
+                              if (!mounted) return;
+                              setState(() {
+                                imageUrls.add(imageUrl);
+                              });
+                            } catch (error) {
+                              print(error);
+                            }
+                          },
+                          icon: const Icon(Icons.camera_alt),
+                          padding: const EdgeInsets.all(12.0),
+                        ),
+                      ],
+                    ),
+                    const Gap(16),
+                    if (imageUrls.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        child: Image.network(
+                          imageUrls[0],
+                          width: MediaQuery.of(context).size.width,
+                          height: 300,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    const Gap(32),
+                  ],
                 ),
-              const Gap(32),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: FilledButton(
-                  onPressed: _createPost,
-                  child: const Text(
-                    'Posteaza',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: FilledButton(
+                onPressed: _createPost,
+                child: const Text(
+                  'Posteaza',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

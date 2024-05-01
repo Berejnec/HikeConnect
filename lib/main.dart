@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hike_connect/app_navigation_cubit.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
-import 'package:hike_connect/features/auth/sign_in_screen.dart';
+import 'package:hike_connect/features/auth/splash_screen.dart';
 import 'package:hike_connect/theme/hike_connect_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -37,7 +37,7 @@ class HikeConnectApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: HikeConnectTheme.getPrimaryTheme(),
-        home: const SignInScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

@@ -38,7 +38,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-
                     TextFormField(
                       textAlignVertical: TextAlignVertical.top,
                       textAlign: TextAlign.start,
@@ -147,7 +146,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'hikeId': widget.hikeId,
         'userId': widget.userId,
         'timestamp': now,
-        // Add other fields as needed (likes, etc.)
       });
 
       if (_contentController.text.isNotEmpty) {
@@ -157,13 +155,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           'hikeId': widget.hikeId,
           'userId': widget.userId,
           'timestamp': now,
-          // Add other fields as needed (likes, etc.)
         });
 
         _contentController.clear();
         imageUrls.clear();
         if (!mounted) return;
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       }
     } catch (e) {
       print('Error creating post: $e');

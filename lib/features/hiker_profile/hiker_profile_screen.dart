@@ -16,7 +16,7 @@ import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
-import 'package:hike_connect/utils/widgets/timeline.dart';
+import 'package:hike_connect/utils/widgets/hikes_timeline.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:side_sheet/side_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -585,7 +585,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                         decoration: const BoxDecoration(border: Border.symmetric(horizontal: BorderSide(color: HikeColor.tertiaryColor))),
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Timeline(pastEvents: userEvents),
+                          child: HikesTimeline(pastEvents: userEvents),
                         ),
                       ),
                     if (userEvents.isEmpty) ...[

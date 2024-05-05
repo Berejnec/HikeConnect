@@ -4,10 +4,10 @@ import 'package:hike_connect/theme/hike_color.dart';
 import 'package:intl/intl.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
-class Timeline extends StatelessWidget {
+class HikesTimeline extends StatelessWidget {
   final List<HikeEvent> pastEvents;
 
-  const Timeline({Key? key, required this.pastEvents}) : super(key: key);
+  const HikesTimeline({Key? key, required this.pastEvents}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class Timeline extends StatelessWidget {
                       mainAxisAlignment: index != pastEvents.length - 1 ? MainAxisAlignment.start : MainAxisAlignment.end,
                       children: [
                         Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text(DateFormat.yMMMd().format(event.date)),
+                        Text(DateFormat('yMMMMd', 'ro').format(event.date)),
                       ],
                     ),
                   ),
@@ -55,7 +55,7 @@ class Timeline extends StatelessWidget {
                       mainAxisAlignment: index != pastEvents.length - 1 ? MainAxisAlignment.start : MainAxisAlignment.end,
                       children: [
                         Text(event.hikingTrail.routeName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text(DateFormat.yMMMd().format(event.date)),
+                        Text(DateFormat('yMMMMd', 'ro').format(event.date)),
                       ],
                     ),
                   ),

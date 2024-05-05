@@ -38,6 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/ic_launcher.png'),
+            const Gap(16.0),
             Center(
               child: Text(
                 'HikeConnect',

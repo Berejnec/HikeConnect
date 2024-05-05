@@ -9,7 +9,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
-import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/features/events/chat/chat_room_screen.dart';
 import 'package:hike_connect/models/event_participant.dart';
 import 'package:hike_connect/models/hike_event.dart';
@@ -103,18 +102,6 @@ class _EventsPageState extends State<EventsScreen> {
           ],
         ),
         centerTitle: false,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EmergencyTabsScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.emergency))
-        ],
       ),
       body: SafeArea(
         child: Column(

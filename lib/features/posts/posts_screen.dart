@@ -75,8 +75,6 @@ class _PostsScreenState extends State<PostsScreen> {
             return postDataList.isNotEmpty
                 ? ListView.builder(
                     itemCount: postDataList.length,
-                    physics: const ClampingScrollPhysics(),
-                    shrinkWrap: true,
                     itemBuilder: (context, index) {
                       final postData = postDataList[index];
                       return PostCard(postData: postData);
@@ -128,6 +126,7 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(8.0),
+      elevation: 2.0,
       child: Column(
         children: [
           ListTile(

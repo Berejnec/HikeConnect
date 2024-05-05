@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 class IconTextRow extends StatelessWidget {
   final IconData icon;
@@ -13,10 +15,11 @@ class IconTextRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon),
-        const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 16.0)),
+        const Gap(8.0),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 16.0))),
       ],
     );
   }

@@ -38,7 +38,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HikeConnect Event Chat'),
+        title: const Text('Chat Eveniment'),
       ),
       body: SafeArea(
         child: Column(

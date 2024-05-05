@@ -5,7 +5,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
-import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
 import 'package:hike_connect/features/posts/posts_screen.dart';
 import 'package:hike_connect/map_screen.dart';
@@ -71,19 +70,6 @@ class _HikesScreenState extends State<HikesScreen> {
           title: const Text('Trasee autorizate din Romania'),
           centerTitle: false,
           backgroundColor: HikeColor.secondaryColor,
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EmergencyTabsScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.emergency),
-            )
-          ],
         ),
         backgroundColor: Colors.grey[100],
         body: SafeArea(

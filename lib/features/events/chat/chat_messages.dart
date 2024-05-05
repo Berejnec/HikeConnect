@@ -8,7 +8,8 @@ class ChatMessages extends StatelessWidget {
   final String eventId;
   final List<Map<String, dynamic>> userData;
 
-  const ChatMessages({Key? key, required this.eventId, required this.userData}) : super(key: key);
+  const ChatMessages({Key? key, required this.eventId, required this.userData})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,29 +31,38 @@ class ChatMessages extends StatelessWidget {
           reverse: true,
           key: Key(eventId),
           itemCount: messages.length,
-          physics: const ClampingScrollPhysics(),
-          shrinkWrap: true,
           itemBuilder: (context, index) {
             final message = messages[index].data();
-            final isSenderLoggedUser =
-                message['sender'] == context.read<AuthCubit>().getHikerUser()?.uid;
-            final senderData =
-                userData.firstWhere((user) => user['uid'] == message['sender'], orElse: () => {});
+            final isSenderLoggedUser = message['sender'] ==
+                context.read<AuthCubit>().getHikerUser()?.uid;
+            final senderData = userData.firstWhere(
+                (user) => user['uid'] == message['sender'],
+                orElse: () => {});
 
             return ListTile(
               key: Key(messages[index].id),
               title: Text(senderData['displayName'] ?? '',
-                  textAlign: isSenderLoggedUser ? TextAlign.end : TextAlign.start),
+                  style: const TextStyle(
+                      fontSize: 16.0,
+                      color: HikeColor.primaryColor,
+                      fontWeight: FontWeight.w600),
+                  textAlign:
+                      isSenderLoggedUser ? TextAlign.end : TextAlign.start),
               subtitle: Text(message['content'] ?? '',
-                  textAlign: isSenderLoggedUser ? TextAlign.end : TextAlign.start),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+                  style: const TextStyle(fontSize: 18.0),
+                  textAlign:
+                      isSenderLoggedUser ? TextAlign.end : TextAlign.start),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
               trailing: isSenderLoggedUser
                   ? CircleAvatar(
                       backgroundImage: senderData['avatarUrl'] != null
                           ? NetworkImage(senderData['avatarUrl'])
                           : null,
-                      radius: 16.0,
-                      backgroundColor: senderData['avatarUrl'] != null ? null : HikeColor.green,
+                      radius: 18.0,
+                      backgroundColor: senderData['avatarUrl'] != null
+                          ? null
+                          : HikeColor.green,
                       child: senderData['avatarUrl'] == null
                           ? const Icon(Icons.person, color: Colors.white)
                           : null,
@@ -63,8 +73,10 @@ class ChatMessages extends StatelessWidget {
                       backgroundImage: senderData['avatarUrl'] != null
                           ? NetworkImage(senderData['avatarUrl'])
                           : null,
-                      radius: 16.0,
-                      backgroundColor: senderData['avatarUrl'] != null ? null : HikeColor.green,
+                      radius: 18.0,
+                      backgroundColor: senderData['avatarUrl'] != null
+                          ? null
+                          : HikeColor.green,
                       child: senderData['avatarUrl'] == null
                           ? const Icon(Icons.person, color: Colors.white)
                           : null,

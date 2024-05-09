@@ -90,14 +90,31 @@ class _EventsPageState extends State<EventsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: HikeColor.gradientColors,
+            ),
+          ),
+        ),
+        title: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Evenimente '),
+            Text(
+              'Evenimente ',
+              style: TextStyle(
+                fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+              ),
+            ),
             Text(
               'HikeConnect',
               style: TextStyle(
-                  fontSize: 16.0, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+                fontSize: 16.0,
+                fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),
@@ -118,8 +135,7 @@ class _EventsPageState extends State<EventsScreen> {
                   List<HikeEvent> events = snapshot.data!.docs
                       .map((doc) => HikeEvent.fromMap(doc.data() as Map<String, dynamic>))
                       .where(
-                        (event) =>
-                            event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
+                        (event) => event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
                       )
                       .toList();
 
@@ -141,8 +157,8 @@ class _EventsPageState extends State<EventsScreen> {
                     itemBuilder: (context, index) {
                       HikeEvent event = events[index];
 
-                      bool isParticipant = event.participants.any((participant) =>
-                          participant.userId == context.read<AuthCubit>().getHikerUser()?.uid);
+                      bool isParticipant =
+                          event.participants.any((participant) => participant.userId == context.read<AuthCubit>().getHikerUser()?.uid);
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +175,7 @@ class _EventsPageState extends State<EventsScreen> {
                                     Flexible(
                                       child: Text(
                                         event.hikingTrail.routeName,
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0),
                                       ),
                                     ),
                                     Row(
@@ -169,15 +185,10 @@ class _EventsPageState extends State<EventsScreen> {
                                             onPressed: () {
                                               Navigator.push(
                                                 context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => ChatRoomScreen(
-                                                      eventId: event
-                                                          .id), // Pass event ID to ChatRoomScreen
-                                                ),
+                                                MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
                                               );
                                             },
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 4.0, horizontal: 8.0),
+                                            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                                             constraints: const BoxConstraints(),
                                             style: const ButtonStyle(
                                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -186,8 +197,7 @@ class _EventsPageState extends State<EventsScreen> {
                                           ),
                                         ],
                                         IconButton(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4.0, horizontal: 8.0),
+                                          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                                           constraints: const BoxConstraints(),
                                           style: const ButtonStyle(
                                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -201,11 +211,10 @@ class _EventsPageState extends State<EventsScreen> {
                                     ),
                                   ],
                                 ),
-                                Text('Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}'),
+                                Text('Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}', style: Theme.of(context).textTheme.titleMedium),
                                 const Gap(4),
                                 if (event.participants.isNotEmpty) ...[
-                                  Text('Participanti:',
-                                      style: Theme.of(context).textTheme.titleSmall),
+                                  Text('Participanti:', style: Theme.of(context).textTheme.titleMedium),
                                   for (EventParticipant participant in event.participants) ...[
                                     const Gap(4),
                                     Row(
@@ -217,9 +226,7 @@ class _EventsPageState extends State<EventsScreen> {
                                         const Gap(8),
                                         Text(participant.displayName.split(' ')[0]),
                                         const Gap(8),
-                                        if (isParticipant &&
-                                            participant.userId !=
-                                                context.read<AuthCubit>().getHikerUser()?.uid) ...[
+                                        if (isParticipant && participant.userId != context.read<AuthCubit>().getHikerUser()?.uid) ...[
                                           IconButton(
                                             color: HikeColor.infoDarkColor,
                                             padding: const EdgeInsets.all(8.0),
@@ -228,8 +235,7 @@ class _EventsPageState extends State<EventsScreen> {
                                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             ),
                                             onPressed: () async {
-                                              var whatsappUrl = Uri.parse(
-                                                  "whatsapp://send?phone=${participant.phoneNumber}"
+                                              var whatsappUrl = Uri.parse("whatsapp://send?phone=${participant.phoneNumber}"
                                                   "&text=${Uri.encodeComponent("HikeConnect: M-am alaturat evenimentului ${event.hikingTrail.routeName} din data de ${DateFormat('yMMMMd', 'ro').format(event.date)} !")}");
                                               try {
                                                 if (await canLaunchUrl(whatsappUrl)) {
@@ -242,8 +248,8 @@ class _EventsPageState extends State<EventsScreen> {
                                                       behavior: SnackBarBehavior.floating,
                                                       margin: EdgeInsets.only(bottom: 16.0),
                                                       backgroundColor: HikeColor.infoColor,
-                                                      content: Text(
-                                                          "Este necesar sa aveti aplicatia WhatsApp instalata pentru a putea trimite un mesaj!"),
+                                                      content:
+                                                          Text("Este necesar sa aveti aplicatia WhatsApp instalata pentru a putea trimite un mesaj!"),
                                                     ),
                                                   );
                                                 }
@@ -253,17 +259,12 @@ class _EventsPageState extends State<EventsScreen> {
                                             },
                                             icon: const Icon(FontAwesomeIcons.whatsapp, size: 20.0),
                                           ),
-                                        ] else if (isParticipant &&
-                                            participant.userId ==
-                                                context.read<AuthCubit>().getHikerUser()?.uid) ...[
+                                        ] else if (isParticipant && participant.userId == context.read<AuthCubit>().getHikerUser()?.uid) ...[
                                           const Gap(4),
                                           const Text('(Dvs.)'),
                                           IconButton(
                                             onPressed: () {
-                                              withdrawEvent(
-                                                  event.id,
-                                                  context.read<AuthCubit>().getHikerUser()!,
-                                                  context);
+                                              withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context);
                                             },
                                             icon: const Icon(
                                               Icons.person_remove,
@@ -280,8 +281,7 @@ class _EventsPageState extends State<EventsScreen> {
                                   const Gap(8),
                                   FilledButton.tonal(
                                     onPressed: () {
-                                      joinEvent(
-                                          event.id, context.read<AuthCubit>().getHikerUser()!);
+                                      joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                           content: Text('Te-ai alaturat evenimentului cu succes!'),
@@ -292,8 +292,7 @@ class _EventsPageState extends State<EventsScreen> {
                                       );
                                     },
                                     style: FilledButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 0.0, horizontal: 16.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                                     ),
                                     child: const Text('Participa'),
                                   ),
@@ -327,8 +326,7 @@ class _EventsPageState extends State<EventsScreen> {
       if (eventDoc.exists) {
         HikeEvent existingEvent = HikeEvent.fromMap(eventDoc.data() as Map<String, dynamic>);
 
-        if (!existingEvent.participants
-            .any((participant) => participant.userId == currentUser.uid)) {
+        if (!existingEvent.participants.any((participant) => participant.userId == currentUser.uid)) {
           EventParticipant participant = EventParticipant(
             userId: currentUser.uid,
             displayName: currentUser.displayName,
@@ -378,13 +376,11 @@ class _EventsPageState extends State<EventsScreen> {
       if (eventDoc.exists) {
         HikeEvent existingEvent = HikeEvent.fromMap(eventDoc.data() as Map<String, dynamic>);
         if (!mounted) return;
-        if (existingEvent.participants
-            .any((participant) => participant.userId == currentUser.uid)) {
+        if (existingEvent.participants.any((participant) => participant.userId == currentUser.uid)) {
           bool confirmed = await showWithdrawConfirmationDialog(context) ?? false;
 
           if (confirmed) {
-            existingEvent.participants
-                .removeWhere((participant) => participant.userId == currentUser.uid);
+            existingEvent.participants.removeWhere((participant) => participant.userId == currentUser.uid);
 
             await eventsCollection.doc(eventId).update(existingEvent.toMap());
             if (!mounted) return;
@@ -474,12 +470,8 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                   text: TextSpan(
                     style: const TextStyle(color: Colors.black),
                     children: [
-                      const TextSpan(
-                          text: 'Traseu: ',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                      TextSpan(
-                          text: widget.event.hikingTrail.routeName,
-                          style: const TextStyle(fontSize: 16.0)),
+                      const TextSpan(text: 'Traseu: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                      TextSpan(text: widget.event.hikingTrail.routeName, style: const TextStyle(fontSize: 16.0)),
                     ],
                   ),
                 ),
@@ -488,12 +480,8 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                   text: TextSpan(
                     style: const TextStyle(color: Colors.black),
                     children: [
-                      const TextSpan(
-                          text: 'Data: ',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                      TextSpan(
-                          text: DateFormat('yMMMMd', 'ro').format(widget.event.date),
-                          style: const TextStyle(fontSize: 16.0)),
+                      const TextSpan(text: 'Data: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                      TextSpan(text: DateFormat('yMMMMd', 'ro').format(widget.event.date), style: const TextStyle(fontSize: 16.0)),
                     ],
                   ),
                 ),
@@ -519,8 +507,7 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                     const Gap(4),
                     IconTextRow(
                       icon: Icons.camera_alt,
-                      text:
-                          'Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}',
+                      text: 'Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}',
                     ),
                   ],
                 ),

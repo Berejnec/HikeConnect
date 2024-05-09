@@ -59,7 +59,21 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       builder: (BuildContext context, AuthState authState) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Profil'),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: HikeColor.gradientColors,
+                ),
+              ),
+            ),
+            title: Text(
+              'Profil',
+              style: TextStyle(
+                fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+              ),
+            ),
             leading: IconButton(
               onPressed: () => SideSheet.left(
                 body: SafeArea(

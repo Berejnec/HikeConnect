@@ -37,16 +37,27 @@ class _SignInScreenState extends State<SignInScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo.png', width: 96, height: 96,),
-            const Gap(16.0),
-            Center(
-              child: Text(
-                'HikeConnect',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: HikeColor.primaryColor),
-                textAlign: TextAlign.center,
-              ),
+            Column(
+              children: [
+                Image.asset(
+                  'assets/logo.png',
+                  width: 168,
+                  height: 168,
+                ),
+                const Gap(16.0),
+                Center(
+                  child: Text(
+                    'HikeConnect',
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          color: HikeColor.primaryColor,
+                          fontSize: 60,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ),
-            const Gap(24),
+            const Gap(60),
             Center(
               child: ElevatedButton(
                 onPressed: () async {
@@ -60,14 +71,20 @@ class _SignInScreenState extends State<SignInScreen> {
                     );
                   }
                 },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(FontAwesomeIcons.google),
-                    Gap(8),
-                    Text('Autentifica-te'),
-                  ],
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(FontAwesomeIcons.google),
+                      Gap(12),
+                      Text(
+                        'Autentifica-te',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

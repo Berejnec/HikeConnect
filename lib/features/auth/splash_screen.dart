@@ -51,8 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
   }
 
-  Future<void> addUserToFirestore(
-      String? userUid, String? displayName, String? email, String? avatarUrl) async {
+  Future<void> addUserToFirestore(String? userUid, String? displayName, String? email, String? avatarUrl) async {
     final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
     if (userUid != null) {
@@ -67,15 +66,12 @@ class _SplashScreenState extends State<SplashScreen> {
       context.read<AuthCubit>().setUser(FirebaseAuth.instance.currentUser, hikerUser);
 
       if (hikerUser != null) {
-        CollectionReference imagesCollection =
-            FirebaseFirestore.instance.collection('users').doc(userUid).collection('images');
+        CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(userUid).collection('images');
 
         try {
           QuerySnapshot imagesQuerySnapshot = await imagesCollection.get();
-          List<String> imageUrls = imagesQuerySnapshot.docs
-              .map((docSnapshot) =>
-                  (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String)
-              .toList();
+          List<String> imageUrls =
+              imagesQuerySnapshot.docs.map((docSnapshot) => (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String).toList();
           if (!mounted) return;
           context.read<AuthCubit>().setHikerUser(hikerUser.copyWith(imageUrls: imageUrls));
         } catch (e) {
@@ -89,8 +85,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (userUid == null) return null;
 
     try {
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(userUid).get();
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userUid).get();
 
       if (userSnapshot.exists) {
         HikerUser hikerUser = HikerUser.fromMap(userSnapshot.data() as Map<String, dynamic>);
@@ -116,15 +111,19 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/logo.png', width: 96, height: 96,),
+                Image.asset(
+                  'assets/logo.png',
+                  width: 168,
+                  height: 168,
+                ),
                 const Gap(16.0),
                 Center(
                   child: Text(
                     'HikeConnect',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineLarge
-                        ?.copyWith(color: HikeColor.primaryColor),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          color: HikeColor.primaryColor,
+                          fontSize: 60,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                 ),

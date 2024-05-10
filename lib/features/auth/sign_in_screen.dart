@@ -32,7 +32,13 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildBody() {
     return Container(
-      color: HikeColor.bgLoginColor,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: HikeColor.gradientColors,
+        ),
+      ),
       child: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -41,16 +47,17 @@ class _SignInScreenState extends State<SignInScreen> {
               children: [
                 Image.asset(
                   'assets/logo.png',
-                  width: 168,
-                  height: 168,
+                  width: 240,
+                  height: 240
                 ),
                 const Gap(16.0),
                 Center(
                   child: Text(
                     'HikeConnect',
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          color: HikeColor.primaryColor,
-                          fontSize: 60,
+                          color: const Color(0xFF1A6A4B),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 42,
                         ),
                     textAlign: TextAlign.center,
                   ),

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
@@ -106,28 +105,20 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: Container(
-          color: HikeColor.bgLoginColor,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: HikeColor.gradientColors,
+            ),
+          ),
           child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/logo.png',
-                  width: 168,
-                  height: 168,
-                ),
-                const Gap(16.0),
-                Center(
-                  child: Text(
-                    'HikeConnect',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          color: HikeColor.primaryColor,
-                          fontSize: 60,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
+            child: Center(
+              child: Image.asset(
+                'assets/logo.png',
+                width: 120,
+                height: 120,
+              ),
             ),
           ),
         ),

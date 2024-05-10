@@ -37,7 +37,7 @@ class _SignInScreenState extends State<SignInScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/ic_launcher.png'),
+            Image.asset('assets/logo.png', width: 96, height: 96,),
             const Gap(16.0),
             Center(
               child: Text(

@@ -27,11 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ScreenCubit, AppScreen>(
       builder: (context, selectedScreen) {
-        return SelectionArea(
-          child: Scaffold(
-            body: _buildScreen(selectedScreen),
-            bottomNavigationBar: _buildBottomNavigationBar(context),
-          ),
+        return Scaffold(
+          body: _buildScreen(selectedScreen),
+          bottomNavigationBar: _buildBottomNavigationBar(context),
         );
       },
     );
@@ -57,8 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBottomNavigationBar(BuildContext context) {
     return ConvexAppBar(
       style: TabStyle.reactCircle,
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: HikeColor.bottomBarGradientColors,
+      ),
+      color: Colors.white70,
       backgroundColor: HikeColor.primaryColor,
-      color: Colors.white60,
       top: -15.0,
       items: const [
         TabItem(icon: Icons.hiking, title: 'Trasee'),

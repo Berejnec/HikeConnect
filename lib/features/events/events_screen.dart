@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
@@ -16,7 +15,6 @@ import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/icon_text_row.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
@@ -123,7 +121,6 @@ class _EventsPageState extends State<EventsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const Gap(8),
             Flexible(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection('events').orderBy('date').snapshots(),
@@ -160,154 +157,134 @@ class _EventsPageState extends State<EventsScreen> {
                       bool isParticipant =
                           event.participants.any((participant) => participant.userId == context.read<AuthCubit>().getHikerUser()?.uid);
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        event.hikingTrail.routeName,
-                                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0),
-                                      ),
+                      return Card(
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      event.hikingTrail.routeName,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                      softWrap: true,
                                     ),
-                                    Row(
-                                      children: [
-                                        if (isParticipant) ...[
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
-                                              );
-                                            },
-                                            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                                            constraints: const BoxConstraints(),
-                                            style: const ButtonStyle(
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            ),
-                                            icon: const Icon(Icons.chat),
-                                          ),
-                                        ],
-                                        IconButton(
-                                          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                                          constraints: const BoxConstraints(),
-                                          style: const ButtonStyle(
-                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          ),
-                                          onPressed: () async {
-                                            await _showSunriseSunsetModal(event);
-                                          },
-                                          icon: const Icon(Icons.info),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Text('Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}', style: Theme.of(context).textTheme.titleMedium),
-                                const Gap(4),
-                                if (event.participants.isNotEmpty) ...[
-                                  Text('Participanti:', style: Theme.of(context).textTheme.titleMedium),
-                                  for (EventParticipant participant in event.participants) ...[
-                                    const Gap(4),
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundImage: NetworkImage(participant.avatarUrl),
-                                          radius: 16.0,
-                                        ),
-                                        const Gap(8),
-                                        Text(participant.displayName.split(' ')[0]),
-                                        const Gap(8),
-                                        if (isParticipant && participant.userId != context.read<AuthCubit>().getHikerUser()?.uid) ...[
-                                          IconButton(
-                                            color: HikeColor.infoDarkColor,
-                                            padding: const EdgeInsets.all(8.0),
-                                            constraints: const BoxConstraints(),
-                                            style: const ButtonStyle(
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            ),
-                                            onPressed: () async {
-                                              var whatsappUrl = Uri.parse("whatsapp://send?phone=${participant.phoneNumber}"
-                                                  "&text=${Uri.encodeComponent("HikeConnect: M-am alaturat evenimentului ${event.hikingTrail.routeName} din data de ${DateFormat('yMMMMd', 'ro').format(event.date)} !")}");
-                                              try {
-                                                if (await canLaunchUrl(whatsappUrl)) {
-                                                  launchUrl(whatsappUrl);
-                                                } else {
-                                                  if (!mounted) return;
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(
-                                                      dismissDirection: DismissDirection.horizontal,
-                                                      behavior: SnackBarBehavior.floating,
-                                                      margin: EdgeInsets.only(bottom: 16.0),
-                                                      backgroundColor: HikeColor.infoColor,
-                                                      content:
-                                                          Text("Este necesar sa aveti aplicatia WhatsApp instalata pentru a putea trimite un mesaj!"),
-                                                    ),
-                                                  );
-                                                }
-                                              } catch (e) {
-                                                debugPrint(e.toString());
-                                              }
-                                            },
-                                            icon: const Icon(FontAwesomeIcons.whatsapp, size: 20.0),
-                                          ),
-                                        ] else if (isParticipant && participant.userId == context.read<AuthCubit>().getHikerUser()?.uid) ...[
-                                          const Gap(4),
-                                          const Text('(Dvs.)'),
-                                          IconButton(
-                                            onPressed: () {
-                                              withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context);
-                                            },
-                                            icon: const Icon(
-                                              Icons.person_remove,
-                                              size: 20,
-                                            ),
-                                            color: HikeColor.secondaryColor,
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ],
-                                ],
-                                if (!isParticipant) ...[
-                                  const Gap(8),
-                                  FilledButton.tonal(
-                                    onPressed: () {
-                                      joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Te-ai alaturat evenimentului cu succes!'),
-                                          duration: Duration(seconds: 5),
-                                          behavior: SnackBarBehavior.floating,
-                                          margin: EdgeInsets.only(bottom: 16.0),
-                                        ),
-                                      );
-                                    },
-                                    style: FilledButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
-                                    ),
-                                    child: const Text('Participa'),
                                   ),
                                 ],
+                              ),
+                              const Gap(8),
+                              Text(
+                                'Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}',
+                                style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                              ),
+                              const Gap(4),
+                              Text(
+                                'Judet: ${event.hikingTrail.county}',
+                                style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                              ),
+                              const Gap(8),
+                              if (isParticipant)
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(backgroundColor: HikeColor.infoLightColor),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.chat,
+                                        color: Colors.black,
+                                      ),
+                                      Gap(8.0),
+                                      Text(
+                                        'Discuta si organizeaza',
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: isParticipant ? 7 : 4,
+                                    child: FilledButton(
+                                      onPressed: () async {
+                                        await _showSunriseSunsetModal(event);
+                                      },
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: HikeColor.green,
+                                      ),
+                                      child: const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.info, color: Colors.black),
+                                          Gap(8.0),
+                                          Text(
+                                            'Detalii',
+                                            style: TextStyle(color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const Gap(8.0),
+                                  Expanded(
+                                    flex: isParticipant ? 3 : 6,
+                                    child: FilledButton(
+                                      onPressed: () {
+                                        isParticipant
+                                            ? withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context)
+                                            : joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
+                                      },
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: isParticipant ? HikeColor.errorColor : HikeColor.primaryColor,
+                                      ),
+                                      child: Text(
+                                        isParticipant ? 'Retragere' : 'Participa',
+                                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (event.participants.isNotEmpty) ...[
+                                const SizedBox(height: 16),
+                                const Text('Participanti:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 8),
+                                Column(
+                                  children: event.participants.map((participant) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundImage: NetworkImage(participant.avatarUrl),
+                                            radius: 16,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(participant.displayName),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
                               ],
-                            ),
+                            ],
                           ),
-                        ],
+                        ),
                       );
                     },
-                    separatorBuilder: (BuildContext context, int index) => const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.0),
-                      child: Divider(),
-                    ),
-                  ).animate().fade(duration: 200.ms);
+                    separatorBuilder: (BuildContext context, int index) => const Gap(0),
+                  ).animate().shimmer(duration: 200.ms);
                 },
               ),
             ),
@@ -337,6 +314,15 @@ class _EventsPageState extends State<EventsScreen> {
           existingEvent.participants.add(participant);
 
           await eventsCollection.doc(eventId).update(existingEvent.toMap());
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Te-ai alaturat evenimentului!'),
+              duration: Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(bottom: 16.0),
+            ),
+          );
         }
       }
     } catch (e) {

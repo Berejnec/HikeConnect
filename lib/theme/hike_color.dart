@@ -33,4 +33,10 @@ class HikeColor {
     const Color(0xFF5CAE5D).withOpacity(0.8),
     const Color(0xFF6FBB70).withOpacity(0.8)
   ];
+
+  static List<Color> bottomBarGradientColors = [
+    const Color(0xFF63B857).withOpacity(1),
+    const Color(0xFF4AA249).withOpacity(1),
+    const Color(0xFF317D3B).withOpacity(1),
+  ];
 }

@@ -5,10 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hike_connect/app_navigation_cubit.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/splash_screen.dart';
-import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/theme/hike_connect_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:splash_view/splash_view.dart';
 
 import 'firebase_options.dart';
 
@@ -39,29 +37,7 @@ class HikeConnectApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: HikeConnectTheme.getPrimaryTheme(),
-        home: SplashView(
-          logo: Image.asset(
-            'assets/logo.png',
-            width: 120,
-            height: 120,
-          ),
-          title: const Text('HikeConnect'),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: HikeColor.gradientColors,
-          ),
-          loadingIndicator: const Padding(
-            padding: EdgeInsets.only(bottom: 16.0),
-            child: CircularProgressIndicator(),
-          ),
-          bottomLoading: true,
-          done: Done(
-            const SplashScreen(),
-            animationDuration: const Duration(seconds: 2),
-            curve: Curves.decelerate,
-          ),
-        ),
+        home: const SplashScreen(),
       ),
     );
   }

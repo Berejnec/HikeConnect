@@ -7,6 +7,7 @@ import 'package:hike_connect/theme/hike_color.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final String eventId;
+
   const ChatRoomScreen({Key? key, required this.eventId}) : super(key: key);
 
   @override
@@ -86,14 +87,16 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 
   void sendMessage(String content) {
-    FirebaseFirestore.instance.collection('events/${widget.eventId}/chat_messages').add({
-      'sender': context.read<AuthCubit>().getHikerUser()?.uid,
-      'content': content,
-      'timestamp': Timestamp.now(),
-    }).then((value) {
-      print('Message sent successfully');
-    }).catchError((error) {
-      print('Failed to send message: $error');
-    });
+    FirebaseFirestore.instance
+        .collection('events/${widget.eventId}/chat_messages')
+        .add({
+          'sender': context.read<AuthCubit>().getHikerUser()?.uid,
+          'content': content,
+          'timestamp': Timestamp.now(),
+        })
+        .then((value) {})
+        .catchError((error) {
+          print('Failed to send message: $error');
+        });
   }
 }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
@@ -41,6 +42,15 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Harta'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: HikeColor.gradientColors,
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
         bottom: false,
@@ -132,7 +142,6 @@ class _MapScreenState extends State<MapScreen> {
     final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${latLng.latitude},${latLng.longitude}');
 
     if (await canLaunchUrl(url)) {
-
       print('launch!');
       await launchUrl(url);
     } else {

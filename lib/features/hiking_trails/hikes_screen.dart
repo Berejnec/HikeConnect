@@ -337,7 +337,7 @@ class _HikesScreenState extends State<HikesScreen> {
                                   ),
                                 );
                               },
-                              separatorBuilder: (BuildContext context, int index) => const Gap(4)).animate().fadeIn(duration: 200.ms)
+                              separatorBuilder: (BuildContext context, int index) => const Gap(4)).animate().shimmer(duration: 200.ms)
                           : const Center(
                               child: Text(
                                 'Niciun traseu disponibil.',

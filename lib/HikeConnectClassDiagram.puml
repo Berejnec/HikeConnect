@@ -1,0 +1,522 @@
+@startuml
+set namespaceSeparator ::
+
+class "hike_connect::app_navigation_cubit.dart::ScreenCubit" {
+  +void setScreen()
+}
+
+"bloc::src::cubit.dart::Cubit" <|-- "hike_connect::app_navigation_cubit.dart::ScreenCubit"
+
+class "hike_connect::app_navigation_cubit.dart::AppScreen" {
+  +int index
+  {static} +List<AppScreen> values
+  {static} +AppScreen hikes
+  {static} +AppScreen events
+  {static} +AppScreen profile
+}
+
+"hike_connect::app_navigation_cubit.dart::AppScreen" o-- "hike_connect::app_navigation_cubit.dart::AppScreen"
+"dart::core::Enum" <|-- "hike_connect::app_navigation_cubit.dart::AppScreen"
+
+class "hike_connect::features::auth::auth_cubit.dart::AuthState" {
+  +User? firebaseAuthUser
+  +HikerUser? hikerUser
+}
+
+"hike_connect::features::auth::auth_cubit.dart::AuthState" o-- "firebase_auth::firebase_auth.dart::User"
+"hike_connect::features::auth::auth_cubit.dart::AuthState" o-- "hike_connect::models::hiker_user.dart::HikerUser"
+
+class "hike_connect::features::auth::auth_cubit.dart::BackgroundImageUploading" {
+}
+
+"hike_connect::features::auth::auth_cubit.dart::AuthState" <|-- "hike_connect::features::auth::auth_cubit.dart::BackgroundImageUploading"
+
+class "hike_connect::features::auth::auth_cubit.dart::AuthCubit" {
+  +void setUser()
+  +void setHikerUser()
+  +HikerUser? getHikerUser()
+  +dynamic addImageAndUpdate()
+  +dynamic emitBackgroundImageUploading()
+  +dynamic updateBackgroundUrl()
+  +void printHikerUserDetails()
+}
+
+"bloc::src::cubit.dart::Cubit" <|-- "hike_connect::features::auth::auth_cubit.dart::AuthCubit"
+
+class "hike_connect::features::auth::sign_in_screen.dart::SignInScreen" {
+  +State<SignInScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::auth::sign_in_screen.dart::SignInScreen"
+
+class "hike_connect::features::auth::sign_in_screen.dart::_SignInScreenState" {
+  +void initState()
+  +Widget build()
+  -Widget _buildBody()
+  +dynamic signInWithGoogle()
+  +dynamic fetchHikerUser()
+  +dynamic addUserToFirestore()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::auth::sign_in_screen.dart::_SignInScreenState"
+
+class "hike_connect::features::auth::splash_screen.dart::SplashScreen" {
+  +State<SplashScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::auth::splash_screen.dart::SplashScreen"
+
+class "hike_connect::features::auth::splash_screen.dart::_SplashScreenState" {
+  +void initState()
+  +dynamic checkUserAuthentication()
+  -dynamic _handleSignedOutUser()
+  -dynamic _handleSignedInUser()
+  +dynamic addUserToFirestore()
+  +dynamic fetchHikerUser()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::auth::splash_screen.dart::_SplashScreenState"
+
+class "hike_connect::features::emergency::emergency_info.dart::EmergencyInfo" {
+  {static} -String _emergencyPageText
+  {static} -String _foodText
+  {static} -String _injuryText
+  {static} +String getEmergencyPageText()
+  {static} +String getFoodPageText()
+  {static} +String getInjuryPageText()
+}
+
+class "hike_connect::features::emergency::emergency_tabs_screen.dart::EmergencyTabsScreen" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::features::emergency::emergency_tabs_screen.dart::EmergencyTabsScreen"
+
+class "hike_connect::features::events::chat::chat_messages.dart::ChatMessages" {
+  +String eventId
+  +List<Map<String, dynamic>> userData
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::features::events::chat::chat_messages.dart::ChatMessages"
+
+class "hike_connect::features::events::chat::chat_room_screen.dart::ChatRoomScreen" {
+  +String eventId
+  +State<ChatRoomScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::events::chat::chat_room_screen.dart::ChatRoomScreen"
+
+class "hike_connect::features::events::chat::chat_room_screen.dart::_ChatRoomScreenState" {
+  -TextEditingController _messageController
+  -List<Map<String, dynamic>> _userData
+  +void initState()
+  -dynamic _fetchUserData()
+  +Widget build()
+  +void sendMessage()
+}
+
+"hike_connect::features::events::chat::chat_room_screen.dart::_ChatRoomScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::events::chat::chat_room_screen.dart::_ChatRoomScreenState"
+
+class "hike_connect::features::events::create_hike_event_form.dart::CreateHikeEventForm" {
+  +HikingTrail trail
+  +State<CreateHikeEventForm> createState()
+}
+
+"hike_connect::features::events::create_hike_event_form.dart::CreateHikeEventForm" o-- "hike_connect::models::hiking_trail.dart::HikingTrail"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::events::create_hike_event_form.dart::CreateHikeEventForm"
+
+class "hike_connect::features::events::create_hike_event_form.dart::_CreateHikeEventFormState" {
+  -GlobalKey<FormState> _formKey
+  -TextEditingController _dateController
+  -DateTime? _selectedDate
+  +Widget build()
+  +dynamic addHikeEvent()
+}
+
+"hike_connect::features::events::create_hike_event_form.dart::_CreateHikeEventFormState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"hike_connect::features::events::create_hike_event_form.dart::_CreateHikeEventFormState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::events::create_hike_event_form.dart::_CreateHikeEventFormState"
+
+class "hike_connect::features::events::events_screen.dart::EventsScreen" {
+  +State<EventsScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::events::events_screen.dart::EventsScreen"
+
+class "hike_connect::features::events::events_screen.dart::_EventsPageState" {
+  +String sunsetSunriseApiBaseUrl
+  +String weatherApiBaseUrl
+  +void initState()
+  +dynamic fetchWeatherData()
+  +dynamic fetchSunriseSunsetData()
+  +Widget build()
+  +dynamic joinEvent()
+  -dynamic _showSunriseSunsetModal()
+  +dynamic withdrawEvent()
+  +dynamic showWithdrawConfirmationDialog()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::events::events_screen.dart::_EventsPageState"
+
+class "hike_connect::features::events::events_screen.dart::_SunriseSunsetModalContent" {
+  +HikeEvent event
+  +Map<String, dynamic> sunriseSunsetData
+  +State<_SunriseSunsetModalContent> createState()
+}
+
+"hike_connect::features::events::events_screen.dart::_SunriseSunsetModalContent" o-- "hike_connect::models::hike_event.dart::HikeEvent"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::events::events_screen.dart::_SunriseSunsetModalContent"
+
+class "hike_connect::features::events::events_screen.dart::_SunriseSunsetModalContentState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::events::events_screen.dart::_SunriseSunsetModalContentState"
+
+class "hike_connect::features::hiker_profile::hiker_profile_screen.dart::HikerProfileScreen" {
+  +State<HikerProfileScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::hiker_profile::hiker_profile_screen.dart::HikerProfileScreen"
+
+class "hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState" {
+  +User? user
+  -FirebaseAuth _auth
+  -GoogleSignIn _googleSignIn
+  -FirebaseStorage _storage
+  -ImagePicker _imagePicker
+  +String imageUrl
+  +List<HikeEvent> userEvents
+  +void initState()
+  +Widget build()
+  -dynamic _signOut()
+  -dynamic _uploadImageAndSetBackgroundUrl()
+  +dynamic fetchUserEvents()
+  +dynamic fetchUserEventsList()
+  -void _showPhoneNumberDialog()
+  -void _updatePhoneNumber()
+}
+
+"hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState" o-- "firebase_auth::firebase_auth.dart::User"
+"hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState" o-- "google_sign_in::google_sign_in.dart::GoogleSignIn"
+"hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState" o-- "firebase_storage::firebase_storage.dart::FirebaseStorage"
+"hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState" o-- "image_picker::image_picker.dart::ImagePicker"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::hiker_profile::hiker_profile_screen.dart::_HikerProfileScreenState"
+
+class "hike_connect::features::hiking_trails::hikes_screen.dart::HikesScreen" {
+  +State<HikesScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::hiking_trails::hikes_screen.dart::HikesScreen"
+
+class "hike_connect::features::hiking_trails::hikes_screen.dart::_HikesScreenState" {
+  +List<HikingTrail> hikingTrails
+  +String selectedDifficulty
+  +String selectedCounty
+  +List<String> counties
+  -int _limit
+  -DocumentSnapshot<Object?>? _lastDocument
+  +void initState()
+  +Widget build()
+  +void loadMoreHikes()
+  +bool isFavorite()
+  +void toggleFavorite()
+  +void showSnackBar()
+  +dynamic removeFromFavoritesInFirestore()
+  +dynamic updateFavoritesInFirestore()
+  +void launchMapDirections()
+  -void _showAddEventDialog()
+  +Widget getMarkingIcon()
+  +Widget getDifficultyIcon()
+  +Color getDifficultyTextColor()
+  +Query<Object?> buildQuery()
+  +List<DropdownMenuItem<String>> getCountyDropdownItems()
+}
+
+"hike_connect::features::hiking_trails::hikes_screen.dart::_HikesScreenState" o-- "cloud_firestore::cloud_firestore.dart::DocumentSnapshot<Object>"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::hiking_trails::hikes_screen.dart::_HikesScreenState"
+
+class "hike_connect::features::hiking_trails::hike_form.dart::HikeForm" {
+  +State<HikeForm> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::hiking_trails::hike_form.dart::HikeForm"
+
+class "hike_connect::features::hiking_trails::hike_form.dart::_HikeFormState" {
+  -GlobalKey<FormState> _formKey
+  +TextEditingController routeNameController
+  +TextEditingController administratorController
+  +TextEditingController locationController
+  +TextEditingController countyController
+  +TextEditingController markingController
+  +TextEditingController routeDurationController
+  +TextEditingController degreeOfDifficultyController
+  +TextEditingController seasonalityController
+  +TextEditingController equipmentLevelController
+  +TextEditingController latitudeController
+  +TextEditingController longitudeController
+  +Widget build()
+  +dynamic saveHikingTrail()
+  -void _clearForm()
+}
+
+"hike_connect::features::hiking_trails::hike_form.dart::_HikeFormState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"hike_connect::features::hiking_trails::hike_form.dart::_HikeFormState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::hiking_trails::hike_form.dart::_HikeFormState"
+
+class "hike_connect::features::posts::create_post_screen.dart::CreatePostScreen" {
+  +String hikeId
+  +String userId
+  +State<CreatePostScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::posts::create_post_screen.dart::CreatePostScreen"
+
+class "hike_connect::features::posts::create_post_screen.dart::_CreatePostScreenState" {
+  -TextEditingController _contentController
+  +List<String> imageUrls
+  +Widget build()
+  -dynamic _createPost()
+}
+
+"hike_connect::features::posts::create_post_screen.dart::_CreatePostScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::posts::create_post_screen.dart::_CreatePostScreenState"
+
+class "hike_connect::features::posts::posts_screen.dart::PostsScreen" {
+  +String hikeId
+  +State<PostsScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::features::posts::posts_screen.dart::PostsScreen"
+
+class "hike_connect::features::posts::posts_screen.dart::_PostsScreenState" {
+  -dynamic _postDataFuture
+  +void initState()
+  -dynamic _fetchPostData()
+  +Widget build()
+  -dynamic _refreshPosts()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::features::posts::posts_screen.dart::_PostsScreenState"
+
+class "hike_connect::features::posts::posts_screen.dart::PostCard" {
+  +PostCardData postData
+  +Widget build()
+}
+
+"hike_connect::features::posts::posts_screen.dart::PostCard" o-- "hike_connect::features::posts::posts_screen.dart::PostCardData"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::features::posts::posts_screen.dart::PostCard"
+
+class "hike_connect::features::posts::posts_screen.dart::PostCardData" {
+  +String username
+  +String avatarUrl
+  +String hikeName
+  +String content
+  +List<String> imageUrls
+  +int likes
+  +DateTime timestamp
+}
+
+class "hike_connect::features::posts::posts_screen.dart::Post" {
+  +String content
+  +String hikeId
+  +List<String> imageUrls
+  +Timestamp timestamp
+  +String userId
+}
+
+"hike_connect::features::posts::posts_screen.dart::Post" o-- "cloud_firestore_platform_interface::src::timestamp.dart::Timestamp"
+
+class "hike_connect::firebase_options.dart::DefaultFirebaseOptions" {
+  {static} +FirebaseOptions web
+  {static} +FirebaseOptions android
+  {static} +FirebaseOptions ios
+  {static} +FirebaseOptions macos
+  {static} +FirebaseOptions currentPlatform
+}
+
+"hike_connect::firebase_options.dart::DefaultFirebaseOptions" o-- "firebase_core_platform_interface::firebase_core_platform_interface.dart::FirebaseOptions"
+
+class "hike_connect::home_screen.dart::HomeScreen" {
+  +State<HomeScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::home_screen.dart::HomeScreen"
+
+class "hike_connect::home_screen.dart::_HomeScreenState" {
+  +int currentIndex
+  +List<Widget> screens
+  +Widget build()
+  -Widget _buildScreen()
+  +void changeTab()
+  -Widget _buildBottomNavigationBar()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::home_screen.dart::_HomeScreenState"
+
+class "hike_connect::main.dart::HikeConnectApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::main.dart::HikeConnectApp"
+
+class "hike_connect::map_screen.dart::MapScreen" {
+  +String routeName
+  +State<MapScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "hike_connect::map_screen.dart::MapScreen"
+
+class "hike_connect::map_screen.dart::_MapScreenState" {
+  +GoogleMapController mapController
+  +Set<Marker> markers
+  +String geocodingApiBaseUrl
+  -LatLng _center
+  +void initState()
+  -void _onMapCreated()
+  +Widget build()
+  +void moveCameraToLocation()
+  +void zoomToPoint()
+  +void zoomToTappedLocation()
+  +void geocodeRouteName()
+  +void addMarker()
+  +void launchMapDirections()
+}
+
+"hike_connect::map_screen.dart::_MapScreenState" o-- "google_maps_flutter::google_maps_flutter.dart::GoogleMapController"
+"hike_connect::map_screen.dart::_MapScreenState" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+"flutter::src::widgets::framework.dart::State" <|-- "hike_connect::map_screen.dart::_MapScreenState"
+
+class "hike_connect::models::event_participant.dart::EventParticipant" {
+  +String userId
+  +String displayName
+  +String phoneNumber
+  +String avatarUrl
+  +Map<String, dynamic> toMap()
+}
+
+class "hike_connect::models::hiker_user.dart::HikerUser" {
+  +String uid
+  +String displayName
+  +String email
+  +String? phoneNumber
+  +String? avatarUrl
+  +String? backgroundUrl
+  +List<String>? imageUrls
+  +List<String> favoriteHikingTrails
+  +Map<String, dynamic> toMap()
+  +HikerUser copyWith()
+  +void printDetails()
+}
+
+class "hike_connect::models::hike_event.dart::HikeEvent" {
+  +String id
+  +HikingTrail hikingTrail
+  +DateTime date
+  +List<EventParticipant> participants
+  +Map<String, dynamic> toMap()
+}
+
+"hike_connect::models::hike_event.dart::HikeEvent" o-- "hike_connect::models::hiking_trail.dart::HikingTrail"
+
+class "hike_connect::models::hiking_trail.dart::HikingTrail" {
+  +String? id
+  +String routeName
+  +String administrator
+  +String location
+  +String county
+  +String marking
+  +String routeDuration
+  +String degreeOfDifficulty
+  +String seasonality
+  +String equipmentLevelRequested
+  +LatLng? locationLatLng
+  +Map<String, dynamic> toMap()
+}
+
+"hike_connect::models::hiking_trail.dart::HikingTrail" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+
+class "hike_connect::models::post.dart::Post" {
+  +String? id
+  +String content
+  +String hikeId
+  +List<String> imageUrls
+  +int likes
+  +Timestamp timestamp
+  +String userId
+  +Map<String, dynamic> toMap()
+  +Post copyWith()
+}
+
+"hike_connect::models::post.dart::Post" o-- "cloud_firestore_platform_interface::src::timestamp.dart::Timestamp"
+
+class "hike_connect::theme::hike_color.dart::HikeColor" {
+  {static} +Color primaryColor
+  {static} +Color bgLoginColor
+  {static} +Color green
+  {static} +Color secondaryColor
+  {static} +Color tertiaryColor
+  {static} +Color? fourthColor
+  {static} +Color infoColor
+  {static} +Color infoLightColor
+  {static} +Color infoDarkColor
+  {static} +Color warningColor
+  {static} +Color warningLightColor
+  {static} +Color warningDarkColor
+  {static} +Color errorColor
+  {static} +Color errorLightColor
+  {static} +Color errorDarkColor
+  {static} +Color white
+  {static} +List<Color> gradientColors
+}
+
+"hike_connect::theme::hike_color.dart::HikeColor" o-- "dart::ui::Color"
+
+class "hike_connect::theme::hike_connect_theme.dart::HikeConnectTheme" {
+  {static} -ThemeData _primaryTheme
+  {static} +ThemeData getPrimaryTheme()
+}
+
+"hike_connect::theme::hike_connect_theme.dart::HikeConnectTheme" o-- "flutter::src::material::theme_data.dart::ThemeData"
+
+class "hike_connect::utils::widgets::hikes_timeline.dart::HikesTimeline" {
+  +List<HikeEvent> pastEvents
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::utils::widgets::hikes_timeline.dart::HikesTimeline"
+
+class "hike_connect::utils::widgets::hike_connect_app_bar.dart::HikeConnectAppBar" {
+  +String title
+  +Size preferredSize
+  +Widget build()
+}
+
+"hike_connect::utils::widgets::hike_connect_app_bar.dart::HikeConnectAppBar" o-- "dart::ui::Size"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::utils::widgets::hike_connect_app_bar.dart::HikeConnectAppBar"
+"flutter::src::widgets::preferred_size.dart::PreferredSizeWidget" <|-- "hike_connect::utils::widgets::hike_connect_app_bar.dart::HikeConnectAppBar"
+
+class "hike_connect::utils::widgets::icon_text_row.dart::IconTextRow" {
+  +IconData icon
+  +String text
+  +Widget build()
+}
+
+"hike_connect::utils::widgets::icon_text_row.dart::IconTextRow" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::utils::widgets::icon_text_row.dart::IconTextRow"
+
+class "hike_connect::utils::widgets::row_info.dart::RowInfo" {
+  +String info
+  +Widget? icon
+  +Widget build()
+}
+
+"hike_connect::utils::widgets::row_info.dart::RowInfo" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "hike_connect::utils::widgets::row_info.dart::RowInfo"
+
+
+@enduml

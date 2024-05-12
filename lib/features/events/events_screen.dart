@@ -215,7 +215,7 @@ class _EventsPageState extends State<EventsScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: isParticipant ? 7 : 4,
+                                    flex: isParticipant ? 6 : 4,
                                     child: FilledButton(
                                       onPressed: () async {
                                         await _showSunriseSunsetModal(event);
@@ -238,7 +238,7 @@ class _EventsPageState extends State<EventsScreen> {
                                   ),
                                   const Gap(8.0),
                                   Expanded(
-                                    flex: isParticipant ? 3 : 6,
+                                    flex: isParticipant ? 4 : 6,
                                     child: FilledButton(
                                       onPressed: () {
                                         isParticipant

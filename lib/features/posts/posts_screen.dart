@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/posts/create_post_screen.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 import 'package:intl/intl.dart';
 
 class PostsScreen extends StatefulWidget {
@@ -56,6 +57,15 @@ class _PostsScreenState extends State<PostsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Postari traseu'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: HikeColor.gradientColors,
+            ),
+          ),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: _refreshPosts,

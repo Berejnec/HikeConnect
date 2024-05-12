@@ -55,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: Text(
                     'HikeConnect',
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          color: const Color(0xFF1A6A4B),
+                          color: const Color(0xFF0B613D),
                           fontWeight: FontWeight.bold,
                           fontSize: 42,
                         ),

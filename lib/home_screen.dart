@@ -27,9 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ScreenCubit, AppScreen>(
       builder: (context, selectedScreen) {
-        return Scaffold(
-          body: _buildScreen(selectedScreen),
-          bottomNavigationBar: _buildBottomNavigationBar(context),
+        return SelectionArea(
+          child: Scaffold(
+            body: _buildScreen(selectedScreen),
+            bottomNavigationBar: _buildBottomNavigationBar(context),
+          ),
         );
       },
     );

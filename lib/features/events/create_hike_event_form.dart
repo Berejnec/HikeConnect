@@ -30,6 +30,7 @@ class _CreateHikeEventFormState extends State<CreateHikeEventForm> {
           TextFormField(
             readOnly: true,
             controller: _dateController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             onTap: () async {
               DateTime? pickedDate = await showDatePicker(
                 context: context,

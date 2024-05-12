@@ -11,6 +11,7 @@ import 'package:hike_connect/map_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/theme/hike_color.dart';
+import 'package:hike_connect/utils/widgets/hike_connect_app_bar.dart';
 import 'package:hike_connect/utils/widgets/row_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -67,24 +68,7 @@ class _HikesScreenState extends State<HikesScreen> {
     return BlocBuilder<AuthCubit, AuthState>(builder: (BuildContext context, AuthState authState) {
       return Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          title: Text(
-            'Trasee autorizate din Romania',
-            style: TextStyle(
-              fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
-            ),
-          ),
-          centerTitle: false,
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: HikeColor.gradientColors,
-              ),
-            ),
-          ),
-        ),
+        appBar: const HikeConnectAppBar(title: 'Trasee autorizate din Romania'),
         backgroundColor: Colors.grey[100],
         body: SafeArea(
           child: StreamBuilder<QuerySnapshot>(
@@ -99,7 +83,6 @@ class _HikesScreenState extends State<HikesScreen> {
               List<HikingTrail> hikingTrails =
                   snapshot.data?.docs.map((doc) => HikingTrail.fromMap(doc.data() as Map<String, dynamic>)).toList() ?? [];
 
-              print(hikingTrails.length);
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
@@ -232,6 +215,7 @@ class _HikesScreenState extends State<HikesScreen> {
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedCounty = newValue ?? 'Toate';
+                                    _limit = 10;
                                   });
                                 },
                                 items: getCountyDropdownItems(),
@@ -254,110 +238,104 @@ class _HikesScreenState extends State<HikesScreen> {
                               itemCount: hikingTrails.length,
                               itemBuilder: (context, index) {
                                 HikingTrail trail = hikingTrails[index];
-                                print(index);
-                                print(_lastDocument);
-                                if (index == hikingTrails.length - 1 && _lastDocument != null) {
-                                  return TextButton(onPressed: loadMoreHikes, child: const Text('Mai multe trasee...'));
-                                } else {
-                                  return Card(
-                                    key: Key(trail.routeName),
-                                    elevation: 2.0,
-                                    clipBehavior: Clip.antiAlias,
-                                    color: HikeColor.fourthColor,
-                                    child: ExpansionTile(
-                                      tilePadding: const EdgeInsets.all(4.0),
-                                      leading: const Icon(Icons.hiking, color: Colors.black),
-                                      maintainState: true,
-                                      title: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            trail.routeName,
-                                            style:
-                                                Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
-                                          ),
-                                          Text(
-                                            'Locatie: ${trail.location} - ${trail.county}',
-                                            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                      backgroundColor: HikeColor.green,
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.map, color: Colors.black),
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MapScreen(routeName: trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim()),
-                                            ),
-                                          );
-                                          // launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
-                                        },
-                                      ),
+
+                                return Card(
+                                  key: Key(trail.routeName),
+                                  elevation: 2.0,
+                                  clipBehavior: Clip.antiAlias,
+                                  color: HikeColor.fourthColor,
+                                  child: ExpansionTile(
+                                    tilePadding: const EdgeInsets.all(4.0),
+                                    leading: const Icon(Icons.hiking, color: Colors.black),
+                                    maintainState: true,
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            children: [
-                                              const Gap(8),
-                                              RowInfo(
-                                                info: 'Grad de dificultate: ${trail.degreeOfDifficulty}',
-                                                icon: getDifficultyIcon(trail.degreeOfDifficulty),
-                                              ),
-                                              const Gap(8),
-                                              RowInfo(
-                                                  info: 'Echipament: ${trail.equipmentLevelRequested}',
-                                                  icon: const Icon(Icons.shield_rounded, size: 24)),
-                                              const Gap(8),
-                                              RowInfo(
-                                                info: 'Marcaj: ${trail.marking}',
-                                                icon: getMarkingIcon(trail.marking),
-                                              ),
-                                              const Gap(8),
-                                              RowInfo(
-                                                  info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.hotel_class_outlined, size: 24)),
-                                              const Gap(8),
-                                              RowInfo(info: 'Durata estimata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 24)),
-                                              const Gap(16),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      toggleFavorite(trail.routeName);
-                                                    },
-                                                    icon: Icon(Icons.bookmark,
-                                                        color: isFavorite(trail.routeName) ? Colors.yellowAccent : HikeColor.white),
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      _showAddEventDialog(context, trail);
-                                                    },
-                                                    icon: const Icon(Icons.event),
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) => PostsScreen(hikeId: trail.id ?? ''),
-                                                        ),
-                                                      );
-                                                    },
-                                                    icon: const Icon(Icons.feed_outlined),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                        Text(
+                                          trail.routeName,
+                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
+                                        ),
+                                        Text(
+                                          'Locatie: ${trail.location} - ${trail.county}',
+                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.black),
                                         ),
                                       ],
                                     ),
-                                  );
-                                }
+                                    backgroundColor: HikeColor.green,
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.map, color: Colors.black),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                MapScreen(routeName: trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim()),
+                                          ),
+                                        );
+                                        // launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
+                                      },
+                                    ),
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            const Gap(8),
+                                            RowInfo(
+                                              info: 'Grad de dificultate: ${trail.degreeOfDifficulty}',
+                                              icon: getDifficultyIcon(trail.degreeOfDifficulty),
+                                            ),
+                                            const Gap(8),
+                                            RowInfo(
+                                                info: 'Echipament: ${trail.equipmentLevelRequested}',
+                                                icon: const Icon(Icons.shield_rounded, size: 24)),
+                                            const Gap(8),
+                                            RowInfo(
+                                              info: 'Marcaj: ${trail.marking}',
+                                              icon: getMarkingIcon(trail.marking),
+                                            ),
+                                            const Gap(8),
+                                            RowInfo(
+                                                info: 'Sezonalitate: ${trail.seasonality}', icon: const Icon(Icons.hotel_class_outlined, size: 24)),
+                                            const Gap(8),
+                                            RowInfo(info: 'Durata estimata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 24)),
+                                            const Gap(16),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () {
+                                                    toggleFavorite(trail.routeName);
+                                                  },
+                                                  icon: Icon(Icons.bookmark,
+                                                      color: isFavorite(trail.routeName) ? Colors.yellowAccent : HikeColor.white),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    _showAddEventDialog(context, trail);
+                                                  },
+                                                  icon: const Icon(Icons.event),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => PostsScreen(hikeId: trail.id ?? ''),
+                                                      ),
+                                                    );
+                                                  },
+                                                  icon: const Icon(Icons.feed_outlined),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               },
                               separatorBuilder: (BuildContext context, int index) => const Gap(4)).animate().fadeIn(duration: 200.ms)
                           : const Center(
@@ -384,18 +362,6 @@ class _HikesScreenState extends State<HikesScreen> {
   void loadMoreHikes() {
     setState(() {
       _limit += 10;
-    });
-
-    // Store the last document retrieved
-    FirebaseFirestore.instance
-        .collection('hikingTrails')
-        .orderBy('routeName')
-        .limit(_limit)
-        .get()
-        .then((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        _lastDocument = snapshot.docs.last;
-      }
     });
   }
 
@@ -601,9 +567,9 @@ class _HikesScreenState extends State<HikesScreen> {
     Query query = selectedDifficulty == 'Toate'
         ? FirebaseFirestore.instance.collection('hikingTrails').orderBy('routeName')
         : FirebaseFirestore.instance
-        .collection('hikingTrails')
-        .orderBy('routeName')
-        .where('degreeOfDifficulty', isEqualTo: selectedDifficulty.toLowerCase());
+            .collection('hikingTrails')
+            .orderBy('routeName')
+            .where('degreeOfDifficulty', isEqualTo: selectedDifficulty.toLowerCase());
 
     String searchQuery = '';
 

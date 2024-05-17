@@ -66,39 +66,48 @@ class EmergencyTabsScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Apelul de urgenta', style: Theme.of(context).textTheme.headlineMedium),
-                      const Gap(32),
-                      Text(EmergencyInfo.getEmergencyPageText()),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Apelul de urgenta', style: Theme.of(context).textTheme.headlineMedium),
+                        const Gap(32),
+                        Text(EmergencyInfo.getEmergencyPageText()),
+                      ],
+                    ),
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Alimentatia si hidratarea', style: Theme.of(context).textTheme.headlineMedium),
-                      const Gap(32),
-                      Text(EmergencyInfo.getFoodPageText()),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Alimentatia si hidratarea', style: Theme.of(context).textTheme.headlineMedium),
+                        const Gap(32),
+                        Text(EmergencyInfo.getFoodPageText()),
+                      ],
+                    ),
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Martor la accident montan', style: Theme.of(context).textTheme.headlineMedium),
-                      const Gap(32),
-                      Text(EmergencyInfo.getInjuryPageText()),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Martor la accident montan', style: Theme.of(context).textTheme.headlineMedium),
+                        const Gap(32),
+                        Text(EmergencyInfo.getInjuryPageText()),
+                      ],
+                    ),
                   ),
                 ),
               ),

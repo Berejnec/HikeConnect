@@ -98,21 +98,32 @@ class _EventsPageState extends State<EventsScreen> {
           ),
         ),
         title: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Evenimente ',
-              style: TextStyle(
-                fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Evenimente ',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+                  ),
+                ),
+                Text(
+                  'HikeConnect',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              'HikeConnect',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
-                fontStyle: FontStyle.italic,
-              ),
+            Image.asset(
+              'assets/logo.png',
+              width: 36,
+              height: 36,
             ),
           ],
         ),
@@ -159,6 +170,7 @@ class _EventsPageState extends State<EventsScreen> {
 
                       return Card(
                         elevation: 4,
+                        color: Colors.grey[100],
                         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
@@ -271,7 +283,9 @@ class _EventsPageState extends State<EventsScreen> {
                                             radius: 16,
                                           ),
                                           const SizedBox(width: 8),
-                                          Text(participant.displayName),
+                                          Text(participant.displayName +
+                                              (participant.userId == context.read<AuthCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
+                                          const Gap(8),
                                         ],
                                       ),
                                     );

@@ -36,10 +36,10 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final ImagePicker _imagePicker = ImagePicker();
-
   String imageUrl = '';
-
   List<HikeEvent> userEvents = [];
+
+  var key1 = GlobalKey();
 
   @override
   void initState() {
@@ -80,112 +80,140 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(0.0),
                     child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          InkWell(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: TextButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const EmergencyTabsScreen(),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.emergency,
-                                  color: Colors.white,
-                                ),
-                                label: const Text(
-                                  'Informatii esentiale',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(
-                                    const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          InkWell(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: TextButton.icon(
-                                onPressed: () async {
-                                  if (await canLaunchUrl(Uri.parse("tel:123"))) {
-                                    await launchUrl(Uri.parse("tel:123"));
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.emergency_outlined,
-                                  color: Colors.white,
-                                ),
-                                label: const Text(
-                                  'Apel de urgenta - 112 -',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(
-                                    const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).height - 100,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                InkWell(
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton.icon(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const EmergencyTabsScreen(),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.emergency,
+                                        color: Colors.white,
+                                      ),
+                                      label: const Text(
+                                        'Informatii esentiale',
+                                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                                      ),
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty.all(
+                                          const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          InkWell(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: TextButton.icon(
-                                onPressed: () async {
-                                  if (await canLaunchUrl(Uri.parse("tel:0725826668"))) {
-                                    await launchUrl(Uri.parse("tel:0725826668"));
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.emergency_outlined,
-                                  color: Colors.white,
-                                ),
-                                label: const Text(
-                                  'Dispeceratul National Salvamont',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(
-                                    const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
+                                InkWell(
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton.icon(
+                                      onPressed: () async {
+                                        if (await canLaunchUrl(Uri.parse("tel:123"))) {
+                                          await launchUrl(Uri.parse("tel:123"));
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.emergency_outlined,
+                                        color: Colors.white,
+                                      ),
+                                      label: const Text(
+                                        'Apel de urgenta - 112 -',
+                                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                                      ),
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty.all(
+                                          const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          InkWell(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: TextButton.icon(
-                                onPressed: () {
-                                  _signOut();
-                                },
-                                icon: const Icon(Icons.logout, color: Colors.white),
-                                label: const Text('Deconecteaza-te', style: TextStyle(color: Colors.white)),
-                                style: ButtonStyle(
-                                  shape: MaterialStateProperty.all(
-                                    const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
+                                InkWell(
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton.icon(
+                                      onPressed: () async {
+                                        if (await canLaunchUrl(Uri.parse("tel:0725826668"))) {
+                                          await launchUrl(Uri.parse("tel:0725826668"));
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.emergency_outlined,
+                                        color: Colors.white,
+                                      ),
+                                      label: const Text(
+                                        'Dispeceratul National Salvamont',
+                                        style: TextStyle(color: Colors.white, fontSize: 16.0),
+                                      ),
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty.all(
+                                          const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                                InkWell(
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton.icon(
+                                      onPressed: () {
+                                        _signOut();
+                                      },
+                                      icon: const Icon(Icons.logout, color: Colors.white),
+                                      label: const Text('Deconecteaza-te', style: TextStyle(color: Colors.white, fontSize: 16.0)),
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty.all(
+                                          const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/logo.png',
+                                  width: 48,
+                                  height: 48,
+                                ),
+                                const Gap(16.0),
+                                Text(
+                                  'HikeConnect',
+                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                        color: const Color(0xFF0B613D),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -424,17 +452,22 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               )
                             ],
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                '${userEvents.length}',
-                                style: const TextStyle(color: Colors.black54, fontSize: 24),
-                              ),
-                              const Text(
-                                'Trasee parcurse',
-                                style: TextStyle(color: Colors.black54, fontSize: 16),
-                              ),
-                            ],
+                          GestureDetector(
+                            onTap: () {
+                              Scrollable.ensureVisible(key1.currentContext!, duration: const Duration(milliseconds: 500));
+                            },
+                            child: Column(
+                              children: [
+                                Text(
+                                  '${userEvents.length}',
+                                  style: const TextStyle(color: Colors.black54, fontSize: 24),
+                                ),
+                                const Text(
+                                  'Trasee parcurse',
+                                  style: TextStyle(color: Colors.black54, fontSize: 16),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -595,6 +628,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                     const Gap(16),
                     if (userEvents.isNotEmpty)
                       Container(
+                        key: key1,
                         height: 400,
                         decoration: const BoxDecoration(border: Border.symmetric(horizontal: BorderSide(color: HikeColor.tertiaryColor))),
                         child: Container(

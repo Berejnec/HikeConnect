@@ -11,7 +11,6 @@ import 'package:hike_connect/map_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/theme/hike_color.dart';
-import 'package:hike_connect/utils/widgets/hike_connect_app_bar.dart';
 import 'package:hike_connect/utils/widgets/row_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -68,7 +67,35 @@ class _HikesScreenState extends State<HikesScreen> {
     return BlocBuilder<AuthCubit, AuthState>(builder: (BuildContext context, AuthState authState) {
       return Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: const HikeConnectAppBar(title: 'Trasee autorizate din Romania'),
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: HikeColor.gradientColors,
+              ),
+            ),
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Trasee autorizate din Romania ',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+                ),
+              ),
+              Image.asset(
+                'assets/logo.png',
+                width: 36,
+                height: 36,
+              ),
+            ],
+          ),
+          centerTitle: false,
+        ),
         backgroundColor: Colors.grey[100],
         body: SafeArea(
           child: StreamBuilder<QuerySnapshot>(

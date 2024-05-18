@@ -172,127 +172,133 @@ class _EventsPageState extends State<EventsScreen> {
                         elevation: 4,
                         color: Colors.grey[100],
                         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      event.hikingTrail.routeName,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                      softWrap: true,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Gap(8),
-                              Text(
-                                'Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}',
-                                style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
-                              ),
-                              const Gap(4),
-                              Text(
-                                'Judet: ${event.hikingTrail.county}',
-                                style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
-                              ),
-                              const Gap(8),
-                              if (isParticipant)
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(backgroundColor: HikeColor.infoLightColor),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.chat,
-                                        color: Colors.black,
-                                      ),
-                                      Gap(8.0),
-                                      Text(
-                                        'Discuta si organizeaza',
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: isParticipant ? 6 : 4,
-                                    child: FilledButton(
-                                      onPressed: () async {
-                                        await _showSunriseSunsetModal(event);
-                                      },
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: HikeColor.green,
-                                      ),
-                                      child: const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.info, color: Colors.black),
-                                          Gap(8.0),
-                                          Text(
-                                            'Detalii',
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const Gap(8.0),
-                                  Expanded(
-                                    flex: isParticipant ? 4 : 6,
-                                    child: FilledButton(
-                                      onPressed: () {
-                                        isParticipant
-                                            ? withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context)
-                                            : joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
-                                      },
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: isParticipant ? HikeColor.errorColor : HikeColor.primaryColor,
-                                      ),
+                        child: InkWell(
+                          onTap: () {
+                            _showSunriseSunsetModal(event);
+                          },
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
                                       child: Text(
-                                        isParticipant ? 'Retragere' : 'Participa',
-                                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                                        event.hikingTrail.routeName,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                        softWrap: true,
                                       ),
                                     ),
+                                  ],
+                                ),
+                                const Gap(8),
+                                Text(
+                                  'Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}',
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                                ),
+                                const Gap(4),
+                                Text(
+                                  'Judet: ${event.hikingTrail.county}',
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                                ),
+                                const Gap(8),
+                                if (isParticipant)
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(backgroundColor: HikeColor.infoLightColor),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.chat,
+                                          color: Colors.black,
+                                        ),
+                                        Gap(8.0),
+                                        Text(
+                                          'Discuta si organizeaza',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: isParticipant ? 6 : 4,
+                                      child: FilledButton(
+                                        onPressed: () async {
+                                          await _showSunriseSunsetModal(event);
+                                        },
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: HikeColor.green,
+                                        ),
+                                        child: const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.info, color: Colors.black),
+                                            Gap(8.0),
+                                            Text(
+                                              'Detalii',
+                                              style: TextStyle(color: Colors.black),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const Gap(8.0),
+                                    Expanded(
+                                      flex: isParticipant ? 4 : 6,
+                                      child: FilledButton(
+                                        onPressed: () {
+                                          isParticipant
+                                              ? withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context)
+                                              : joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
+                                        },
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: isParticipant ? HikeColor.errorColor : HikeColor.primaryColor,
+                                        ),
+                                        child: Text(
+                                          isParticipant ? 'Retragere' : 'Participa',
+                                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (event.participants.isNotEmpty) ...[
+                                  const SizedBox(height: 16),
+                                  const Text('Participanti:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 8),
+                                  Column(
+                                    children: event.participants.map((participant) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 4),
+                                        child: Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundImage: NetworkImage(participant.avatarUrl),
+                                              radius: 16,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(participant.displayName +
+                                                (participant.userId == context.read<AuthCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
+                                            const Gap(8),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
                                   ),
                                 ],
-                              ),
-                              if (event.participants.isNotEmpty) ...[
-                                const SizedBox(height: 16),
-                                const Text('Participanti:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 8),
-                                Column(
-                                  children: event.participants.map((participant) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 4),
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundImage: NetworkImage(participant.avatarUrl),
-                                            radius: 16,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(participant.displayName +
-                                              (participant.userId == context.read<AuthCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
-                                          const Gap(8),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
                               ],
-                            ],
+                            ),
                           ),
                         ),
                       );
@@ -354,10 +360,11 @@ class _EventsPageState extends State<EventsScreen> {
 
       if (!mounted) return;
 
-      showModalBottomSheet(
+      await showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
+        enableDrag: true,
         builder: (BuildContext context) {
           return _SunriseSunsetModalContent(event: event, sunriseSunsetData: sunriseSunsetData);
         },
@@ -460,7 +467,7 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Informatii despre ziua evenimentului',
+                      'Informatii despre eveniment',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                   ],

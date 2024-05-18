@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -143,7 +144,7 @@ class PostCard extends StatelessWidget {
             title: Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(postData.avatarUrl),
+                  backgroundImage: CachedNetworkImageProvider(postData.avatarUrl),
                   radius: 16.0,
                 ),
                 const Gap(16),
@@ -179,7 +180,7 @@ class PostCard extends StatelessWidget {
                           return Dialog(
                             child: GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: Image.network(postData.imageUrls[0]),
+                              child: CachedNetworkImage(imageUrl: postData.imageUrls[0]),
                             ),
                           );
                         },
@@ -187,8 +188,8 @@ class PostCard extends StatelessWidget {
                     },
                     child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      child: Image.network(
-                        postData.imageUrls[0],
+                      child: CachedNetworkImage(
+                        imageUrl: postData.imageUrls[0],
                         height: 350,
                         width: MediaQuery.of(context).size.width,
                         fit: BoxFit.cover,

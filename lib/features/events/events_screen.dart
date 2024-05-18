@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,7 +25,6 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsScreen> {
-  final sunsetSunriseApiBaseUrl = 'https://api.sunrisesunset.io/json';
   final weatherApiBaseUrl = 'https://api.open-meteo.com/v1/forecast';
 
   @override
@@ -52,29 +52,6 @@ class _EventsPageState extends State<EventsScreen> {
     } catch (e) {
       print('Error: $e');
       throw Exception('Failed to load weather');
-    }
-  }
-
-  Future<Map<String, dynamic>> fetchSunriseSunsetData(double lat, double lng, DateTime date) async {
-    try {
-      final dio = Dio();
-      final response = await dio.get(
-        sunsetSunriseApiBaseUrl,
-        queryParameters: {
-          'lat': lat,
-          'lng': lng,
-          'date': DateFormat('yyyy-MM-dd').format(date),
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return response.data['results'];
-      } else {
-        throw Exception('Failed to load sunrise and sunset data');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Failed to load sunrise and sunset data');
     }
   }
 
@@ -284,7 +261,7 @@ class _EventsPageState extends State<EventsScreen> {
                                         child: Row(
                                           children: [
                                             CircleAvatar(
-                                              backgroundImage: NetworkImage(participant.avatarUrl),
+                                              backgroundImage: CachedNetworkImageProvider(participant.avatarUrl),
                                               radius: 16,
                                             ),
                                             const SizedBox(width: 8),
@@ -351,27 +328,15 @@ class _EventsPageState extends State<EventsScreen> {
   }
 
   Future<void> _showSunriseSunsetModal(HikeEvent event) async {
-    try {
-      Map<String, dynamic> sunriseSunsetData = await fetchSunriseSunsetData(
-        event.hikingTrail.locationLatLng?.latitude ?? 45.0,
-        event.hikingTrail.locationLatLng?.longitude ?? 25.0,
-        event.date,
-      );
-
-      if (!mounted) return;
-
-      await showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        enableDrag: true,
-        builder: (BuildContext context) {
-          return _SunriseSunsetModalContent(event: event, sunriseSunsetData: sunriseSunsetData);
-        },
-      );
-    } catch (e) {
-      print('Error fetching sunrise and sunset data: $e');
-    }
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      enableDrag: true,
+      builder: (BuildContext context) {
+        return _SunriseSunsetModalContent(event: event);
+      },
+    );
   }
 
   Future<void> withdrawEvent(String eventId, HikerUser currentUser, BuildContext context) async {
@@ -436,12 +401,10 @@ class _EventsPageState extends State<EventsScreen> {
 
 class _SunriseSunsetModalContent extends StatefulWidget {
   final HikeEvent event;
-  final Map<String, dynamic> sunriseSunsetData;
 
   const _SunriseSunsetModalContent({
     Key? key,
     required this.event,
-    required this.sunriseSunsetData,
   }) : super(key: key);
 
   @override
@@ -449,90 +412,129 @@ class _SunriseSunsetModalContent extends StatefulWidget {
 }
 
 class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> {
+  Map<String, dynamic>? sunriseSunsetData;
+  bool isLoading = true;
+  final sunsetSunriseApiBaseUrl = 'https://api.sunrisesunset.io/json';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSunriseSunsetData(widget.event);
+  }
+
+  void _fetchSunriseSunsetData(HikeEvent event) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        sunsetSunriseApiBaseUrl,
+        queryParameters: {
+          'lat': event.hikingTrail.locationLatLng?.latitude ?? 45.0,
+          'lng': event.hikingTrail.locationLatLng?.longitude ?? 25.0,
+          'date': DateFormat('yyyy-MM-dd').format(event.date),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          sunriseSunsetData = response.data['results'];
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load sunrise and sunset data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      isLoading = false;
+      throw Exception('Failed to load sunrise and sunset data');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.66,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Informatii despre eveniment',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ],
-                ),
-                const Gap(16),
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(color: Colors.black),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const TextSpan(text: 'Traseu: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                      TextSpan(text: widget.event.hikingTrail.routeName, style: const TextStyle(fontSize: 16.0)),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Informatii despre ziua evenimentului',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ],
+                      ),
+                      const Gap(16),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(color: Colors.black),
+                          children: [
+                            const TextSpan(text: 'Traseu: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            TextSpan(text: widget.event.hikingTrail.routeName, style: const TextStyle(fontSize: 16.0)),
+                          ],
+                        ),
+                      ),
+                      const Gap(8),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(color: Colors.black),
+                          children: [
+                            const TextSpan(text: 'Data: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            TextSpan(text: DateFormat('yMMMMd', 'ro').format(widget.event.date), style: const TextStyle(fontSize: 16.0)),
+                          ],
+                        ),
+                      ),
+                      const Gap(24),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          IconTextRow(
+                            icon: Icons.sunny,
+                            text: 'Rasarit: ${sunriseSunsetData!['sunrise']}',
+                          ),
+                          const Gap(4),
+                          IconTextRow(
+                            icon: Icons.nightlight_round_rounded,
+                            text: 'Apus: ${sunriseSunsetData!['sunset']}',
+                          ),
+                          const Gap(4),
+                          IconTextRow(
+                            icon: Icons.timer,
+                            text: 'Durata zilei: ${sunriseSunsetData!['day_length']}',
+                          ),
+                          const Gap(4),
+                          IconTextRow(
+                            icon: Icons.camera_alt,
+                            text: 'Golden hour (ora perfecta pentru poze): ${sunriseSunsetData!['golden_hour']}',
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
-                const Gap(8),
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(color: Colors.black),
+                  const Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const TextSpan(text: 'Data: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-                      TextSpan(text: DateFormat('yMMMMd', 'ro').format(widget.event.date), style: const TextStyle(fontSize: 16.0)),
+                      Text(
+                        'Powered by SunriseSunset.io',
+                        style: TextStyle(fontSize: 10.0),
+                      ),
                     ],
                   ),
-                ),
-                const Gap(24),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    IconTextRow(
-                      icon: Icons.sunny,
-                      text: 'Rasarit: ${widget.sunriseSunsetData['sunrise']}',
-                    ),
-                    const Gap(4),
-                    IconTextRow(
-                      icon: Icons.nightlight_round_rounded,
-                      text: 'Apus: ${widget.sunriseSunsetData['sunset']}',
-                    ),
-                    const Gap(4),
-                    IconTextRow(
-                      icon: Icons.timer,
-                      text: 'Durata zilei: ${widget.sunriseSunsetData['day_length']}',
-                    ),
-                    const Gap(4),
-                    IconTextRow(
-                      icon: Icons.camera_alt,
-                      text: 'Golden hour (ora perfecta pentru poze): ${widget.sunriseSunsetData['golden_hour']}',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Powered by SunriseSunset.io',
-                  style: TextStyle(fontSize: 10.0),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
       ),
     );
   }

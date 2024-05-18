@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +15,6 @@ import 'package:hike_connect/features/auth/auth_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
 import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/models/hike_event.dart';
-import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/hikes_timeline.dart';
 import 'package:image_picker/image_picker.dart';
@@ -250,11 +250,11 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                           : context.read<AuthCubit>().getHikerUser() != null && context.read<AuthCubit>().getHikerUser()?.backgroundUrl != null
                               ? BoxDecoration(
                                   image: DecorationImage(
-                                    image: NetworkImage(context.read<AuthCubit>().getHikerUser()!.backgroundUrl!),
+                                    image: CachedNetworkImageProvider(context.read<AuthCubit>().getHikerUser()!.backgroundUrl!),
                                     fit: BoxFit.cover,
                                     alignment: Alignment.center,
                                     colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.4),
+                                      Colors.black.withOpacity(0.5),
                                       BlendMode.darken,
                                     ),
                                   ),
@@ -283,14 +283,13 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                 children: [
                                   if (context.read<AuthCubit>().getHikerUser()?.avatarUrl != null)
                                     ClipOval(
-                                      child: Image.network(
-                                        context.read<AuthCubit>().getHikerUser()!.avatarUrl!,
+                                      child: CachedNetworkImage(
+                                        imageUrl: context.read<AuthCubit>().getHikerUser()!.avatarUrl!,
                                         width: 70,
                                         height: 70,
                                         fit: BoxFit.cover,
                                       ),
                                     ),
-                                  if (context.read<AuthCubit>().getHikerUser()?.avatarUrl == null) const Text('Loading photo...'),
                                   const Gap(25),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -312,42 +311,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                           fontSize: 16,
                                         ),
                                       ),
-                                      if (user?.phoneNumber != null)
-                                        Row(
-                                          children: [
-                                            Text(
-                                              '${user?.phoneNumber}',
-                                              style: const TextStyle(color: HikeColor.white, fontSize: 16),
-                                            ),
-                                            IconButton(
-                                              onPressed: () {
-                                                _showPhoneNumberDialog(context);
-                                              },
-                                              icon: const Icon(Icons.edit),
-                                            ),
-                                          ],
-                                        ),
-                                      if (user?.phoneNumber == null && context.read<AuthCubit>().getHikerUser()?.phoneNumber != null)
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Text(
-                                              '${context.read<AuthCubit>().getHikerUser()?.phoneNumber}',
-                                              style: const TextStyle(color: HikeColor.white, fontSize: 16),
-                                            ),
-                                            IconButton(
-                                              onPressed: () {
-                                                _showPhoneNumberDialog(context);
-                                              },
-                                              icon: const Icon(
-                                                Icons.edit,
-                                                color: HikeColor.white,
-                                                size: 18,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
                                     ],
                                   ),
                                 ],
@@ -562,7 +525,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                                 return Dialog(
                                                   child: GestureDetector(
                                                     onTap: () => Navigator.pop(context),
-                                                    child: Image.network(imageUrl),
+                                                    child: CachedNetworkImage(imageUrl: imageUrl),
                                                   ),
                                                 );
                                               },
@@ -570,8 +533,8 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                           },
                                           child: ClipRRect(
                                             borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                            child: Image.network(
-                                              imageUrl,
+                                            child: CachedNetworkImage(
+                                              imageUrl: imageUrl,
                                               width: 300,
                                               height: 150,
                                               fit: BoxFit.cover,
@@ -711,60 +674,6 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       setState(() {
         userEvents = events;
       });
-    }
-  }
-
-  void _showPhoneNumberDialog(BuildContext context) {
-    String newPhoneNumber = '';
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Edit Phone Number'),
-          content: TextField(
-            onChanged: (value) {
-              newPhoneNumber = value;
-            },
-            decoration: const InputDecoration(
-              hintText: 'Enter your new phone number',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _updatePhoneNumber(newPhoneNumber);
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _updatePhoneNumber(String newPhoneNumber) async {
-    try {
-      CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
-
-      String uid = context.read<AuthCubit>().getHikerUser()?.uid ?? '';
-      DocumentReference userDoc = usersCollection.doc(uid);
-
-      await userDoc.update({'phoneNumber': newPhoneNumber});
-
-      if (!mounted) return;
-
-      HikerUser? updatedHikerUser = context.read<AuthCubit>().getHikerUser()?.copyWith(phoneNumber: newPhoneNumber);
-      context.read<AuthCubit>().setHikerUser(updatedHikerUser);
-    } catch (e) {
-      print('Error updating phone number: $e');
     }
   }
 }

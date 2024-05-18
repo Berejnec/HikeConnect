@@ -72,8 +72,10 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
               'Profil',
               style: TextStyle(
                 fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+                fontSize: 24.0,
               ),
             ),
+            centerTitle: true,
             leading: IconButton(
               onPressed: () => SideSheet.left(
                 body: SafeArea(

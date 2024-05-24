@@ -67,8 +67,6 @@ class AuthCubit extends Cubit<AuthState> {
         HikerUser updatedHikerUser = currentHikerUser.copyWith(backgroundUrl: backgroundUrl);
 
         await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({'backgroundUrl': backgroundUrl});
-
-        print('updated background: ${backgroundUrl}');
         emit(AuthState(firebaseAuthUser: currentUser, hikerUser: updatedHikerUser));
       }
     } catch (e) {

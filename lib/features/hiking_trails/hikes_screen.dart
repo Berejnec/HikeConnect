@@ -299,7 +299,6 @@ class _HikesScreenState extends State<HikesScreen> {
                                                 MapScreen(routeName: trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim()),
                                           ),
                                         );
-                                        // launchMapDirections(trail.locationLatLng.latitude, trail.locationLatLng.longitude);
                                       },
                                     ),
                                     children: [
@@ -614,27 +613,6 @@ class _HikesScreenState extends State<HikesScreen> {
 
     return query;
   }
-
-  // Query buildQuery() {
-  //   Query query = selectedDifficulty == 'Toate'
-  //       ? FirebaseFirestore.instance.collection('hikingTrails').orderBy('routeName')
-  //       : FirebaseFirestore.instance
-  //           .collection('hikingTrails')
-  //           .orderBy('routeName')
-  //           .where('degreeOfDifficulty', isEqualTo: selectedDifficulty.toLowerCase());
-  //
-  //   String searchQuery = '';
-  //
-  //   if (selectedCounty != 'Toate') {
-  //     query = query.where('county', isEqualTo: selectedCounty);
-  //   }
-  //
-  //   if (searchQuery.isNotEmpty) {
-  //     query = query.where('location', isEqualTo: searchQuery);
-  //   }
-  //
-  //   return query;
-  // }
 
   List<DropdownMenuItem<String>> getCountyDropdownItems() {
     counties.sort();

@@ -101,13 +101,11 @@ class _MapScreenState extends State<MapScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('successful api call for ${routeName}!');
-        print(response.data);
-        print(response.data['results']?[0]?['geometry']);
         if (response.data?['results']?[0] != null) {
           addMarker(LatLng(response.data['results'][0]['geometry']['lat'], response.data['results'][0]['geometry']['lng']), routeName, routeName);
           zoomToPoint(LatLng(response.data['results'][0]['geometry']['lat'], response.data['results'][0]['geometry']['lng']), 13.0);
         }
+        print(response.data);
       } else {
         throw Exception('Failed to geocode routeName');
       }
@@ -142,7 +140,6 @@ class _MapScreenState extends State<MapScreen> {
     final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${latLng.latitude},${latLng.longitude}');
 
     if (await canLaunchUrl(url)) {
-      print('launch!');
       await launchUrl(url);
     } else {
       throw 'Could not launch $url';

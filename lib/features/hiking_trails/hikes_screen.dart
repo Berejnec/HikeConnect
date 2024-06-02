@@ -10,6 +10,7 @@ import 'package:hike_connect/features/posts/posts_screen.dart';
 import 'package:hike_connect/map_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
+import 'package:hike_connect/services/HikeService.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/row_info.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -126,7 +127,7 @@ class _HikesScreenState extends State<HikesScreen> {
                         ),
                         Row(
                           children: [
-                            getDifficultyIcon(selectedDifficulty),
+                            HikeService.getDifficultyIcon(selectedDifficulty),
                             const Gap(8),
                             Text(
                               selectedDifficulty,
@@ -309,7 +310,7 @@ class _HikesScreenState extends State<HikesScreen> {
                                             const Gap(8),
                                             RowInfo(
                                               info: 'Grad de dificultate: ${trail.degreeOfDifficulty}',
-                                              icon: getDifficultyIcon(trail.degreeOfDifficulty),
+                                              icon: HikeService.getDifficultyIcon(trail.degreeOfDifficulty),
                                             ),
                                             const Gap(8),
                                             RowInfo(
@@ -551,30 +552,30 @@ class _HikesScreenState extends State<HikesScreen> {
     return Image.asset(imagePath, height: 24, width: 24);
   }
 
-  Widget getDifficultyIcon(String difficulty) {
-    IconData icon;
-    Color color;
-
-    switch (difficulty.toLowerCase()) {
-      case 'mic':
-        icon = Icons.star_outline;
-        color = Colors.green;
-        break;
-      case 'mediu':
-        icon = Icons.star_half;
-        color = HikeColor.infoColor;
-        break;
-      case 'mare':
-        icon = Icons.star;
-        color = Colors.red;
-        break;
-      default:
-        icon = Icons.stars_rounded;
-        color = HikeColor.infoDarkColor;
-    }
-
-    return Icon(icon, color: color);
-  }
+  // Widget getDifficultyIcon(String difficulty) {
+  //   IconData icon;
+  //   Color color;
+  //
+  //   switch (difficulty.toLowerCase()) {
+  //     case 'mic':
+  //       icon = Icons.star_outline;
+  //       color = Colors.green;
+  //       break;
+  //     case 'mediu':
+  //       icon = Icons.star_half;
+  //       color = HikeColor.infoColor;
+  //       break;
+  //     case 'mare':
+  //       icon = Icons.star;
+  //       color = Colors.red;
+  //       break;
+  //     default:
+  //       icon = Icons.stars_rounded;
+  //       color = HikeColor.infoDarkColor;
+  //   }
+  //
+  //   return Icon(icon, color: color);
+  // }
 
   Color getDifficultyTextColor(String difficulty) {
     switch (difficulty.toLowerCase()) {

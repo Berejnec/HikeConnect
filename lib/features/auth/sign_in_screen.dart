@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/home_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
@@ -18,6 +18,8 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +28,18 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildBody(),
+      body: Stack(
+        children: [
+          _buildBody(),
+          if (_isLoading)
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -45,11 +58,7 @@ class _SignInScreenState extends State<SignInScreen> {
           children: [
             Column(
               children: [
-                Image.asset(
-                  'assets/logo.png',
-                  width: 240,
-                  height: 240
-                ),
+                Image.asset('assets/logo.png', width: 240, height: 240),
                 const Gap(16.0),
                 Center(
                   child: Text(
@@ -68,14 +77,23 @@ class _SignInScreenState extends State<SignInScreen> {
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  await signInWithGoogle();
-                  if (mounted) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ),
-                    );
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  bool signedIn = await signInWithGoogle();
+                  if (signedIn) {
+                    if (mounted) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ),
+                      );
+                    }
+                  } else {
+                    setState(() {
+                      _isLoading = false;
+                    });
                   }
                 },
                 child: const Padding(
@@ -101,12 +119,16 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Future<void> signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-    final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+    if (googleUser == null) {
+      return false;
+    }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
@@ -118,9 +140,10 @@ class _SignInScreenState extends State<SignInScreen> {
 
     HikerUser? hikerUser = await fetchHikerUser(currentUser?.uid);
 
-    if (!mounted) return;
-    context.read<AuthCubit>().setUser(currentUser, hikerUser);
+    if (!mounted) return false;
+    context.read<UserCubit>().setUser(currentUser, hikerUser);
     await addUserToFirestore(auth.currentUser?.uid, auth.currentUser?.displayName, auth.currentUser?.email, auth.currentUser?.photoURL);
+    return true;
   }
 
   Future<HikerUser?> fetchHikerUser(String? userUid) async {
@@ -132,7 +155,7 @@ class _SignInScreenState extends State<SignInScreen> {
       if (userSnapshot.exists) {
         HikerUser hikerUser = HikerUser.fromMap(userSnapshot.data() as Map<String, dynamic>);
         if (!mounted) return null;
-        context.read<AuthCubit>().setHikerUser(hikerUser);
+        context.read<UserCubit>().setHikerUser(hikerUser);
 
         return hikerUser;
       }
@@ -155,7 +178,7 @@ class _SignInScreenState extends State<SignInScreen> {
       HikerUser? hikerUser = await fetchHikerUser(userUid);
 
       if (!mounted) return;
-      context.read<AuthCubit>().setUser(FirebaseAuth.instance.currentUser, hikerUser);
+      context.read<UserCubit>().setUser(FirebaseAuth.instance.currentUser, hikerUser);
 
       if (hikerUser != null) {
         CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(userUid).collection('images');
@@ -165,7 +188,7 @@ class _SignInScreenState extends State<SignInScreen> {
           List<String> imageUrls =
               imagesQuerySnapshot.docs.map((docSnapshot) => (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String).toList();
           if (!mounted) return;
-          context.read<AuthCubit>().setHikerUser(hikerUser.copyWith(imageUrls: imageUrls));
+          context.read<UserCubit>().setHikerUser(hikerUser.copyWith(imageUrls: imageUrls));
         } catch (e) {
           print('Error retrieving images: $e');
         }

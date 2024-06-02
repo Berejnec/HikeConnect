@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 
 class ChatMessages extends StatelessWidget {
@@ -34,7 +34,7 @@ class ChatMessages extends StatelessWidget {
           itemBuilder: (context, index) {
             final message = messages[index].data();
             final isSenderLoggedUser = message['sender'] ==
-                context.read<AuthCubit>().getHikerUser()?.uid;
+                context.read<UserCubit>().getHikerUser()?.uid;
             final senderData = userData.firstWhere(
                 (user) => user['uid'] == message['sender'],
                 orElse: () => {});

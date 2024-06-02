@@ -8,7 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/events/chat/chat_room_screen.dart';
 import 'package:hike_connect/models/event_participant.dart';
 import 'package:hike_connect/models/hike_event.dart';
@@ -143,7 +143,7 @@ class _EventsPageState extends State<EventsScreen> {
                       HikeEvent event = events[index];
 
                       bool isParticipant =
-                          event.participants.any((participant) => participant.userId == context.read<AuthCubit>().getHikerUser()?.uid);
+                          event.participants.any((participant) => participant.userId == context.read<UserCubit>().getHikerUser()?.uid);
 
                       return Card(
                         elevation: 4,
@@ -236,8 +236,8 @@ class _EventsPageState extends State<EventsScreen> {
                                       child: FilledButton(
                                         onPressed: () {
                                           isParticipant
-                                              ? withdrawEvent(event.id, context.read<AuthCubit>().getHikerUser()!, context)
-                                              : joinEvent(event.id, context.read<AuthCubit>().getHikerUser()!);
+                                              ? withdrawEvent(event.id, context.read<UserCubit>().getHikerUser()!, context)
+                                              : joinEvent(event.id, context.read<UserCubit>().getHikerUser()!);
                                         },
                                         style: FilledButton.styleFrom(
                                           backgroundColor: isParticipant ? HikeColor.errorColor : HikeColor.primaryColor,
@@ -266,7 +266,7 @@ class _EventsPageState extends State<EventsScreen> {
                                             ),
                                             const SizedBox(width: 8),
                                             Text(participant.displayName +
-                                                (participant.userId == context.read<AuthCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
+                                                (participant.userId == context.read<UserCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
                                             const Gap(8),
                                           ],
                                         ),

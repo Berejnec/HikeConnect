@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/events/chat/chat_messages.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 
@@ -90,7 +90,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     FirebaseFirestore.instance
         .collection('events/${widget.eventId}/chat_messages')
         .add({
-          'sender': context.read<AuthCubit>().getHikerUser()?.uid,
+          'sender': context.read<UserCubit>().getHikerUser()?.uid,
           'content': content,
           'timestamp': Timestamp.now(),
         })

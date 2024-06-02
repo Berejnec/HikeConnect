@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/posts/create_post_screen.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:intl/intl.dart';
@@ -94,7 +94,7 @@ class _PostsScreenState extends State<PostsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          String? userId = context.read<AuthCubit>().getHikerUser()?.uid;
+          String? userId = context.read<UserCubit>().getHikerUser()?.uid;
           if (userId != null) {
             Navigator.push(
               context,
@@ -132,7 +132,7 @@ class PostCard extends StatelessWidget {
   const PostCard({Key? key, required this.postData, required this.hikeId}) : super(key: key);
 
   Future<void> _upvote(BuildContext context, {bool withoutToggle = false}) async {
-    String? userId = context.read<AuthCubit>().getHikerUser()?.uid;
+    String? userId = context.read<UserCubit>().getHikerUser()?.uid;
     if (userId == null) {
       print('User not authenticated');
       return;

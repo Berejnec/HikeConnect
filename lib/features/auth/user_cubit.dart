@@ -3,29 +3,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 
-class AuthState {
+class UserState {
   final User? firebaseAuthUser;
   final HikerUser? hikerUser;
 
-  AuthState({required this.firebaseAuthUser, this.hikerUser});
+  UserState({required this.firebaseAuthUser, this.hikerUser});
 }
 
-class BackgroundImageUploading extends AuthState {
+class BackgroundImageUploading extends UserState {
   BackgroundImageUploading({
     required User? firebaseAuthUser,
     required HikerUser? hikerUser,
   }) : super(firebaseAuthUser: firebaseAuthUser, hikerUser: hikerUser);
 }
 
-class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(AuthState(firebaseAuthUser: FirebaseAuth.instance.currentUser, hikerUser: null));
+class UserCubit extends Cubit<UserState> {
+  UserCubit() : super(UserState(firebaseAuthUser: FirebaseAuth.instance.currentUser, hikerUser: null));
 
   void setUser(User? user, HikerUser? hikerUser) {
-    emit(AuthState(firebaseAuthUser: user, hikerUser: hikerUser));
+    emit(UserState(firebaseAuthUser: user, hikerUser: hikerUser));
   }
 
   void setHikerUser(HikerUser? hikerUser) {
-    emit(AuthState(firebaseAuthUser: state.firebaseAuthUser, hikerUser: hikerUser));
+    emit(UserState(firebaseAuthUser: state.firebaseAuthUser, hikerUser: hikerUser));
   }
 
   HikerUser? getHikerUser() {
@@ -38,7 +38,7 @@ class AuthCubit extends Cubit<AuthState> {
         imageUrls: [...?state.hikerUser?.imageUrls, imageUrl],
       );
 
-      emit(AuthState(firebaseAuthUser: state.firebaseAuthUser, hikerUser: updatedHikerUser));
+      emit(UserState(firebaseAuthUser: state.firebaseAuthUser, hikerUser: updatedHikerUser));
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -67,7 +67,7 @@ class AuthCubit extends Cubit<AuthState> {
         HikerUser updatedHikerUser = currentHikerUser.copyWith(backgroundUrl: backgroundUrl);
 
         await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({'backgroundUrl': backgroundUrl});
-        emit(AuthState(firebaseAuthUser: currentUser, hikerUser: updatedHikerUser));
+        emit(UserState(firebaseAuthUser: currentUser, hikerUser: updatedHikerUser));
       }
     } catch (e) {
       print('Error updating backgroundUrl: $e');

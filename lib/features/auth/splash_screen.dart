@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/auth/sign_in_screen.dart';
 import 'package:hike_connect/home_screen.dart';
 import 'package:hike_connect/models/hiker_user.dart';
@@ -34,17 +34,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _handleSignedOutUser() async {
-    await FirebaseAuth.instance.signOut();
-    await GoogleSignIn().signOut();
+    if (FirebaseAuth.instance.currentUser != null) {
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+    }
     if (!mounted) return;
-    context.read<AuthCubit>().setUser(null, null);
+    context.read<UserCubit>().setUser(null, null);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignInScreen()));
   }
 
   Future<void> _handleSignedInUser(User user) async {
     HikerUser? hikerUser = await fetchHikerUser(user.uid);
     if (!mounted) return;
-    context.read<AuthCubit>().setUser(user, hikerUser);
+    context.read<UserCubit>().setUser(user, hikerUser);
     await addUserToFirestore(user.uid, user.displayName, user.email, user.photoURL);
     if (!mounted) return;
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
@@ -62,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
       HikerUser? hikerUser = await fetchHikerUser(userUid);
 
       if (!mounted) return;
-      context.read<AuthCubit>().setUser(FirebaseAuth.instance.currentUser, hikerUser);
+      context.read<UserCubit>().setUser(FirebaseAuth.instance.currentUser, hikerUser);
 
       if (hikerUser != null) {
         CollectionReference imagesCollection = FirebaseFirestore.instance.collection('users').doc(userUid).collection('images');
@@ -72,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
           List<String> imageUrls =
               imagesQuerySnapshot.docs.map((docSnapshot) => (docSnapshot.data() as Map<String, dynamic>)['imageUrl'] as String).toList();
           if (!mounted) return;
-          context.read<AuthCubit>().setHikerUser(hikerUser.copyWith(imageUrls: imageUrls));
+          context.read<UserCubit>().setHikerUser(hikerUser.copyWith(imageUrls: imageUrls));
         } catch (e) {
           print('Error retrieving images: $e');
         }
@@ -89,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (userSnapshot.exists) {
         HikerUser hikerUser = HikerUser.fromMap(userSnapshot.data() as Map<String, dynamic>);
         if (!mounted) return null;
-        context.read<AuthCubit>().setHikerUser(hikerUser);
+        context.read<UserCubit>().setHikerUser(hikerUser);
 
         return hikerUser;
       }

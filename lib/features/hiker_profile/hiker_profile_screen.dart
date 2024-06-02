@@ -11,8 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
-import 'package:hike_connect/features/auth/sign_in_screen.dart';
+import 'package:hike_connect/features/auth/splash_screen.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/emergency/emergency_tabs_screen.dart';
 import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/theme/hike_color.dart';
@@ -55,8 +55,8 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
-    return BlocBuilder<AuthCubit, AuthState>(
-      builder: (BuildContext context, AuthState authState) {
+    return BlocBuilder<UserCubit, UserState>(
+      builder: (BuildContext context, UserState authState) {
         return Scaffold(
           appBar: AppBar(
             flexibleSpace: Container(
@@ -249,10 +249,10 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                           ? BoxDecoration(
                               color: Colors.grey.withOpacity(0.3),
                             )
-                          : context.read<AuthCubit>().getHikerUser() != null && context.read<AuthCubit>().getHikerUser()?.backgroundUrl != null
+                          : context.read<UserCubit>().getHikerUser() != null && context.read<UserCubit>().getHikerUser()?.backgroundUrl != null
                               ? BoxDecoration(
                                   image: DecorationImage(
-                                    image: CachedNetworkImageProvider(context.read<AuthCubit>().getHikerUser()!.backgroundUrl!),
+                                    image: CachedNetworkImageProvider(context.read<UserCubit>().getHikerUser()!.backgroundUrl!),
                                     fit: BoxFit.cover,
                                     alignment: Alignment.center,
                                     colorFilter: ColorFilter.mode(
@@ -268,7 +268,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                           IconButton(
                             icon: const Icon(FontAwesomeIcons.image, color: HikeColor.white),
                             onPressed: () {
-                              String? userId = context.read<AuthCubit>().getHikerUser()?.uid;
+                              String? userId = context.read<UserCubit>().getHikerUser()?.uid;
                               if (userId != null) {
                                 _uploadImageAndSetBackgroundUrl(userId);
                               }
@@ -283,10 +283,10 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  if (context.read<AuthCubit>().getHikerUser()?.avatarUrl != null)
+                                  if (context.read<UserCubit>().getHikerUser()?.avatarUrl != null)
                                     ClipOval(
                                       child: CachedNetworkImage(
-                                        imageUrl: context.read<AuthCubit>().getHikerUser()!.avatarUrl!,
+                                        imageUrl: context.read<UserCubit>().getHikerUser()!.avatarUrl!,
                                         width: 70,
                                         height: 70,
                                         fit: BoxFit.cover,
@@ -299,7 +299,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                     mainAxisSize: MainAxisSize.max,
                                     children: [
                                       Text(
-                                        context.read<AuthCubit>().getHikerUser()?.displayName ?? 'Loading name...',
+                                        context.read<UserCubit>().getHikerUser()?.displayName ?? 'Loading name...',
                                         style: const TextStyle(
                                           color: HikeColor.white,
                                           fontSize: 40,
@@ -307,7 +307,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        context.read<AuthCubit>().getHikerUser()?.email ?? 'Loading email...',
+                                        context.read<UserCubit>().getHikerUser()?.email ?? 'Loading email...',
                                         style: const TextStyle(
                                           color: HikeColor.white,
                                           fontSize: 16,
@@ -343,7 +343,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
                                     Text(
-                                      '${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length ?? '...'}',
+                                      '${context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails.length ?? '...'}',
                                       style: const TextStyle(color: Colors.black54, fontSize: 24),
                                     ),
                                     const Text(
@@ -371,10 +371,10 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                                               ),
                                               const Gap(8),
-                                              context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails != null
+                                              context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails != null
                                                   ? Expanded(
                                                       child: ListView.builder(
-                                                        itemCount: context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails.length,
+                                                        itemCount: context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails.length,
                                                         itemBuilder: (context, index) {
                                                           return Row(
                                                             children: [
@@ -393,7 +393,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                                                       const Gap(8),
                                                                       Expanded(
                                                                         child: Text(
-                                                                          '${context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails[index]}',
+                                                                          '${context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails[index]}',
                                                                           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                                                                         ),
                                                                       ),
@@ -461,7 +461,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               String imageUrl = await referenceImageToUpload.getDownloadURL();
 
                               if (!mounted) return;
-                              await context.read<AuthCubit>().addImageAndUpdate(imageUrl);
+                              await context.read<UserCubit>().addImageAndUpdate(imageUrl);
                             } catch (error) {
                               print(error);
                             }
@@ -486,7 +486,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               String imageUrl = await referenceImageToUpload.getDownloadURL();
 
                               if (!mounted) return;
-                              await context.read<AuthCubit>().addImageAndUpdate(imageUrl);
+                              await context.read<UserCubit>().addImageAndUpdate(imageUrl);
                             } catch (error) {
                               print(error);
                             }
@@ -508,11 +508,11 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                       ),
                     ),
                     const Gap(16),
-                    if (context.read<AuthCubit>().getHikerUser() != null && context.read<AuthCubit>().getHikerUser()?.imageUrls != null)
-                      context.read<AuthCubit>().getHikerUser()!.imageUrls!.length > 1
+                    if (context.read<UserCubit>().getHikerUser() != null && context.read<UserCubit>().getHikerUser()?.imageUrls != null)
+                      context.read<UserCubit>().getHikerUser()!.imageUrls!.length > 1
                           ? CarouselSlider(
                               options: CarouselOptions(),
-                              items: context.read<AuthCubit>().getHikerUser()?.imageUrls?.map(
+                              items: context.read<UserCubit>().getHikerUser()?.imageUrls?.map(
                                 (imageUrl) {
                                   return Builder(
                                     builder: (BuildContext context) {
@@ -549,7 +549,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                 },
                               ).toList(),
                             )
-                          : context.read<AuthCubit>().getHikerUser()!.imageUrls!.isNotEmpty
+                          : context.read<UserCubit>().getHikerUser()!.imageUrls!.isNotEmpty
                               ? Container(
                                   width: MediaQuery.of(context).size.width,
                                   margin: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -561,7 +561,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                           return Dialog(
                                             child: GestureDetector(
                                               onTap: () => Navigator.pop(context),
-                                              child: Image.network(context.read<AuthCubit>().getHikerUser()!.imageUrls![0]),
+                                              child: Image.network(context.read<UserCubit>().getHikerUser()!.imageUrls![0]),
                                             ),
                                           );
                                         },
@@ -570,7 +570,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                     child: ClipRRect(
                                       borderRadius: const BorderRadius.all(Radius.circular(10)),
                                       child: Image.network(
-                                        context.read<AuthCubit>().getHikerUser()!.imageUrls![0],
+                                        context.read<UserCubit>().getHikerUser()!.imageUrls![0],
                                         width: 300,
                                         height: 150,
                                         fit: BoxFit.cover,
@@ -620,8 +620,8 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       await _auth.signOut();
       await _googleSignIn.signOut();
       if (!mounted) return;
-      context.read<AuthCubit>().setUser(null, null);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignInScreen()));
+      context.read<UserCubit>().setUser(null, null);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SplashScreen()));
     } catch (e) {
       print('Error signing out: $e');
     }
@@ -633,7 +633,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       if (file == null) return;
 
       if (!mounted) return;
-      context.read<AuthCubit>().emitBackgroundImageUploading();
+      context.read<UserCubit>().emitBackgroundImageUploading();
 
       Reference storageReference = _storage.ref().child('background_images').child(userId);
       await storageReference.putFile(File(file.path));
@@ -641,7 +641,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       String imageUrl = await storageReference.getDownloadURL();
 
       if (!mounted) return;
-      await context.read<AuthCubit>().updateBackgroundUrl(imageUrl);
+      await context.read<UserCubit>().updateBackgroundUrl(imageUrl);
     } catch (error) {
       print('Error uploading image: $error');
     }
@@ -671,8 +671,8 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
   }
 
   Future<void> fetchUserEventsList() async {
-    if (context.read<AuthCubit>().getHikerUser() != null) {
-      List<HikeEvent> events = await fetchUserEvents(context.read<AuthCubit>().getHikerUser()!.uid);
+    if (context.read<UserCubit>().getHikerUser() != null) {
+      List<HikeEvent> events = await fetchUserEvents(context.read<UserCubit>().getHikerUser()!.uid);
       setState(() {
         userEvents = events;
       });

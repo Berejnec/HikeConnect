@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:hike_connect/features/auth/auth_cubit.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
 import 'package:hike_connect/features/posts/posts_screen.dart';
 import 'package:hike_connect/map_screen.dart';
@@ -64,7 +64,7 @@ class _HikesScreenState extends State<HikesScreen> {
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
-    return BlocBuilder<AuthCubit, AuthState>(builder: (BuildContext context, AuthState authState) {
+    return BlocBuilder<UserCubit, UserState>(builder: (BuildContext context, UserState authState) {
       return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
@@ -392,12 +392,12 @@ class _HikesScreenState extends State<HikesScreen> {
   }
 
   bool isFavorite(String trailName) {
-    return context.read<AuthCubit>().getHikerUser() != null && context.read<AuthCubit>().getHikerUser()!.favoriteHikingTrails.contains(trailName);
+    return context.read<UserCubit>().getHikerUser() != null && context.read<UserCubit>().getHikerUser()!.favoriteHikingTrails.contains(trailName);
   }
 
   void toggleFavorite(String trailName) async {
-    if (context.read<AuthCubit>().getHikerUser() != null) {
-      if (context.read<AuthCubit>().getHikerUser()!.favoriteHikingTrails.contains(trailName)) {
+    if (context.read<UserCubit>().getHikerUser() != null) {
+      if (context.read<UserCubit>().getHikerUser()!.favoriteHikingTrails.contains(trailName)) {
         await removeFromFavoritesInFirestore(trailName);
         showSnackBar('Traseu eliminat de la favorite!');
       } else {
@@ -422,7 +422,7 @@ class _HikesScreenState extends State<HikesScreen> {
     try {
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-      DocumentReference userDoc = usersCollection.doc(context.read<AuthCubit>().getHikerUser()?.uid ?? '');
+      DocumentReference userDoc = usersCollection.doc(context.read<UserCubit>().getHikerUser()?.uid ?? '');
 
       await userDoc.update({
         'favoriteHikingTrails': FieldValue.arrayRemove([trailName]),
@@ -430,11 +430,11 @@ class _HikesScreenState extends State<HikesScreen> {
 
       if (!mounted) return;
 
-      HikerUser? updatedHikerUser = context.read<AuthCubit>().getHikerUser()?.copyWith(
-            favoriteHikingTrails: (context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails ?? [])..remove(trailName),
+      HikerUser? updatedHikerUser = context.read<UserCubit>().getHikerUser()?.copyWith(
+            favoriteHikingTrails: (context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails ?? [])..remove(trailName),
           );
 
-      context.read<AuthCubit>().setHikerUser(updatedHikerUser);
+      context.read<UserCubit>().setHikerUser(updatedHikerUser);
     } catch (e) {
       print('Error updating favorites: $e');
     }
@@ -444,7 +444,7 @@ class _HikesScreenState extends State<HikesScreen> {
     try {
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-      DocumentReference userDoc = usersCollection.doc(context.read<AuthCubit>().getHikerUser()?.uid ?? '');
+      DocumentReference userDoc = usersCollection.doc(context.read<UserCubit>().getHikerUser()?.uid ?? '');
 
       await userDoc.update({
         'favoriteHikingTrails': FieldValue.arrayUnion([trailName]),
@@ -452,11 +452,11 @@ class _HikesScreenState extends State<HikesScreen> {
 
       if (!mounted) return;
 
-      HikerUser? updatedHikerUser = context.read<AuthCubit>().getHikerUser()?.copyWith(
-            favoriteHikingTrails: (context.read<AuthCubit>().getHikerUser()?.favoriteHikingTrails ?? [])..add(trailName),
+      HikerUser? updatedHikerUser = context.read<UserCubit>().getHikerUser()?.copyWith(
+            favoriteHikingTrails: (context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails ?? [])..add(trailName),
           );
 
-      context.read<AuthCubit>().setHikerUser(updatedHikerUser);
+      context.read<UserCubit>().setHikerUser(updatedHikerUser);
       print('Favorites updated successfully');
     } catch (e) {
       print('Error updating favorites: $e');

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
@@ -7,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/events/chat/chat_room_screen.dart';
 import 'package:hike_connect/models/event_participant.dart';
@@ -32,262 +33,246 @@ class _EventsPageState extends State<EventsScreen> {
     super.initState();
   }
 
-  Future<Map<String, dynamic>> fetchWeatherData(LatLng latLng, DateTime date) async {
-    try {
-      final dio = Dio();
-      final response = await dio.get(
-        weatherApiBaseUrl,
-        queryParameters: {
-          'latitude': '${latLng.latitude}',
-          'longitude': '${latLng.longitude}',
-          'start_date': DateFormat('yyyy-MM-dd').format(date),
-          'end_date': DateFormat('yyyy-MM-dd').format(date),
-        },
-      );
-      if (response.statusCode == 200) {
-        return response.data;
-      } else {
-        throw Exception('Failed to load weather');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Failed to load weather');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.grey[300],
+      statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
     return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: HikeColor.gradientColors,
-            ),
-          ),
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'Evenimente ',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+      extendBodyBehindAppBar: true,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 180.0,
+            backgroundColor: Colors.transparent.withOpacity(0.8),
+            flexibleSpace: FlexibleSpaceBar(
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Evenimente ',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
-                ),
-                Text(
-                  'HikeConnect',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
-                    fontStyle: FontStyle.italic,
+                  Text(
+                    'HikeConnect',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 18.0,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
+                        color: Colors.white),
                   ),
-                ),
-              ],
-            ),
-            Image.asset(
-              'assets/logo.png',
-              width: 36,
-              height: 36,
-            ),
-          ],
-        ),
-        centerTitle: false,
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Flexible(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('events').orderBy('date').snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  List<HikeEvent> events = snapshot.data!.docs
-                      .map((doc) => HikeEvent.fromMap(doc.data() as Map<String, dynamic>))
-                      .where(
-                        (event) => event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
-                      )
-                      .toList();
-
-                  if (events.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'Niciun eveniment momentan.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    );
-                  }
-
-                  return ListView.separated(
-                    itemCount: events.length,
-                    padding: const EdgeInsets.only(bottom: 32.0),
-                    itemBuilder: (context, index) {
-                      HikeEvent event = events[index];
-
-                      bool isParticipant =
-                          event.participants.any((participant) => participant.userId == context.read<UserCubit>().getHikerUser()?.uid);
-
-                      return Card(
-                        elevation: 4,
-                        color: Colors.grey[100],
-                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        child: InkWell(
-                          onTap: () {
-                            _showSunriseSunsetModal(event);
-                          },
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        event.hikingTrail.routeName,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                        softWrap: true,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const Gap(8),
-                                Text(
-                                  'Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}',
-                                  style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
-                                ),
-                                const Gap(4),
-                                Text(
-                                  'Judet: ${event.hikingTrail.county}',
-                                  style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
-                                ),
-                                const Gap(8),
-                                if (isParticipant)
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(backgroundColor: HikeColor.infoLightColor),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.chat,
-                                          color: Colors.black,
-                                        ),
-                                        Gap(8.0),
-                                        Text(
-                                          'Discuta si organizeaza',
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: isParticipant ? 6 : 4,
-                                      child: FilledButton(
-                                        onPressed: () async {
-                                          await _showSunriseSunsetModal(event);
-                                        },
-                                        style: FilledButton.styleFrom(
-                                          backgroundColor: HikeColor.green,
-                                        ),
-                                        child: const Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.info, color: Colors.black),
-                                            Gap(8.0),
-                                            Text(
-                                              'Detalii',
-                                              style: TextStyle(color: Colors.black),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const Gap(8.0),
-                                    Expanded(
-                                      flex: isParticipant ? 4 : 6,
-                                      child: FilledButton(
-                                        onPressed: () {
-                                          isParticipant
-                                              ? withdrawEvent(event.id, context.read<UserCubit>().getHikerUser()!, context)
-                                              : joinEvent(event.id, context.read<UserCubit>().getHikerUser()!);
-                                        },
-                                        style: FilledButton.styleFrom(
-                                          backgroundColor: isParticipant ? HikeColor.errorColor : HikeColor.primaryColor,
-                                        ),
-                                        child: Text(
-                                          isParticipant ? 'Retragere' : 'Participa',
-                                          style: const TextStyle(fontSize: 16, color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (event.participants.isNotEmpty) ...[
-                                  const SizedBox(height: 16),
-                                  const Text('Participanti:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 8),
-                                  Column(
-                                    children: event.participants.map((participant) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(bottom: 4),
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundImage: CachedNetworkImageProvider(participant.avatarUrl),
-                                              radius: 16,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(participant.displayName +
-                                                (participant.userId == context.read<UserCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
-                                            const Gap(8),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) => const Gap(0),
-                  ).animate().shimmer(duration: 200.ms);
-                },
+                ],
+              ),
+              titlePadding: const EdgeInsets.all(16.0),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    'assets/back_ios.png',
+                    fit: BoxFit.cover,
+                  ),
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return _buildEventList(context);
+              },
+              childCount: 1,
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildEventList(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('events').orderBy('date').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        List<HikeEvent> events = snapshot.data!.docs
+            .map((doc) => HikeEvent.fromMap(doc.data() as Map<String, dynamic>))
+            .where(
+              (event) => event.date.isAfter(DateTime.now().subtract(const Duration(days: 1))),
+            )
+            .toList();
+
+        if (events.isEmpty) {
+          return const Center(
+            child: Text(
+              'Niciun eveniment momentan.',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          );
+        }
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: events.length,
+          padding: const EdgeInsets.only(bottom: 32.0),
+          itemBuilder: (context, index) {
+            HikeEvent event = events[index];
+
+            bool isParticipant = event.participants.any((participant) => participant.userId == context.read<UserCubit>().getHikerUser()?.uid);
+
+            return Card(
+              elevation: 4,
+              color: Colors.grey[100],
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: InkWell(
+                onTap: () {
+                  _showSunriseSunsetModal(event);
+                },
+                borderRadius: BorderRadius.circular(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              event.hikingTrail.routeName,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(8),
+                      Text(
+                        'Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}',
+                        style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                      ),
+                      const Gap(4),
+                      Text(
+                        'Judet: ${event.hikingTrail.county}',
+                        style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                      ),
+                      const Gap(8),
+                      if (isParticipant)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ChatRoomScreen(eventId: event.id)),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: HikeColor.infoLightColor),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat,
+                                color: Colors.black,
+                              ),
+                              Gap(8.0),
+                              Text(
+                                'Discuta si organizeaza',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: isParticipant ? 6 : 4,
+                            child: FilledButton(
+                              onPressed: () async {
+                                await _showSunriseSunsetModal(event);
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: HikeColor.green,
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.info, color: Colors.black),
+                                  Gap(8.0),
+                                  Text(
+                                    'Detalii',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Gap(8.0),
+                          Expanded(
+                            flex: isParticipant ? 4 : 6,
+                            child: FilledButton(
+                              onPressed: () {
+                                isParticipant
+                                    ? withdrawEvent(event.id, context.read<UserCubit>().getHikerUser()!, context)
+                                    : joinEvent(event.id, context.read<UserCubit>().getHikerUser()!);
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: isParticipant ? HikeColor.errorColor : HikeColor.primaryColor,
+                              ),
+                              child: Text(
+                                isParticipant ? 'Retragere' : 'Participa',
+                                style: const TextStyle(fontSize: 16, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (event.participants.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        const Text('Participanti:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Column(
+                          children: event.participants.map((participant) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: CachedNetworkImageProvider(participant.avatarUrl),
+                                    radius: 16,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                      participant.displayName + (participant.userId == context.read<UserCubit>().getHikerUser()?.uid ? " (Tu)" : "")),
+                                  const Gap(8),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) => const Gap(0),
+        ).animate().shimmer(duration: 200.ms);
+      },
     );
   }
 
@@ -413,13 +398,16 @@ class _SunriseSunsetModalContent extends StatefulWidget {
 
 class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> {
   Map<String, dynamic>? sunriseSunsetData;
+  double? weatherData;
   bool isLoading = true;
   final sunsetSunriseApiBaseUrl = 'https://api.sunrisesunset.io/json';
+  final weatherApiBaseUrl = 'https://api.weatherapi.com/v1/forecast.json?';
 
   @override
   void initState() {
     super.initState();
     _fetchSunriseSunsetData(widget.event);
+    _fetchWeatherData(widget.event);
   }
 
   void _fetchSunriseSunsetData(HikeEvent event) async {
@@ -449,6 +437,32 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
     }
   }
 
+  void _fetchWeatherData(HikeEvent event) async {
+    try {
+      isLoading = true;
+      final dio = Dio();
+      final response = await dio.get(
+        weatherApiBaseUrl,
+        queryParameters: {
+          'key': 'bb6f222f2a7d4166b1c112651232412',
+          'q': '${event.hikingTrail.locationLatLng?.latitude ?? 45.0},${event.hikingTrail.locationLatLng?.longitude ?? 45.0}',
+          'days': '1',
+        },
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          weatherData = response.data['current']['temp_c'];
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load weather');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Failed to load weather');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -456,7 +470,7 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
         child: isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
@@ -479,7 +493,10 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                         text: TextSpan(
                           style: const TextStyle(color: Colors.black),
                           children: [
-                            const TextSpan(text: 'Traseu: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            TextSpan(
+                              text: 'Traseu: ',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16.0, fontWeight: FontWeight.bold),
+                            ),
                             TextSpan(text: widget.event.hikingTrail.routeName, style: const TextStyle(fontSize: 16.0)),
                           ],
                         ),
@@ -489,7 +506,13 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                         text: TextSpan(
                           style: const TextStyle(color: Colors.black),
                           children: [
-                            const TextSpan(text: 'Data: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
+                            TextSpan(
+                              text: 'Data: ',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
                             TextSpan(text: DateFormat('yMMMMd', 'ro').format(widget.event.date), style: const TextStyle(fontSize: 16.0)),
                           ],
                         ),
@@ -501,23 +524,25 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
                         children: [
                           IconTextRow(
                             icon: Icons.sunny,
-                            text: 'Rasarit: ${sunriseSunsetData!['sunrise']}',
+                            text: 'Rasarit: ${sunriseSunsetData?['sunrise']}',
                           ),
                           const Gap(4),
                           IconTextRow(
                             icon: Icons.nightlight_round_rounded,
-                            text: 'Apus: ${sunriseSunsetData!['sunset']}',
+                            text: 'Apus: ${sunriseSunsetData?['sunset']}',
                           ),
                           const Gap(4),
                           IconTextRow(
                             icon: Icons.timer,
-                            text: 'Durata zilei: ${sunriseSunsetData!['day_length']}',
+                            text: 'Durata zilei: ${sunriseSunsetData?['day_length']}',
                           ),
                           const Gap(4),
                           IconTextRow(
                             icon: Icons.camera_alt,
-                            text: 'Golden hour (ora perfecta pentru poze): ${sunriseSunsetData!['golden_hour']}',
+                            text: 'Golden hour (ora perfecta pentru poze): ${sunriseSunsetData?['golden_hour']}',
                           ),
+                          const Gap(4),
+                          IconTextRow(icon: Icons.sunny_snowing, text: 'Temperatura curenta: $weatherData Celsius')
                         ],
                       ),
                     ],

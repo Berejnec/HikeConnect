@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -50,199 +51,218 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.grey[300],
-      statusBarIconBrightness: Brightness.dark,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
     return BlocBuilder<UserCubit, UserState>(
       builder: (BuildContext context, UserState authState) {
         return Scaffold(
-          appBar: AppBar(
-            flexibleSpace: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: HikeColor.gradientColors,
+          extendBodyBehindAppBar: true,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                expandedHeight: 50.0,
+                backgroundColor: Colors.transparent.withOpacity(0.8),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (context.read<UserCubit>().getHikerUser() != null && context.read<UserCubit>().getHikerUser()!.backgroundUrl != null)
+                        CachedNetworkImage(
+                          imageUrl: context.read<UserCubit>().getHikerUser()!.backgroundUrl!,
+                          fit: BoxFit.cover,
+                        )
+                      else
+                        Container(color: Colors.grey),
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                        child: Container(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
+                  ),
+                  title: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Profil',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                      ),
+                    ],
+                  ),
+                  titlePadding: const EdgeInsets.all(16.0),
                 ),
-              ),
-            ),
-            title: Text(
-              'Profil',
-              style: TextStyle(
-                fontWeight: FontWeight.lerp(FontWeight.w500, FontWeight.w600, 0.5),
-                fontSize: 24.0,
-              ),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              onPressed: () => SideSheet.left(
-                body: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: SingleChildScrollView(
-                      child: SizedBox(
-                        height: MediaQuery.sizeOf(context).height - 100,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
+                leading: IconButton(
+                  onPressed: () => SideSheet.left(
+                    body: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(0.0),
+                        child: SingleChildScrollView(
+                          child: SizedBox(
+                            height: MediaQuery.sizeOf(context).height - 100,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                InkWell(
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: TextButton.icon(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const EmergencyTabsScreen(),
+                                Column(
+                                  children: [
+                                    InkWell(
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => const EmergencyTabsScreen(),
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.emergency,
+                                            color: Colors.white,
                                           ),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.emergency,
-                                        color: Colors.white,
-                                      ),
-                                      label: const Text(
-                                        'Informatii esentiale',
-                                        style: TextStyle(color: Colors.white, fontSize: 16.0),
-                                      ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.zero,
+                                          label: const Text(
+                                            'Informatii esentiale',
+                                            style: TextStyle(color: Colors.white, fontSize: 16.0),
+                                          ),
+                                          style: ButtonStyle(
+                                            shape: MaterialStateProperty.all(
+                                              const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.zero,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    InkWell(
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () async {
+                                            if (await canLaunchUrl(Uri.parse("tel:123"))) {
+                                              await launchUrl(Uri.parse("tel:123"));
+                                            }
+                                          },
+                                          icon: const Icon(
+                                            Icons.emergency_outlined,
+                                            color: Colors.white,
+                                          ),
+                                          label: const Text(
+                                            'Apel de urgenta - 112 -',
+                                            style: TextStyle(color: Colors.white, fontSize: 16.0),
+                                          ),
+                                          style: ButtonStyle(
+                                            shape: MaterialStateProperty.all(
+                                              const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.zero,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () async {
+                                            if (await canLaunchUrl(Uri.parse("tel:0725826668"))) {
+                                              await launchUrl(Uri.parse("tel:0725826668"));
+                                            }
+                                          },
+                                          icon: const Icon(
+                                            Icons.emergency_outlined,
+                                            color: Colors.white,
+                                          ),
+                                          label: const Text(
+                                            'Dispeceratul National Salvamont',
+                                            style: TextStyle(color: Colors.white, fontSize: 16.0),
+                                          ),
+                                          style: ButtonStyle(
+                                            shape: MaterialStateProperty.all(
+                                              const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.zero,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () {
+                                            _signOut();
+                                          },
+                                          icon: const Icon(Icons.logout, color: Colors.white),
+                                          label: const Text('Deconecteaza-te', style: TextStyle(color: Colors.white, fontSize: 16.0)),
+                                          style: ButtonStyle(
+                                            shape: MaterialStateProperty.all(
+                                              const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.zero,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                InkWell(
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: TextButton.icon(
-                                      onPressed: () async {
-                                        if (await canLaunchUrl(Uri.parse("tel:123"))) {
-                                          await launchUrl(Uri.parse("tel:123"));
-                                        }
-                                      },
-                                      icon: const Icon(
-                                        Icons.emergency_outlined,
-                                        color: Colors.white,
-                                      ),
-                                      label: const Text(
-                                        'Apel de urgenta - 112 -',
-                                        style: TextStyle(color: Colors.white, fontSize: 16.0),
-                                      ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.zero,
-                                          ),
-                                        ),
-                                      ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/logo.png',
+                                      width: 48,
+                                      height: 48,
                                     ),
-                                  ),
-                                ),
-                                InkWell(
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: TextButton.icon(
-                                      onPressed: () async {
-                                        if (await canLaunchUrl(Uri.parse("tel:0725826668"))) {
-                                          await launchUrl(Uri.parse("tel:0725826668"));
-                                        }
-                                      },
-                                      icon: const Icon(
-                                        Icons.emergency_outlined,
-                                        color: Colors.white,
-                                      ),
-                                      label: const Text(
-                                        'Dispeceratul National Salvamont',
-                                        style: TextStyle(color: Colors.white, fontSize: 16.0),
-                                      ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.zero,
+                                    const Gap(16.0),
+                                    Text(
+                                      'HikeConnect',
+                                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                            color: const Color(0xFF0B613D),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 24,
                                           ),
-                                        ),
-                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                  ),
-                                ),
-                                InkWell(
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: TextButton.icon(
-                                      onPressed: () {
-                                        _signOut();
-                                      },
-                                      icon: const Icon(Icons.logout, color: Colors.white),
-                                      label: const Text('Deconecteaza-te', style: TextStyle(color: Colors.white, fontSize: 16.0)),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.zero,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/logo.png',
-                                  width: 48,
-                                  height: 48,
-                                ),
-                                const Gap(16.0),
-                                Text(
-                                  'HikeConnect',
-                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                        color: const Color(0xFF0B613D),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24,
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
+                    context: context,
+                    width: MediaQuery.of(context).size.width * 0.66,
+                    sheetColor: Colors.grey,
                   ),
+                  icon: const Icon(Icons.menu),
                 ),
-                context: context,
-                width: MediaQuery.of(context).size.width * 0.66,
-                sheetColor: Colors.grey,
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      _signOut();
+                    },
+                    icon: const Icon(Icons.logout),
+                  )
+                ],
               ),
-              icon: const Icon(Icons.menu),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  _signOut();
-                },
-                icon: const Icon(Icons.logout),
-              )
-            ],
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Container(
-                constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
                     Container(
                       constraints: const BoxConstraints.expand(height: 300.0),
                       decoration: authState is BackgroundImageUploading
@@ -578,7 +598,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                     ),
                                   ),
                                 )
-                              : Center(child: Text('Nicio image incarcata.', style: Theme.of(context).textTheme.titleMedium)),
+                              : Center(child: Text('Nicio imagine incarcata.', style: Theme.of(context).textTheme.titleMedium)),
                     const Gap(16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -608,7 +628,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         );
       },

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hike_connect/features/auth/user_cubit.dart';
 import 'package:hike_connect/features/events/create_hike_event_form.dart';
 import 'package:hike_connect/features/posts/posts_screen.dart';
@@ -292,12 +294,32 @@ class _HikesScreenState extends State<HikesScreen> {
                                     backgroundColor: HikeColor.green,
                                     trailing: IconButton(
                                       icon: const Icon(Icons.map, color: Colors.black),
-                                      onPressed: () {
+                                      onPressed: () async {
+                                        if (trail.locationLatLng?.latitude == 0 && trail.locationLatLng?.longitude == 0) {
+                                          LatLng latLng = await geocodeRouteName(trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim());
+
+                                          FirebaseFirestore.instance.collection('hikingTrails').doc(trail.id).set({
+                                            'locationLatLng': {
+                                              'latitude': latLng.latitude,
+                                              'longitude': latLng.longitude,
+                                            },
+                                          }, SetOptions(merge: true));
+
+                                          setState(() {
+                                            trail.locationLatLng = latLng;
+                                          });
+                                        }
+
+                                        if (!mounted) return;
+
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                MapScreen(routeName: trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim()),
+                                            builder: (context) => MapScreen(
+                                              latitude: trail.locationLatLng!.latitude,
+                                              longitude: trail.locationLatLng!.longitude,
+                                              routeName: trail.routeName.split(RegExp(r'\s*-\s*|\s*–\s*')).first.trim(),
+                                            ),
                                           ),
                                         );
                                       },
@@ -587,6 +609,26 @@ class _HikesScreenState extends State<HikesScreen> {
         return Colors.red;
       default:
         return HikeColor.infoDarkColor;
+    }
+  }
+
+  Future<LatLng> geocodeRouteName(String routeName) async {
+    final dio = Dio();
+    final response = await dio.get(
+      'https://api.opencagedata.com/geocode/v1/json',
+      queryParameters: {
+        'q': '$routeName, Romania',
+        'key': 'ee255c46e8e94da38ce279c35a8b8898',
+        'pretty': '1',
+        'no_annotations': '1',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.data['results'][0]['geometry'];
+      return LatLng(data['lat'], data['lng']);
+    } else {
+      throw Exception('Failed to geocode route name');
     }
   }
 

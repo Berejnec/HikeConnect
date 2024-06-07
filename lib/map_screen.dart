@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,8 +6,15 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MapScreen extends StatefulWidget {
   final String routeName;
+  final double latitude;
+  final double longitude;
 
-  const MapScreen({super.key, required this.routeName});
+  const MapScreen({
+    super.key,
+    required this.routeName,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -17,18 +23,21 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   Set<Marker> markers = {};
-  final String geocodingApiBaseUrl = 'https://api.opencagedata.com/geocode/v1/json?key=ee255c46e8e94da38ce279c35a8b8898&pretty=1&no_annotations=1';
+  Marker? _initialMarker;
 
   @override
   void initState() {
     super.initState();
+    _initialMarker = addMarker(LatLng(widget.latitude, widget.longitude), widget.routeName, widget.routeName);
   }
 
   late final LatLng _center = const LatLng(45.46706, 24.68328);
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    geocodeRouteName(widget.routeName);
+    moveCameraToLocation(LatLng(widget.latitude, widget.longitude));
+    zoomToPoint(LatLng(widget.latitude, widget.longitude), 15.0);
+    showMarkerInfoWindow(_initialMarker!.markerId);
   }
 
   @override
@@ -90,32 +99,7 @@ class _MapScreenState extends State<MapScreen> {
     zoomToPoint(tappedLocation, zoomLevel);
   }
 
-  void geocodeRouteName(String routeName) async {
-    try {
-      final dio = Dio();
-      final response = await dio.get(
-        geocodingApiBaseUrl,
-        queryParameters: {
-          'q': '$routeName, Romania',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        if (response.data?['results']?[0] != null) {
-          addMarker(LatLng(response.data['results'][0]['geometry']['lat'], response.data['results'][0]['geometry']['lng']), routeName, routeName);
-          zoomToPoint(LatLng(response.data['results'][0]['geometry']['lat'], response.data['results'][0]['geometry']['lng']), 13.0);
-        }
-        print(response.data);
-      } else {
-        throw Exception('Failed to geocode routeName');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('Failed to geocode routeName: ${routeName}');
-    }
-  }
-
-  void addMarker(LatLng location, String markerId, String markerTitle) {
+  Marker addMarker(LatLng location, String markerId, String markerTitle) {
     final Marker marker = Marker(
       markerId: MarkerId(markerId),
       position: location,
@@ -128,12 +112,19 @@ class _MapScreenState extends State<MapScreen> {
       ),
       onTap: () {
         zoomToPoint(location, 15.0);
+        showMarkerInfoWindow(MarkerId(markerId));
       },
     );
 
     setState(() {
       markers.add(marker);
     });
+
+    return marker;
+  }
+
+  void showMarkerInfoWindow(MarkerId markerId) {
+    mapController.showMarkerInfoWindow(markerId);
   }
 
   void launchMapDirections(LatLng latLng) async {

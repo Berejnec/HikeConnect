@@ -59,8 +59,8 @@ class HikingTrail {
       seasonality: map['seasonality'],
       equipmentLevelRequested: map['equipmentLevelRequested'],
       locationLatLng: LatLng(
-        (map['locationLatLng']?['latitude'] as num?)?.toDouble() ?? 45.0,
-        (map['locationLatLng']?['longitude'] as num?)?.toDouble() ?? 25.0,
+        (map['locationLatLng']?['latitude'] as num?)?.toDouble() ?? 0.0,
+        (map['locationLatLng']?['longitude'] as num?)?.toDouble() ?? 0.0,
       ),
     );
   }

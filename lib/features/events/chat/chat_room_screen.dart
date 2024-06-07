@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,50 +41,72 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: HikeColor.gradientColors,
-            ),
-          ),
-        ),
-        title: const Text('Chat Eveniment'),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ChatMessages(eventId: widget.eventId, userData: _userData),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 50.0,
+            backgroundColor: Colors.transparent,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: const InputDecoration(
-                        hintText: 'Scrie mesaj...',
-                      ),
+                  CachedNetworkImage(
+                    imageUrl: context.read<UserCubit>().getHikerUser()?.backgroundUrl ?? '',
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => Container(color: Colors.grey),
+                  ),
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.3),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      if (_messageController.text.isNotEmpty) {
-                        sendMessage(_messageController.text);
-                        _messageController.clear();
-                      }
-                    },
-                    icon: const Icon(Icons.send, color: HikeColor.primaryColor),
+                ],
+              ),
+              title: const Text(
+                'Chat Eveniment',
+                style: TextStyle(color: Colors.white),
+              ),
+              centerTitle: true,
+            ),
+          ),
+          SliverFillRemaining(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ChatMessages(eventId: widget.eventId, userData: _userData),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _messageController,
+                            decoration: const InputDecoration(
+                              hintText: 'Scrie mesaj...',
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            if (_messageController.text.isNotEmpty) {
+                              sendMessage(_messageController.text);
+                              _messageController.clear();
+                            }
+                          },
+                          icon: const Icon(Icons.send, color: HikeColor.primaryColor),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

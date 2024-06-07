@@ -12,6 +12,7 @@ class HikesTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: EdgeInsets.zero,
       itemCount: pastEvents.length,
       itemBuilder: (context, index) {
         HikeEvent event = pastEvents[index];

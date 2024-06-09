@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -149,13 +150,13 @@ class PostCard extends StatelessWidget {
           await upvoteDoc.set({'upvoted': true});
           await postRef.update({'likes': FieldValue.increment(1)});
           Fluttertoast.showToast(
-              msg: "Postare apreciata!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP_RIGHT,
-              timeInSecForIosWeb: 1,
-              backgroundColor: HikeColor.primaryColor,
-              textColor: Colors.white,
-              fontSize: 16.0
+            msg: "Postare apreciata!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_RIGHT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: HikeColor.primaryColor,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
         }
       } else {
@@ -166,13 +167,13 @@ class PostCard extends StatelessWidget {
           await upvoteDoc.set({'upvoted': true});
           await postRef.update({'likes': FieldValue.increment(1)});
           Fluttertoast.showToast(
-              msg: "Postare apreciata!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP_RIGHT,
-              timeInSecForIosWeb: 1,
-              backgroundColor: HikeColor.primaryColor,
-              textColor: Colors.white,
-              fontSize: 16.0
+            msg: "Postare apreciata!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_RIGHT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: HikeColor.primaryColor,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
         }
       }
@@ -190,6 +191,9 @@ class PostCard extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.all(8.0),
         elevation: 2.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           children: [
             ListTile(
@@ -231,29 +235,38 @@ class PostCard extends StatelessWidget {
                   ),
                   if (postData.imageUrls.isNotEmpty) ...[
                     const Gap(8),
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              child: GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                child: CachedNetworkImage(imageUrl: postData.imageUrls[0]),
-                              ),
+                    CarouselSlider(
+                      options: CarouselOptions(
+                        height: 350,
+                        enlargeCenterPage: true,
+                        enableInfiniteScroll: false,
+                      ),
+                      items: postData.imageUrls.map((imageUrl) {
+                        return GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  child: GestureDetector(
+                                    onTap: () => Navigator.pop(context),
+                                    child: CachedNetworkImage(imageUrl: imageUrl),
+                                  ),
+                                );
+                              },
                             );
                           },
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                            child: CachedNetworkImage(
+                              imageUrl: imageUrl,
+                              height: 250,
+                              width: MediaQuery.of(context).size.width,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         );
-                      },
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                        child: CachedNetworkImage(
-                          imageUrl: postData.imageUrls[0],
-                          height: 350,
-                          width: MediaQuery.of(context).size.width,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      }).toList(),
                     ),
                   ],
                   Row(

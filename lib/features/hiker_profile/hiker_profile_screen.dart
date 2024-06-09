@@ -378,55 +378,84 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                                     isScrollControlled: true,
                                     useSafeArea: true,
                                     builder: (BuildContext context) {
-                                      return SizedBox(
-                                        height: MediaQuery.of(context).size.height * 0.66,
+                                      return Container(
+                                        height: MediaQuery.of(context).size.height * 0.75,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20.0),
+                                            topRight: Radius.circular(20.0),
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 10.0,
+                                              offset: Offset(0, -5),
+                                            ),
+                                          ],
+                                        ),
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(16.0),
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Gap(8),
+                                              Container(
+                                                width: 40,
+                                                height: 5,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[300],
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 16),
                                               Text(
                                                 'Trasee favorite',
-                                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
                                               ),
-                                              const Gap(8),
+                                              const Divider(),
                                               context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails != null
                                                   ? Expanded(
                                                       child: ListView.builder(
                                                         itemCount: context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails.length,
                                                         itemBuilder: (context, index) {
-                                                          return Row(
-                                                            children: [
-                                                              Expanded(
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets.only(bottom: 12.0),
-                                                                  child: Row(
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                                    children: [
-                                                                      const Icon(
-                                                                        Icons.star,
-                                                                        color: HikeColor.infoLightColor,
-                                                                        size: 18,
-                                                                      ),
-                                                                      const Gap(8),
-                                                                      Expanded(
-                                                                        child: Text(
-                                                                          '${context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails[index]}',
-                                                                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-                                                                        ),
-                                                                      ),
-                                                                    ],
+                                                          return Card(
+                                                            elevation: 3,
+                                                            color: Colors.white,
+                                                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(10),
+                                                            ),
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.all(12.0),
+                                                              child: Row(
+                                                                children: [
+                                                                  const Icon(
+                                                                    Icons.star,
+                                                                    color: HikeColor.infoLightColor,
+                                                                    size: 24,
                                                                   ),
-                                                                ),
+                                                                  const SizedBox(width: 16),
+                                                                  Expanded(
+                                                                    child: Text(
+                                                                      '${context.read<UserCubit>().getHikerUser()?.favoriteHikingTrails[index]}',
+                                                                      style: const TextStyle(
+                                                                        fontWeight: FontWeight.w500,
+                                                                        fontSize: 16,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ],
+                                                            ),
                                                           );
                                                         },
                                                       ),
                                                     )
-                                                  : const Center(child: Text('Se incarca traseele favorite')),
+                                                  : const Center(
+                                                      child: Text('Se incarca traseele favorite'),
+                                                    ),
                                             ],
                                           ),
                                         ),

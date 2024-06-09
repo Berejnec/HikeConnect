@@ -15,7 +15,6 @@ import 'package:hike_connect/models/event_participant.dart';
 import 'package:hike_connect/models/hike_event.dart';
 import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/theme/hike_color.dart';
-import 'package:hike_connect/utils/widgets/icon_text_row.dart';
 import 'package:intl/intl.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -141,7 +140,7 @@ class _EventsPageState extends State<EventsScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: InkWell(
                 onTap: () {
-                  _showSunriseSunsetModal(event);
+                  _showEventDetailsModal(context, event);
                 },
                 borderRadius: BorderRadius.circular(8.0),
                 child: Padding(
@@ -201,8 +200,8 @@ class _EventsPageState extends State<EventsScreen> {
                           Expanded(
                             flex: isParticipant ? 6 : 4,
                             child: FilledButton(
-                              onPressed: () async {
-                                await _showSunriseSunsetModal(event);
+                              onPressed: () {
+                                _showEventDetailsModal(context, event);
                               },
                               style: FilledButton.styleFrom(
                                 backgroundColor: HikeColor.green,
@@ -312,14 +311,28 @@ class _EventsPageState extends State<EventsScreen> {
     }
   }
 
-  Future<void> _showSunriseSunsetModal(HikeEvent event) async {
+  void _showEventDetailsModal(BuildContext context, HikeEvent event) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       enableDrag: true,
-      builder: (BuildContext context) {
-        return _SunriseSunsetModalContent(event: event);
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.80,
+            minChildSize: 0.25,
+            maxChildSize: 1.0,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return SingleChildScrollView(
+                controller: scrollController,
+                child: _SunriseSunsetModalContent(event: event),
+              );
+            },
+          ),
+        );
       },
     );
   }
@@ -399,6 +412,7 @@ class _SunriseSunsetModalContent extends StatefulWidget {
 class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> {
   Map<String, dynamic>? sunriseSunsetData;
   double? weatherData;
+  List<dynamic>? weatherForecastData;
   bool isLoading = true;
   final sunsetSunriseApiBaseUrl = 'https://api.sunrisesunset.io/json';
   final weatherApiBaseUrl = 'https://api.weatherapi.com/v1/forecast.json?';
@@ -432,8 +446,9 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
       }
     } catch (e) {
       print('Error: $e');
-      isLoading = false;
-      throw Exception('Failed to load sunrise and sunset data');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -441,17 +456,23 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
     try {
       isLoading = true;
       final dio = Dio();
+      print(event.hikingTrail.locationLatLng);
+      print(event.hikingTrail.locationLatLng?.latitude);
+      print(event.hikingTrail.locationLatLng?.longitude ?? 25.0);
       final response = await dio.get(
         weatherApiBaseUrl,
         queryParameters: {
           'key': 'bb6f222f2a7d4166b1c112651232412',
-          'q': '${event.hikingTrail.locationLatLng?.latitude ?? 45.0},${event.hikingTrail.locationLatLng?.longitude ?? 45.0}',
-          'days': '1',
+          'q':
+              '${event.hikingTrail.locationLatLng?.latitude != 0 ? event.hikingTrail.locationLatLng?.latitude : 45.0},${event.hikingTrail.locationLatLng?.longitude != 0 ? event.hikingTrail.locationLatLng?.longitude : 25.0}',
+          'days': '3',
         },
       );
       if (response.statusCode == 200) {
+        print(response.data['current']['temp_c']);
         setState(() {
           weatherData = response.data['current']['temp_c'];
+          weatherForecastData = response.data['forecast']['forecastday'];
           isLoading = false;
         });
       } else {
@@ -459,107 +480,196 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
       }
     } catch (e) {
       print('Error: $e');
-      throw Exception('Failed to load weather');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.66,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Informatii despre ziua evenimentului',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const Gap(16),
+                        InfoRow(
+                          label: 'Traseu',
+                          value: widget.event.hikingTrail.routeName,
+                        ),
+                        const Gap(8),
+                        InfoRow(
+                          label: 'Data',
+                          value: DateFormat('yMMMMd', 'ro').format(widget.event.date),
+                        ),
+                        const Gap(24),
+                        Text(
+                          'Răsărit și Apus',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.0, fontWeight: FontWeight.bold),
+                        ),
+                        const Gap(8),
+                        InfoRow(
+                          icon: Icons.sunny,
+                          label: 'Răsărit',
+                          value: '${sunriseSunsetData?['sunrise']}',
+                        ),
+                        InfoRow(
+                          icon: Icons.nightlight_round_rounded,
+                          label: 'Apus',
+                          value: '${sunriseSunsetData?['sunset']}',
+                        ),
+                        InfoRow(
+                          icon: Icons.timer,
+                          label: 'Durata zilei',
+                          value: '${sunriseSunsetData?['day_length']}',
+                        ),
+                        InfoRow(
+                          icon: Icons.camera_alt,
+                          label: 'Golden hour (ora perfecta pentru poze)',
+                          value: '${sunriseSunsetData?['golden_hour']}',
+                        ),
+                        const Gap(24),
+                        Text(
+                          'Vremea curentă',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.0, fontWeight: FontWeight.bold),
+                        ),
+                        const Gap(8),
+                        InfoRow(
+                          icon: Icons.thermostat,
+                          label: 'Temperatura curentă',
+                          value: '$weatherData °C',
+                        ),
+                        const Gap(16),
+                        if (weatherForecastData != null) ...[
                           Text(
-                            'Informatii despre ziua evenimentului',
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            'Prognoza meteo pentru următoarele 3 zile',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.0, fontWeight: FontWeight.bold),
                           ),
-                        ],
-                      ),
-                      const Gap(16),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: 'Traseu: ',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16.0, fontWeight: FontWeight.bold),
+                          const Gap(8),
+                          for (var forecast in weatherForecastData!)
+                            WeatherForecastCard(
+                              date: forecast['date'],
+                              maxTemp: forecast['day']['maxtemp_c'],
+                              minTemp: forecast['day']['mintemp_c'],
+                              condition: forecast['day']['condition']['text'],
+                              iconUrl: 'https:${forecast['day']['condition']['icon']}',
                             ),
-                            TextSpan(text: widget.event.hikingTrail.routeName, style: const TextStyle(fontSize: 16.0)),
-                          ],
-                        ),
-                      ),
-                      const Gap(8),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: 'Data: ',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            TextSpan(text: DateFormat('yMMMMd', 'ro').format(widget.event.date), style: const TextStyle(fontSize: 16.0)),
-                          ],
-                        ),
-                      ),
-                      const Gap(24),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          IconTextRow(
-                            icon: Icons.sunny,
-                            text: 'Rasarit: ${sunriseSunsetData?['sunrise']}',
-                          ),
-                          const Gap(4),
-                          IconTextRow(
-                            icon: Icons.nightlight_round_rounded,
-                            text: 'Apus: ${sunriseSunsetData?['sunset']}',
-                          ),
-                          const Gap(4),
-                          IconTextRow(
-                            icon: Icons.timer,
-                            text: 'Durata zilei: ${sunriseSunsetData?['day_length']}',
-                          ),
-                          const Gap(4),
-                          IconTextRow(
-                            icon: Icons.camera_alt,
-                            text: 'Golden hour (ora perfecta pentru poze): ${sunriseSunsetData?['golden_hour']}',
-                          ),
-                          const Gap(4),
-                          IconTextRow(icon: Icons.sunny_snowing, text: 'Temperatura curenta: $weatherData Celsius')
                         ],
-                      ),
-                    ],
-                  ),
-                  const Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Powered by SunriseSunset.io',
-                        style: TextStyle(fontSize: 10.0),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    const Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Powered by SunriseSunset.io & weatherapi.com',
+                          style: TextStyle(fontSize: 10.0),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
+      ),
+    );
+  }
+}
+
+class InfoRow extends StatelessWidget {
+  final IconData? icon;
+  final String label;
+  final String value;
+
+  const InfoRow({
+    Key? key,
+    this.icon,
+    required this.label,
+    required this.value,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (icon != null) Icon(icon, size: 20.0, color: HikeColor.primaryColor),
+        if (icon != null) const Gap(8),
+        Text(
+          '$label: ',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class WeatherForecastCard extends StatelessWidget {
+  final String date;
+  final double maxTemp;
+  final double minTemp;
+  final String condition;
+  final String iconUrl;
+
+  const WeatherForecastCard({
+    Key? key,
+    required this.date,
+    required this.maxTemp,
+    required this.minTemp,
+    required this.condition,
+    required this.iconUrl,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2.0,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat('EEEE, MMM d', 'ro').format(DateTime.parse(date)),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Image.network(iconUrl, width: 32.0, height: 32.0),
+                    const Gap(4),
+                    Text('$minTemp°C - $maxTemp°C', style: Theme.of(context).textTheme.bodyLarge),
+                  ],
+                ),
+                Text(condition, style: Theme.of(context).textTheme.bodyLarge),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

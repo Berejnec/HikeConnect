@@ -30,6 +30,7 @@ class ChatMessages extends StatelessWidget {
         return ListView.builder(
           reverse: true,
           key: Key(eventId),
+          padding: EdgeInsets.zero,
           itemCount: messages.length,
           itemBuilder: (context, index) {
             final message = messages[index].data();

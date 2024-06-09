@@ -350,23 +350,20 @@ class _HikesScreenState extends State<HikesScreen> {
                                             RowInfo(info: 'Durata estimata: ${trail.routeDuration}', icon: const Icon(Icons.timer, size: 24)),
                                             const Gap(16),
                                             Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                IconButton(
-                                                  onPressed: () {
-                                                    toggleFavorite(trail.routeName);
-                                                  },
-                                                  icon: Icon(Icons.bookmark,
-                                                      color: isFavorite(trail.routeName) ? Colors.yellowAccent : HikeColor.white),
-                                                ),
-                                                IconButton(
+                                                ElevatedButton.icon(
                                                   onPressed: () {
                                                     _showAddEventDialog(context, trail);
                                                   },
-                                                  icon: const Icon(Icons.event),
+                                                  icon: const Icon(Icons.event, color: Colors.white),
+                                                  label: const Text('Eveniment'),
+                                                  style: ElevatedButton.styleFrom(
+                                                    foregroundColor: Colors.white,
+                                                    backgroundColor: HikeColor.infoColor,
+                                                  ),
                                                 ),
-                                                IconButton(
+                                                ElevatedButton.icon(
                                                   onPressed: () {
                                                     Navigator.push(
                                                       context,
@@ -375,7 +372,28 @@ class _HikesScreenState extends State<HikesScreen> {
                                                       ),
                                                     );
                                                   },
-                                                  icon: const Icon(Icons.feed_outlined),
+                                                  icon: const Icon(Icons.feed, color: Colors.white),
+                                                  label: const Text('Postari'),
+                                                  style: ElevatedButton.styleFrom(
+                                                    foregroundColor: Colors.white,
+                                                    backgroundColor: HikeColor.infoDarkColor,
+                                                  ),
+                                                ),
+                                                Align(
+                                                  alignment: Alignment.centerRight,
+                                                  child: IconButton(
+                                                    onPressed: () {
+                                                      toggleFavorite(trail.routeName);
+                                                    },
+                                                    icon: Icon(
+                                                      isFavorite(trail.routeName) ? Icons.bookmark : Icons.bookmark_border,
+                                                      color: Colors.white,
+                                                    ),
+                                                    style: ElevatedButton.styleFrom(
+                                                      foregroundColor: Colors.white,
+                                                      backgroundColor: HikeColor.primaryColor,
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
                                             ),

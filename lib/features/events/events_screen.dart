@@ -456,9 +456,6 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
     try {
       isLoading = true;
       final dio = Dio();
-      print(event.hikingTrail.locationLatLng);
-      print(event.hikingTrail.locationLatLng?.latitude);
-      print(event.hikingTrail.locationLatLng?.longitude ?? 25.0);
       final response = await dio.get(
         weatherApiBaseUrl,
         queryParameters: {
@@ -469,7 +466,6 @@ class _SunriseSunsetModalContentState extends State<_SunriseSunsetModalContent> 
         },
       );
       if (response.statusCode == 200) {
-        print(response.data['current']['temp_c']);
         setState(() {
           weatherData = response.data['current']['temp_c'];
           weatherForecastData = response.data['forecast']['forecastday'];

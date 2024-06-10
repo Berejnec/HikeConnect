@@ -161,6 +161,19 @@ class _EventsPageState extends State<EventsScreen> {
                         ],
                       ),
                       const Gap(8),
+                      if (event.owner != null)
+                        Text(
+                          'Creat de: ${event.owner?.displayName}',
+                          style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                        ),
+                      const Gap(4),
+                      if (event.description.isNotEmpty) ...[
+                        Text(
+                          'Descriere: ${event.description}',
+                          style: TextStyle(color: Colors.grey[700], fontSize: 16.0),
+                        ),
+                        const Gap(4)
+                      ],
                       Text(
                         'Data: ${DateFormat('yMMMMd', 'ro').format(event.date)}',
                         style: TextStyle(color: Colors.grey[700], fontSize: 16.0),

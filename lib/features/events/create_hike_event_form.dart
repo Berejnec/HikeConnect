@@ -1,8 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hike_connect/features/auth/user_cubit.dart';
+import 'package:hike_connect/models/event_participant.dart';
 import 'package:hike_connect/models/hike_event.dart';
+import 'package:hike_connect/models/hiker_user.dart';
 import 'package:hike_connect/models/hiking_trail.dart';
+import 'package:hike_connect/theme/hike_color.dart';
 
 class CreateHikeEventForm extends StatefulWidget {
   final HikingTrail trail;
@@ -17,7 +22,7 @@ class _CreateHikeEventFormState extends State<CreateHikeEventForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _dateController = TextEditingController();
-
+  final TextEditingController _descriptionController = TextEditingController();
   DateTime? _selectedDate;
 
   @override
@@ -55,29 +60,36 @@ class _CreateHikeEventFormState extends State<CreateHikeEventForm> {
               return null;
             },
           ),
-          const Gap(32),
+          const Gap(8.0),
+          TextFormField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(labelText: 'Descriere (optional)'),
+            maxLines: 1,
+          ),
+          const Gap(32.0),
           SizedBox(
             width: MediaQuery.of(context).size.width,
             child: FilledButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  HikeEvent newEvent = HikeEvent(
-                    id: '',
-                    date: _selectedDate!,
-                    hikingTrail: widget.trail,
-                    participants: [],
-                  );
-                  addHikeEvent(newEvent);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Creare eveniment cu succes!'),
-                      duration: Duration(seconds: 5),
-                      behavior: SnackBarBehavior.floating,
-                      margin: EdgeInsets.only(bottom: 16.0),
-                    ),
+              onPressed: () async {
+                HikerUser? currentUser = context.read<UserCubit>().getHikerUser();
+                if (_formKey.currentState!.validate() && currentUser != null) {
+                  EventParticipant owner = EventParticipant(
+                    userId: currentUser.uid,
+                    displayName: currentUser.displayName,
+                    phoneNumber: currentUser.phoneNumber ?? 'No phone number',
+                    avatarUrl: currentUser.avatarUrl ?? '',
                   );
 
-                  Navigator.pop(context);
+                  HikeEvent newEvent = HikeEvent(
+                    owner: owner,
+                    date: _selectedDate!,
+                    hikingTrail: widget.trail,
+                    participants: [owner],
+                    description: _descriptionController.text,
+                  );
+                  await addHikeEvent(newEvent);
+
+                  if (!mounted) return;
                 }
               },
               child: const Text('Creeaza eveniment'),
@@ -92,14 +104,36 @@ class _CreateHikeEventFormState extends State<CreateHikeEventForm> {
     try {
       CollectionReference eventsCollection = FirebaseFirestore.instance.collection('events');
       DocumentReference eventRef = await eventsCollection.add({
+        'owner': event.owner?.toMap(),
         'hikingTrail': event.hikingTrail.toMap(),
         'date': event.date,
-        'participants': event.participants,
+        'participants': event.participants.map((e) => e.toMap()),
+        'description': event.description,
       });
 
       await eventRef.update({'id': eventRef.id});
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Creare eveniment cu succes!'),
+          duration: Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 16.0),
+        ),
+      );
+
+      Navigator.pop(context);
     } catch (e) {
-      print('Error adding event: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding event: $e'),
+          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: HikeColor.errorColor,
+          margin: const EdgeInsets.only(bottom: 16.0),
+        ),
+      );
     }
   }
 }

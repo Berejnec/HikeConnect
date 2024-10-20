@@ -15,7 +15,6 @@ import 'package:hike_connect/models/hiking_trail.dart';
 import 'package:hike_connect/services/HikeService.dart';
 import 'package:hike_connect/theme/hike_color.dart';
 import 'package:hike_connect/utils/widgets/row_info.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HikesScreen extends StatefulWidget {
   const HikesScreen({super.key});
@@ -501,16 +500,6 @@ class _HikesScreenState extends State<HikesScreen> {
       print('Favorites updated successfully');
     } catch (e) {
       print('Error updating favorites: $e');
-    }
-  }
-
-  void launchMapDirections(double destinationLatitude, double destinationLongitude) async {
-    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$destinationLatitude,$destinationLongitude');
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      throw 'Could not launch $url';
     }
   }
 

@@ -25,8 +25,6 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsScreen> {
-  final weatherApiBaseUrl = 'https://api.open-meteo.com/v1/forecast';
-
   @override
   void initState() {
     super.initState();
@@ -335,7 +333,7 @@ class _EventsPageState extends State<EventsScreen> {
         return SafeArea(
           child: DraggableScrollableSheet(
             expand: false,
-            initialChildSize: 0.80,
+            initialChildSize: 0.90,
             minChildSize: 0.25,
             maxChildSize: 1.0,
             builder: (BuildContext context, ScrollController scrollController) {

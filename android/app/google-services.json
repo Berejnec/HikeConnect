@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "376999450516-g23m5qh4t15oivmaql45c947019svtll.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hikeconnect.hike_connect",
+            "certificate_hash": "026acc1948e777fb4d84375095c3e4a8adf264d0"
+          }
+        },
+        {
           "client_id": "376999450516-i8aufg9pca4m12df7jihuspj8eifdovk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.hikeconnect.hike_connect",
             "certificate_hash": "0e43a6bdb90294e7a85f5f348cbe89cd9d336797"
+          }
+        },
+        {
+          "client_id": "376999450516-kk3u2r35jopjootp79537oi0eiuc791h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hikeconnect.hike_connect",
+            "certificate_hash": "3a78e60b7a4978e934fd341ac9ea830b59cc5ef4"
           }
         },
         {

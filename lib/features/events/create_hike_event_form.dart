@@ -92,6 +92,9 @@ class _CreateHikeEventFormState extends State<CreateHikeEventForm> {
                   if (!mounted) return;
                 }
               },
+              style: FilledButton.styleFrom(
+                backgroundColor: HikeColor.primaryColor,
+              ),
               child: const Text('Creeaza eveniment'),
             ),
           ),

@@ -506,7 +506,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               Reference referenceDirImages = referenceRoot.child('images');
                               Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
 
-                              await referenceImageToUpload.putFile(File(file.path));
+                              await referenceImageToUpload.putFile(File(file.path), SettableMetadata(contentType: 'image/jpeg'));
                               String imageUrl = await referenceImageToUpload.getDownloadURL();
 
                               if (!mounted) return;
@@ -531,7 +531,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
                               Reference referenceDirImages = referenceRoot.child('images');
                               Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
 
-                              await referenceImageToUpload.putFile(File(file.path));
+                              await referenceImageToUpload.putFile(File(file.path), SettableMetadata(contentType: 'image/jpeg'));
                               String imageUrl = await referenceImageToUpload.getDownloadURL();
 
                               if (!mounted) return;
@@ -685,7 +685,7 @@ class _HikerProfileScreenState extends State<HikerProfileScreen> {
       context.read<UserCubit>().emitBackgroundImageUploading();
 
       Reference storageReference = _storage.ref().child('background_images').child(userId);
-      await storageReference.putFile(File(file.path));
+      await storageReference.putFile(File(file.path), SettableMetadata(contentType: 'image/jpeg'));
 
       String imageUrl = await storageReference.getDownloadURL();
 

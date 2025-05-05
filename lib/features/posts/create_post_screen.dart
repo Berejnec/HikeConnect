@@ -38,7 +38,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         Reference referenceDirImages = referenceRoot.child('post_images');
         Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
 
-        await referenceImageToUpload.putFile(File(file.path));
+        await referenceImageToUpload.putFile(File(file.path), SettableMetadata(contentType: 'image/jpeg'));
         String imageUrl = await referenceImageToUpload.getDownloadURL();
 
         setState(() {
@@ -68,7 +68,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       Reference referenceDirImages = referenceRoot.child('post_images');
       Reference referenceImageToUpload = referenceDirImages.child(DateTime.now().millisecondsSinceEpoch.toString());
 
-      await referenceImageToUpload.putFile(File(photo.path));
+      await referenceImageToUpload.putFile(File(photo.path), SettableMetadata(contentType: 'image/jpeg'));
       String imageUrl = await referenceImageToUpload.getDownloadURL();
 
       setState(() {
@@ -207,6 +207,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               width: MediaQuery.of(context).size.width,
               child: FilledButton(
                 onPressed: _createPost,
+                style: FilledButton.styleFrom(
+                  backgroundColor: HikeColor.primaryColor,
+                ),
                 child: const Text(
                   'Posteaza',
                   style: TextStyle(fontWeight: FontWeight.bold),
